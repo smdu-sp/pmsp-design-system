@@ -53,6 +53,7 @@ psmp-design-system/
 ## 🚀 Começando
 
 ### Pré-requisitos
+
 - **Node.js**: v20+ ou v24+
 - **npm**: v10+ ou v11+
 
@@ -66,13 +67,13 @@ npm install
 
 ### Scripts Disponíveis
 
-| Comando | Descrição |
-| :--- | :--- |
-| `npm run dev` | Inicia o servidor de desenvolvimento Next.js em `http://localhost:3000` |
-| `npm run build` | Compila a aplicação Next.js para produção |
-| `npm run start` | Inicia o servidor Next.js compilado |
-| `npm run storybook` | Inicia o Storybook na porta `6006` (`http://localhost:6006`) |
-| `npm run build-storybook` | Gera a versão estática do Storybook na pasta `storybook-static/` |
+| Comando                   | Descrição                                                               |
+| :------------------------ | :---------------------------------------------------------------------- |
+| `npm run dev`             | Inicia o servidor de desenvolvimento Next.js em `http://localhost:3000` |
+| `npm run build`           | Compila a aplicação Next.js para produção                               |
+| `npm run start`           | Inicia o servidor Next.js compilado                                     |
+| `npm run storybook`       | Inicia o Storybook na porta `6006` (`http://localhost:6006`)            |
+| `npm run build-storybook` | Gera a versão estática do Storybook na pasta `storybook-static/`        |
 
 ---
 
@@ -125,19 +126,6 @@ export default function LinkButton() {
   );
 }
 ```
-
-### Propriedades do `Button`
-
-| Prop | Tipo | Padrão | Descrição |
-| :--- | :--- | :--- | :--- |
-| `variant` | `"primary"` \| `"secondary"` | `"primary"` | Define o estilo visual do botão |
-| `size` | `"sm"` \| `"md"` \| `"lg"` | `"md"` | Define a altura e padding do botão |
-| `rounded` | `"none"` \| `"sm"` \| `"md"` \| `"lg"` \| `"full"` \| `boolean` | `"md"` | Raio das bordas (`true` = `"full"`) |
-| `asChild` | `boolean` | `false` | Delega a renderização para o elemento filho via Radix Slot |
-| `className` | `string` | - | Classes Tailwind complementares fundidas com `cn()` |
-| `disabled` | `boolean` | `false` | Desabilita o botão e desativa eventos de clique |
-
----
 
 ## 🎨 Utilitário `cn`
 

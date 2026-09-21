@@ -41,21 +41,109 @@ export interface ButtonProps
     Omit<VariantProps<typeof buttonVariants>, "rounded"> {
   asChild?: boolean;
   rounded?: RoundedOption | boolean;
+  /** Cor de fundo customizada (hexadecimal '#...' ou variável CSS 'var(--...)' / '--...') */
+  backgroundColor?: string;
+  /** Cor do texto customizada (hexadecimal '#...' ou variável CSS 'var(--...)' / '--...') */
+  textColor?: string;
+  /** Raio da borda customizado (ex: '8px', '1rem', '9999px' ou valor numérico) */
+  borderRadius?: string | number;
+  /** Exibir ícone à esquerda (booleano) */
+  iconLeft?: boolean;
+  /** Exibir ícone à direita (booleano) */
+  iconRight?: boolean;
+  /** Elemento de ícone personalizado à esquerda */
+  leftIcon?: React.ReactNode;
+  /** Elemento de ícone personalizado à direita */
+  rightIcon?: React.ReactNode;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, rounded = "md", asChild = false, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      rounded = "md",
+      asChild = false,
+      backgroundColor,
+      textColor,
+      borderRadius,
+      iconLeft = false,
+      iconRight = false,
+      leftIcon,
+      rightIcon,
+      style,
+      children,
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button";
 
     const normalizedRounded: RoundedOption =
       typeof rounded === "boolean" ? (rounded ? "full" : "none") : (rounded ?? "md");
 
+    // Resolução de background-color (variável CSS ou hex)
+    const rawBg = backgroundColor ?? (props as Record<string, any>)["background-color"];
+    const resolvedBg = rawBg
+      ? rawBg.startsWith("--")
+        ? `var(${rawBg})`
+        : rawBg
+      : undefined;
+
+    // Resolução de color / text-color (variável CSS ou hex)
+    const rawTextColor = textColor ?? (props as Record<string, any>)["text-color"];
+    const resolvedTextColor = rawTextColor
+      ? rawTextColor.startsWith("--")
+        ? `var(${rawTextColor})`
+        : rawTextColor
+      : undefined;
+
+    // Resolução de border-radius (string ou number)
+    const rawBr = borderRadius ?? (props as Record<string, any>)["border-radius"];
+    const resolvedBr =
+      typeof rawBr === "number"
+        ? `${rawBr}px`
+        : rawBr
+        ? rawBr.startsWith("--")
+          ? `var(${rawBr})`
+          : rawBr
+        : undefined;
+
+    const dynamicStyles: React.CSSProperties = {
+      ...(resolvedBg ? { backgroundColor: resolvedBg } : {}),
+      ...(resolvedTextColor ? { color: resolvedTextColor } : {}),
+      ...(resolvedBr ? { borderRadius: resolvedBr } : {}),
+      ...style,
+    };
+
+    const showIconLeft = Boolean(iconLeft || (props as Record<string, any>)["icon-left"]);
+    const showIconRight = Boolean(iconRight || (props as Record<string, any>)["icon-right"]);
+
+    if (asChild) {
+      return (
+        <Comp
+          className={cn(buttonVariants({ variant, size, rounded: normalizedRounded, className }))}
+          style={Object.keys(dynamicStyles).length > 0 ? dynamicStyles : undefined}
+          ref={ref}
+          {...props}
+        >
+          {children}
+        </Comp>
+      );
+    }
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, rounded: normalizedRounded, className }))}
+        style={Object.keys(dynamicStyles).length > 0 ? dynamicStyles : undefined}
         ref={ref}
         {...props}
-      />
+      >
+        {showIconLeft && leftIcon}
+        {children}
+        {showIconRight && rightIcon}
+      </Comp>
     );
   }
 );
