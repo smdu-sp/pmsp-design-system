@@ -1,8 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Card, type CardProps } from "@/components/Card";
+import { CARD_ICONS, CARD_ICON_NAMES, type CardIconName } from "../iconGallery";
 
-const meta: Meta<CardProps> = {
+export interface CardStoryProps extends Omit<CardProps, "icon"> {
+  selectedIcon?: CardIconName;
+}
+
+const meta: Meta<CardStoryProps> = {
   title: "CIPA/Card",
   component: Card,
   tags: ["autodocs"],
@@ -17,6 +22,8 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
   },
   args: {
     variant: "text",
+    route: "/",
+    selectedIcon: "MessageCircle",
     title: "O que é a CIPA ?",
     subtitle: "É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho.",
     uploadText: "Arraste aqui o cartaz do mês",
@@ -26,8 +33,17 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
   argTypes: {
     variant: {
       control: "select",
-      options: ["text", "file"],
-      description: "Alterna entre o card de conteúdo textual e o card de upload de arquivo",
+      options: ["text", "file", "quick-access"],
+      description: "Alterna entre o card de conteúdo textual, upload de arquivo e acesso rápido com tag Link do Next.js",
+    },
+    route: {
+      control: "text",
+      description: "Rota interna do Next.js via tag Link (padrão: '/')",
+    },
+    selectedIcon: {
+      control: "select",
+      options: CARD_ICON_NAMES,
+      description: "Selecione o ícone a ser exibido no topo do card (MessageCircle, Mail, Phone, Info, etc.)",
     },
     uploadText: {
       control: "text",
@@ -71,10 +87,18 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
       description: "Raio de borda personalizado (ex: 16px, 1rem, 9999px)",
     },
   },
+  render: ({ selectedIcon, ...args }) => {
+    const icon =
+      selectedIcon && selectedIcon !== "Default"
+        ? CARD_ICONS[selectedIcon]
+        : undefined;
+
+    return <Card {...args} icon={icon} />;
+  },
 };
 
 export default meta;
-type Story = StoryObj<CardProps>;
+type Story = StoryObj<CardStoryProps>;
 
 /** Card de texto básico conforme o design da CIPA */
 export const TextDefault: Story = {
@@ -146,6 +170,17 @@ export const FileSelectedPreview: Story = {
   },
 };
 
+/** Card de acesso rápido para navegação com rota e ícone (3ª variante via Next.js Link) */
+export const QuickAccess: Story = {
+  args: {
+    variant: "quick-access",
+    route: "/",
+    selectedIcon: "MessageCircle",
+    title: "Quer falar com a gente ?",
+    subtitle: "E-mails, caixas de recado e canal de acolhimento",
+  },
+};
+
 /** Simulação em tela compacta/mobile demonstrando padding e quebra de palavras */
 export const MobileView: Story = {
   parameters: {
@@ -167,22 +202,29 @@ export const MobileView: Story = {
   ),
 };
 
-/** Demonstração de múltiplos cards em um Grid Responsivo */
+/** Demonstração das 3 variantes reunidas em um Grid Responsivo */
 export const ResponsiveGrid: Story = {
   render: () => (
     <div className="w-full max-w-5xl mx-auto p-4">
-      <h2 className="text-xl font-bold text-slate-800 mb-4">Painel Integrado da CIPA (Grid Responsivo)</h2>
+      <h2 className="text-xl font-bold text-slate-800 mb-4">Painel Integrado da CIPA (Grid com as 3 Variantes)</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card variant="text" title="O que é a CIPA ?" subtitle="Comissão voltada à segurança, prevenção e saúde no ambiente corporativo." />
-
-        <Card variant="file" uploadText="Arraste aqui o cartaz do mês" accept="image/*" />
-
         <Card
           variant="text"
-          title="Normas Principais"
-          subtitle="Resumo dos pontos fundamentais:"
-          items={["Uso obrigatório de EPI em áreas técnicas", "Relato imediato de quase-acidentes", "Manutenção periódica das rotas de fuga"]}
-          listType="ul"
+          title="O que é a CIPA ?"
+          subtitle="Comissão voltada à segurança, prevenção e saúde no ambiente corporativo."
+        />
+
+        <Card
+          variant="file"
+          uploadText="Arraste aqui o cartaz do mês"
+          accept="image/*"
+        />
+
+        <Card
+          variant="quick-access"
+          route="/"
+          title="Quer falar com a gente ?"
+          subtitle="E-mails, caixas de recado e canal de acolhimento"
         />
       </div>
     </div>

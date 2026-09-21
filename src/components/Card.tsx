@@ -1,6 +1,8 @@
 import * as React from "react";
+import Link from "next/link";
+import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Image as ImageIcon, X, FileText, Pencil, Check } from "lucide-react";
+import { Image as ImageIcon, X, FileText, Pencil, Check, MessageCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 export const cardVariants = cva(
@@ -10,6 +12,8 @@ export const cardVariants = cva(
       variant: {
         text: "flex flex-col justify-center text-left",
         file: "flex flex-col items-center justify-center",
+        "quick-access":
+          "group flex flex-col justify-start text-left hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 no-underline",
       },
     },
     defaultVariants: {
@@ -19,13 +23,28 @@ export const cardVariants = cva(
 );
 
 export interface CardProps
-  extends React.HTMLAttributes<HTMLElement>,
+  extends Omit<React.HTMLAttributes<HTMLElement>, "title">,
     VariantProps<typeof cardVariants> {
   /**
-   * Alterna entre o modo textual com lista e o modo de upload de arquivo.
+   * Permite renderizar como componente customizado usando o Radix Slot.
+   */
+  asChild?: boolean;
+
+  /**
+   * Alterna entre o modo textual com lista, modo de upload de arquivo e acesso rápido.
    * Padrão: "text".
    */
-  variant?: "text" | "file";
+  variant?: "text" | "file" | "quick-access";
+
+  // --- Modo Acesso Rápido / Navegação ---
+  /** Rota ou URL para onde o card direciona (ex: '/fale-conosco', '/cipa/atas', 'https://...') */
+  route?: string;
+  /** Link de destino alternativo (mesmo efeito que route) */
+  href?: string;
+  /** Ícone exibido no topo (utilizado principalmente na variante 'quick-access') */
+  icon?: React.ReactNode;
+  /** Destino do link (ex: '_blank', '_self') */
+  target?: string;
 
   // --- Modo Texto ---
   /** Texto principal em destaque (título) */
@@ -67,6 +86,11 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     {
       className,
       variant = "text",
+      asChild = false,
+      route = "/",
+      href,
+      icon,
+      target,
       title,
       subtitle,
       items,
@@ -92,6 +116,8 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     const subtitleId = subtitle ? `card-subtitle-${generatedId}` : undefined;
     const fileInputId = `card-file-input-${generatedId}`;
     const uploadStatusId = `card-upload-status-${generatedId}`;
+
+    const destination = href || route;
 
     const fileInputRef = React.useRef<HTMLInputElement | null>(null);
     const [internalFile, setInternalFile] = React.useState<File | null>(null);
@@ -229,16 +255,40 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
       ...style,
     };
 
-    return (
-      <article
-        ref={ref as React.Ref<HTMLElement>}
-        className={cn(cardVariants({ variant, className }))}
-        style={Object.keys(dynamicStyles).length > 0 ? dynamicStyles : undefined}
-        aria-labelledby={titleId}
-        aria-describedby={subtitleId}
-        {...props}
-      >
-        {variant === "file" ? (
+    const content = (
+      <>
+        {variant === "quick-access" ? (
+          <div className="w-full flex flex-col items-start">
+            {icon !== null && (
+              <div
+                className="mb-3 text-slate-700 transition-transform duration-200 group-hover:scale-110"
+                aria-hidden="true"
+              >
+                {icon ?? <MessageCircle className="w-6 h-6 stroke-[1.75]" />}
+              </div>
+            )}
+
+            {title && (
+              <h3
+                id={titleId}
+                className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug break-words group-hover:text-blue-600 transition-colors"
+              >
+                {title}
+              </h3>
+            )}
+
+            {subtitle && (
+              <p
+                id={subtitleId}
+                className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed break-words"
+              >
+                {subtitle}
+              </p>
+            )}
+
+            {children}
+          </div>
+        ) : variant === "file" ? (
           <div className="w-full">
             {/* Input nativo com label acessível para leitores de tela */}
             <input
@@ -448,6 +498,52 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
             {children}
           </div>
         )}
+      </>
+    );
+
+    const commonClasses = cn(cardVariants({ variant, className }));
+    const commonStyles = Object.keys(dynamicStyles).length > 0 ? dynamicStyles : undefined;
+
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref as any}
+          className={commonClasses}
+          style={commonStyles}
+          {...(props as any)}
+        >
+          {content}
+        </Slot>
+      );
+    }
+
+    if (variant === "quick-access" || destination) {
+      return (
+        <Link
+          href={destination || "/"}
+          target={target}
+          ref={ref as any}
+          className={commonClasses}
+          style={commonStyles}
+          aria-labelledby={titleId}
+          aria-describedby={subtitleId}
+          {...(props as any)}
+        >
+          {content}
+        </Link>
+      );
+    }
+
+    return (
+      <article
+        ref={ref}
+        className={commonClasses}
+        style={commonStyles}
+        aria-labelledby={titleId}
+        aria-describedby={subtitleId}
+        {...props}
+      >
+        {content}
       </article>
     );
   }
