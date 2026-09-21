@@ -43,8 +43,12 @@ export interface CardProps
   href?: string;
   /** Ícone exibido no topo (utilizado principalmente na variante 'quick-access') */
   icon?: React.ReactNode;
+  /** Identificador ou chave do ícone selecionado (evita vazamento de prop para o DOM) */
+  selectedIcon?: string;
   /** Destino do link (ex: '_blank', '_self') */
   target?: string;
+  /** Relação do link para segurança contra tabnabbing (ex: 'noopener noreferrer') */
+  rel?: string;
 
   // --- Modo Texto ---
   /** Texto principal em destaque (título) */
@@ -90,7 +94,9 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
       route = "/",
       href,
       icon,
+      selectedIcon,
       target,
+      rel,
       title,
       subtitle,
       items,
@@ -117,9 +123,11 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     const fileInputId = `card-file-input-${generatedId}`;
     const uploadStatusId = `card-upload-status-${generatedId}`;
 
-    const destination = href || route;
+    const isLink = variant === "quick-access" || (Boolean(href) && variant !== "file");
+    const linkHref = href || route || "/";
 
     const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+    const textInputRef = React.useRef<HTMLInputElement | null>(null);
     const [internalFile, setInternalFile] = React.useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
     const [isDragging, setIsDragging] = React.useState(false);
@@ -131,10 +139,20 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
 
     React.useEffect(() => {
       setCurrentUploadText(uploadText);
-      setTempUploadText(uploadText);
-    }, [uploadText]);
+      if (!isEditingUploadText) {
+        setTempUploadText(uploadText);
+      }
+    }, [uploadText, isEditingUploadText]);
+
+    React.useEffect(() => {
+      if (isEditingUploadText) {
+        textInputRef.current?.focus();
+        textInputRef.current?.select();
+      }
+    }, [isEditingUploadText]);
 
     const handleSaveUploadText = (e?: React.SyntheticEvent) => {
+      e?.preventDefault();
       e?.stopPropagation();
       setIsEditingUploadText(false);
       setCurrentUploadText(tempUploadText);
@@ -142,6 +160,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     };
 
     const handleCancelUploadText = (e?: React.SyntheticEvent) => {
+      e?.preventDefault();
       e?.stopPropagation();
       setIsEditingUploadText(false);
       setTempUploadText(currentUploadText);
@@ -218,7 +237,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
       }
     };
 
-    const removeFile = (e: React.MouseEvent | React.KeyboardEvent) => {
+    const removeFile = (e: React.SyntheticEvent) => {
       e.stopPropagation();
       handleFileChosen(null);
       if (fileInputRef.current) {
@@ -363,12 +382,6 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                   <button
                     type="button"
                     onClick={removeFile}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        removeFile(e);
-                      }
-                    }}
                     aria-label={`Remover arquivo ${fileName}`}
                     className="mt-1 inline-flex items-center justify-center gap-1.5 min-h-[36px] sm:min-h-[40px] px-3 py-1.5 text-xs sm:text-sm text-rose-600 hover:text-rose-700 font-medium rounded-lg hover:bg-rose-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1"
                   >
@@ -389,6 +402,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                       onKeyDown={(e) => e.stopPropagation()}
                     >
                       <input
+                        ref={textInputRef}
                         type="text"
                         value={tempUploadText}
                         onChange={(e) => setTempUploadText(e.target.value)}
@@ -396,7 +410,6 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                           if (e.key === "Enter") handleSaveUploadText(e);
                           if (e.key === "Escape") handleCancelUploadText(e);
                         }}
-                        autoFocus
                         aria-label="Editar texto de orientação para upload"
                         className="w-full text-xs sm:text-sm px-3 py-1.5 rounded-lg border border-blue-400 bg-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 text-slate-800 text-center"
                         placeholder="Digite o texto de upload..."
@@ -479,7 +492,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
               listType === "ol" ? (
                 <ol className="mt-4 list-decimal pl-5 space-y-1.5 text-xs sm:text-sm md:text-base text-slate-600">
                   {items.map((item, index) => (
-                    <li key={index} className="leading-relaxed break-words">
+                    <li key={`${item}-${index}`} className="leading-relaxed break-words">
                       <span>{item}</span>
                     </li>
                   ))}
@@ -487,7 +500,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
               ) : (
                 <ul className="mt-4 list-disc pl-5 space-y-1.5 text-xs sm:text-sm md:text-base text-slate-600">
                   {items.map((item, index) => (
-                    <li key={index} className="leading-relaxed break-words">
+                    <li key={`${item}-${index}`} className="leading-relaxed break-words">
                       <span>{item}</span>
                     </li>
                   ))}
@@ -507,27 +520,29 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     if (asChild) {
       return (
         <Slot
-          ref={ref as any}
+          ref={ref}
           className={commonClasses}
           style={commonStyles}
-          {...(props as any)}
+          {...props}
         >
           {content}
         </Slot>
       );
     }
 
-    if (variant === "quick-access" || destination) {
+    if (isLink) {
+      const resolvedRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
       return (
         <Link
-          href={destination || "/"}
+          href={linkHref}
           target={target}
-          ref={ref as any}
+          rel={resolvedRel}
+          ref={ref as React.Ref<HTMLAnchorElement>}
           className={commonClasses}
           style={commonStyles}
           aria-labelledby={titleId}
           aria-describedby={subtitleId}
-          {...(props as any)}
+          {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
         >
           {content}
         </Link>
