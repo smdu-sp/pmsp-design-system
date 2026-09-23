@@ -27,7 +27,6 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
     title: "O que é a CIPA ?",
     subtitle: "É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho.",
     uploadText: "Arraste aqui o cartaz do mês",
-    editableUploadText: false,
     listType: "ul",
   },
   argTypes: {
@@ -48,10 +47,6 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
     uploadText: {
       control: "text",
       description: "Texto orientativo exibido na área de upload (editável diretamente nos Controls ou inline no card)",
-    },
-    editableUploadText: {
-      control: "boolean",
-      description: "Habilita a edição direta do texto no próprio card através de duplo clique ou botão de lápis",
     },
     thumbnailText: {
       control: "text",
@@ -100,10 +95,7 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
     },
   },
   render: ({ selectedIcon, ...args }) => {
-    const icon =
-      selectedIcon && selectedIcon !== "Default"
-        ? CARD_ICONS[selectedIcon]
-        : undefined;
+    const icon = selectedIcon && selectedIcon !== "Default" ? CARD_ICONS[selectedIcon] : undefined;
 
     return <Card {...args} icon={icon} />;
   },
@@ -159,16 +151,6 @@ export const FileUpload: Story = {
   args: {
     variant: "file",
     uploadText: "Arraste aqui o cartaz do mês",
-    accept: "image/*",
-  },
-};
-
-/** Card de arquivo com edição direta do texto habilitada no próprio card */
-export const EditableFileUpload: Story = {
-  args: {
-    variant: "file",
-    uploadText: "Arraste aqui o cartaz do mês",
-    editableUploadText: true,
     accept: "image/*",
   },
 };
@@ -241,30 +223,13 @@ export const ResponsiveGrid: Story = {
     <div className="w-full max-w-6xl mx-auto p-4">
       <h2 className="text-xl font-bold text-slate-800 mb-4">Painel Integrado da CIPA (Grid com as 4 Variantes)</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <Card
-          variant="text"
-          title="O que é a CIPA ?"
-          subtitle="Comissão voltada à segurança, prevenção e saúde corporativa."
-        />
+        <Card variant="text" title="O que é a CIPA ?" subtitle="Comissão voltada à segurança, prevenção e saúde corporativa." />
 
-        <Card
-          variant="file"
-          uploadText="Arraste aqui o cartaz do mês"
-          accept="image/*"
-        />
+        <Card variant="file" uploadText="Arraste aqui o cartaz do mês" accept="image/*" />
 
-        <Card
-          variant="quick-access"
-          route="/"
-          title="Quer falar com a gente ?"
-          subtitle="E-mails, caixas de recado e acolhimento"
-        />
+        <Card variant="quick-access" route="/" title="Quer falar com a gente ?" subtitle="E-mails, caixas de recado e acolhimento" />
 
-        <Card
-          variant="media"
-          title="Vídeo da CIPA #4"
-          status="Em breve"
-        />
+        <Card variant="media" title="Vídeo da CIPA #4" status="Em breve" />
       </div>
     </div>
   ),
