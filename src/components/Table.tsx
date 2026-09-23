@@ -36,9 +36,7 @@ export interface TableColumn<T = any> {
   render?: (value: any, row: T, rowIndex: number, colIndex: number) => React.ReactNode;
 }
 
-export interface TableProps
-  extends React.HTMLAttributes<HTMLTableElement>,
-    VariantProps<typeof tableVariants> {
+export interface TableProps extends React.HTMLAttributes<HTMLTableElement>, VariantProps<typeof tableVariants> {
   /**
    * Define quantas colunas vão existir na tabela.
    * Se fornecido em conjunto com headers/columns/data, ajusta ou restringe a quantidade exibida.
@@ -67,7 +65,7 @@ export interface TableProps
    * Dados a serem exibidos no corpo da tabela (matriz de valores ou array de objetos).
    * Ex: `[["Cartaz do mês", "Cartazes já publicados...", "Em breve"], ...]`
    */
-  data?: (React.ReactNode)[][] | Record<string, any>[];
+  data?: React.ReactNode[][] | Record<string, any>[];
 
   /** Habilita efeito hover nas linhas da tabela (padrão: true) */
   hoverable?: boolean;
@@ -90,73 +88,31 @@ export interface TableProps
 
 // --- Componentes Compostos ---
 
-export const TableHeader = React.forwardRef<
-  HTMLTableSectionElement,
-  React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
-  <thead
-    ref={ref}
-    className={cn(
-      "bg-slate-100/90 text-xs sm:text-sm font-semibold text-slate-900 border-b border-slate-200/80 select-none",
-      className
-    )}
-    {...props}
-  />
+export const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(({ className, ...props }, ref) => (
+  <thead ref={ref} className={cn("bg-slate-100/90 text-xs sm:text-sm font-semibold text-slate-900 border-b border-slate-200/80 select-none", className)} {...props} />
 ));
 TableHeader.displayName = "TableHeader";
 
-export const TableBody = React.forwardRef<
-  HTMLTableSectionElement,
-  React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
+export const TableBody = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(({ className, ...props }, ref) => (
   <tbody ref={ref} className={cn("divide-y divide-slate-100 bg-white", className)} {...props} />
 ));
 TableBody.displayName = "TableBody";
 
-export const TableFooter = React.forwardRef<
-  HTMLTableSectionElement,
-  React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
-  <tfoot
-    ref={ref}
-    className={cn("bg-slate-50 font-medium text-slate-900 border-t border-slate-200", className)}
-    {...props}
-  />
+export const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(({ className, ...props }, ref) => (
+  <tfoot ref={ref} className={cn("bg-slate-50 font-medium text-slate-900 border-t border-slate-200", className)} {...props} />
 ));
 TableFooter.displayName = "TableFooter";
 
-export const TableRow = React.forwardRef<
-  HTMLTableRowElement,
-  React.HTMLAttributes<HTMLTableRowElement> & { hoverable?: boolean }
->(({ className, hoverable = true, ...props }, ref) => (
-  <tr
-    ref={ref}
-    className={cn(
-      "border-b border-slate-100 last:border-b-0 transition-colors",
-      hoverable && "hover:bg-slate-50/70",
-      className
-    )}
-    {...props}
-  />
+export const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement> & { hoverable?: boolean }>(({ className, hoverable = true, ...props }, ref) => (
+  <tr ref={ref} className={cn("border-slate-100 last:border-b-0 transition-colors", hoverable && "hover:bg-slate-50/70", className)} {...props} />
 ));
 TableRow.displayName = "TableRow";
 
-export const TableHead = React.forwardRef<
-  HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement> & { align?: "left" | "center" | "right" }
->(({ className, align = "left", ...props }, ref) => (
-  <th
-    ref={ref}
-    scope="col"
-    className={cn(
-      "font-bold text-slate-900 tracking-tight text-left",
-      align === "center" && "text-center",
-      align === "right" && "text-right",
-      className
-    )}
-    {...props}
-  />
-));
+export const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement> & { align?: "left" | "center" | "right" }>(
+  ({ className, align = "left", ...props }, ref) => (
+    <th ref={ref} scope="col" className={cn("font-bold text-slate-900 tracking-tight text-left", align === "center" && "text-center", align === "right" && "text-right", className)} {...props} />
+  ),
+);
 TableHead.displayName = "TableHead";
 
 export const TableCell = React.forwardRef<
@@ -173,22 +129,15 @@ export const TableCell = React.forwardRef<
       bold ? "font-bold text-slate-900" : "font-normal text-slate-600",
       align === "center" && "text-center",
       align === "right" && "text-right",
-      className
+      className,
     )}
     {...props}
   />
 ));
 TableCell.displayName = "TableCell";
 
-export const TableCaption = React.forwardRef<
-  HTMLTableCaptionElement,
-  React.HTMLAttributes<HTMLTableCaptionElement>
->(({ className, ...props }, ref) => (
-  <caption
-    ref={ref}
-    className={cn("mt-3 text-xs sm:text-sm text-slate-500 text-center font-normal", className)}
-    {...props}
-  />
+export const TableCaption = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttributes<HTMLTableCaptionElement>>(({ className, ...props }, ref) => (
+  <caption ref={ref} className={cn("mt-3 text-xs sm:text-sm text-slate-500 text-center font-normal", className)} {...props} />
 ));
 TableCaption.displayName = "TableCaption";
 
@@ -215,29 +164,14 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     // Resolução de estilos customizados
-    const resolvedBg = backgroundColor
-      ? backgroundColor.startsWith("--")
-        ? `var(${backgroundColor})`
-        : backgroundColor
-      : undefined;
+    const resolvedBg = backgroundColor ? (backgroundColor.startsWith("--") ? `var(${backgroundColor})` : backgroundColor) : undefined;
 
-    const resolvedTextColor = textColor
-      ? textColor.startsWith("--")
-        ? `var(${textColor})`
-        : textColor
-      : undefined;
+    const resolvedTextColor = textColor ? (textColor.startsWith("--") ? `var(${textColor})` : textColor) : undefined;
 
-    const resolvedBr =
-      typeof borderRadius === "number"
-        ? `${borderRadius}px`
-        : borderRadius
-        ? borderRadius.startsWith("--")
-          ? `var(${borderRadius})`
-          : borderRadius
-        : undefined;
+    const resolvedBr = typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius ? (borderRadius.startsWith("--") ? `var(${borderRadius})` : borderRadius) : undefined;
 
     const containerStyles: React.CSSProperties = {
       ...(resolvedBg ? { backgroundColor: resolvedBg } : {}),
@@ -282,8 +216,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
       }
 
       if (headers && headers.length > 0) {
-        const slicedHeaders =
-          typeof columnsCount === "number" ? headers.slice(0, columnsCount) : headers;
+        const slicedHeaders = typeof columnsCount === "number" ? headers.slice(0, columnsCount) : headers;
 
         // Se columnsCount for maior que headers fornecidos, preenche colunas restantes
         const result: TableColumn[] = slicedHeaders.map((header, idx) => ({
@@ -323,16 +256,9 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
     return (
       <div
         style={Object.keys(containerStyles).length > 0 ? containerStyles : undefined}
-        className={cn(
-          "w-full overflow-x-auto rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all",
-          className
-        )}
+        className={cn("w-full overflow-x-auto rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all", className)}
       >
-        <table
-          ref={ref}
-          className={cn(tableVariants({ variant, density }))}
-          {...props}
-        >
+        <table ref={ref} className={cn(tableVariants({ variant, density }))} {...props}>
           {caption && <TableCaption>{caption}</TableCaption>}
 
           {isDeclarativeMode ? (
@@ -341,11 +267,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 <TableHeader>
                   <TableRow hoverable={false}>
                     {normalizedColumns.map((col, colIndex) => (
-                      <TableHead
-                        key={col.key || `head-${colIndex}`}
-                        align={col.align}
-                        style={col.width ? { width: col.width } : undefined}
-                      >
+                      <TableHead key={col.key || `head-${colIndex}`} align={col.align} style={col.width ? { width: col.width } : undefined}>
                         {col.header}
                       </TableHead>
                     ))}
@@ -358,13 +280,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                   data.map((row, rowIndex) => {
                     const isArrayRow = Array.isArray(row);
                     const totalCols =
-                      normalizedColumns.length > 0
-                        ? normalizedColumns.length
-                        : typeof columnsCount === "number"
-                        ? columnsCount
-                        : isArrayRow
-                        ? (row as any[]).length
-                        : Object.keys(row).length;
+                      normalizedColumns.length > 0 ? normalizedColumns.length : typeof columnsCount === "number" ? columnsCount : isArrayRow ? (row as any[]).length : Object.keys(row).length;
 
                     return (
                       <TableRow key={`row-${rowIndex}`} hoverable={hoverable}>
@@ -382,16 +298,10 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                             cellValue = (row as Record<string, any>)[keys[colIndex]];
                           }
 
-                          const renderedContent = colDef?.render
-                            ? colDef.render(cellValue, row, rowIndex, colIndex)
-                            : cellValue;
+                          const renderedContent = colDef?.render ? colDef.render(cellValue, row, rowIndex, colIndex) : cellValue;
 
                           return (
-                            <TableCell
-                              key={`cell-${rowIndex}-${colIndex}`}
-                              bold={cellBold}
-                              align={colDef?.align}
-                            >
+                            <TableCell key={`cell-${rowIndex}-${colIndex}`} bold={cellBold} align={colDef?.align}>
                               {renderedContent}
                             </TableCell>
                           );
@@ -401,10 +311,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                   })
                 ) : (
                   <TableRow hoverable={false}>
-                    <TableCell
-                      colSpan={normalizedColumns.length || columnsCount || 1}
-                      className="py-8 text-center text-slate-400 italic"
-                    >
+                    <TableCell colSpan={normalizedColumns.length || columnsCount || 1} className="py-8 text-center text-slate-400 italic">
                       {emptyMessage}
                     </TableCell>
                   </TableRow>
@@ -417,7 +324,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
         </table>
       </div>
     );
-  }
+  },
 );
 
 Table.displayName = "Table";
