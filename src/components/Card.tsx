@@ -5,28 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Image as ImageIcon, X, FileText, Pencil, Check, MessageCircle, Play } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-export const cardVariants = cva(
-  "rounded-2xl border border-slate-200/80 bg-slate-50/80 text-slate-900 transition-all p-5 sm:p-6 md:p-7 shadow-xs w-full max-w-full sm:max-w-md",
-  {
-    variants: {
-      variant: {
-        text: "flex flex-col justify-center text-left",
-        file: "flex flex-col items-center justify-center",
-        "quick-access":
-          "group flex flex-col justify-start text-left hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 no-underline",
-        media:
-          "group flex flex-col justify-start text-left p-4 sm:p-5 transition-all duration-200 hover:border-slate-300 hover:shadow-md",
-      },
+export const cardVariants = cva("rounded-2xl border border-slate-200/80 bg-slate-50/80 text-slate-900 transition-all p-5 sm:p-6 md:p-7 shadow-xs w-full max-w-full sm:max-w-md", {
+  variants: {
+    variant: {
+      text: "flex flex-col justify-center text-left",
+      file: "flex flex-col items-center justify-center",
+      "quick-access":
+        "group flex flex-col justify-start text-left hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 no-underline",
+      media: "group flex flex-col justify-start text-left p-4 sm:p-5 transition-all duration-200 hover:border-slate-300 hover:shadow-md",
     },
-    defaultVariants: {
-      variant: "text",
-    },
-  }
-);
+  },
+  defaultVariants: {
+    variant: "text",
+  },
+});
 
-export interface CardProps
-  extends Omit<React.HTMLAttributes<HTMLElement>, "title">,
-    VariantProps<typeof cardVariants> {
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, "title">, VariantProps<typeof cardVariants> {
   /**
    * Permite renderizar como componente customizado usando o Radix Slot.
    */
@@ -137,7 +131,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const generatedId = React.useId();
     const titleId = title ? `card-title-${generatedId}` : undefined;
@@ -268,26 +262,11 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     };
 
     // Resolução de cores e borda dinâmicos
-    const resolvedBg = backgroundColor
-      ? backgroundColor.startsWith("--")
-        ? `var(${backgroundColor})`
-        : backgroundColor
-      : undefined;
+    const resolvedBg = backgroundColor ? (backgroundColor.startsWith("--") ? `var(${backgroundColor})` : backgroundColor) : undefined;
 
-    const resolvedTextColor = textColor
-      ? textColor.startsWith("--")
-        ? `var(${textColor})`
-        : textColor
-      : undefined;
+    const resolvedTextColor = textColor ? (textColor.startsWith("--") ? `var(${textColor})` : textColor) : undefined;
 
-    const resolvedBr =
-      typeof borderRadius === "number"
-        ? `${borderRadius}px`
-        : borderRadius
-        ? borderRadius.startsWith("--")
-          ? `var(${borderRadius})`
-          : borderRadius
-        : undefined;
+    const resolvedBr = typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius ? (borderRadius.startsWith("--") ? `var(${borderRadius})` : borderRadius) : undefined;
 
     const dynamicStyles: React.CSSProperties = {
       ...(resolvedBg ? { backgroundColor: resolvedBg } : {}),
@@ -316,36 +295,26 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                   </div>
                 </div>
               ) : React.isValidElement(image || thumbnail) ? (
-                <div className="relative w-full h-36 sm:h-40 rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-slate-100">
-                  {image || thumbnail}
-                </div>
+                <div className="relative w-full h-36 sm:h-40 rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-slate-100">{image || thumbnail}</div>
               ) : null
             ) : (
               <div className="relative w-full h-36 sm:h-40 rounded-xl border border-dashed border-slate-300/90 bg-slate-50/50 overflow-hidden flex flex-col items-center justify-center gap-2 text-slate-400 group-hover:border-slate-400 group-hover:bg-slate-100/60 transition-all select-none">
                 <div className="text-slate-400 group-hover:text-slate-500 transition-colors" aria-hidden="true">
                   {thumbnailIcon ?? <ImageIcon className="w-7 h-7 stroke-[1.25]" />}
                 </div>
-                <span className="text-xs sm:text-sm text-slate-500 font-normal">
-                  {thumbnailText}
-                </span>
+                <span className="text-xs sm:text-sm text-slate-500 font-normal">{thumbnailText}</span>
               </div>
             )}
 
             <div className="mt-4 sm:mt-5 w-full">
               {title && (
-                <h3
-                  id={titleId}
-                  className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug break-words group-hover:text-blue-600 transition-colors"
-                >
+                <h3 id={titleId} className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug wrap-break-word group-hover:text-blue-600 transition-colors">
                   {title}
                 </h3>
               )}
 
               {(subtitle || status) && (
-                <p
-                  id={subtitleId}
-                  className="mt-1.5 text-xs sm:text-sm italic text-slate-500 leading-relaxed break-words"
-                >
+                <p id={subtitleId} className="mt-1.5 text-xs sm:text-sm italic text-slate-500 leading-relaxed wrap-break-word">
                   {subtitle ?? status}
                 </p>
               )}
@@ -356,28 +325,19 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
         ) : variant === "quick-access" ? (
           <div className="w-full flex flex-col items-start">
             {icon !== null && (
-              <div
-                className="mb-3 text-slate-700 transition-transform duration-200 group-hover:scale-110"
-                aria-hidden="true"
-              >
+              <div className="mb-3 text-slate-700 transition-transform duration-200 group-hover:scale-110" aria-hidden="true">
                 {icon ?? <MessageCircle className="w-6 h-6 stroke-[1.75]" />}
               </div>
             )}
 
             {title && (
-              <h3
-                id={titleId}
-                className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug break-words group-hover:text-blue-600 transition-colors"
-              >
+              <h3 id={titleId} className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug wrap-break-word group-hover:text-blue-600 transition-colors">
                 {title}
               </h3>
             )}
 
             {subtitle && (
-              <p
-                id={subtitleId}
-                className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed break-words"
-              >
+              <p id={subtitleId} className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed wrap-break-word">
                 {subtitle}
               </p>
             )}
@@ -400,19 +360,13 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
 
             {/* Região ao vivo para anunciar alterações no status do upload a leitores de tela */}
             <span id={uploadStatusId} className="sr-only" aria-live="polite" aria-atomic="true">
-              {activeFile
-                ? `Arquivo ${fileName} carregado com sucesso.`
-                : "Nenhum arquivo selecionado. Pressione Enter para selecionar um arquivo ou arraste um arquivo para esta área."}
+              {activeFile ? `Arquivo ${fileName} carregado com sucesso.` : "Nenhum arquivo selecionado. Pressione Enter para selecionar um arquivo ou arraste um arquivo para esta área."}
             </span>
 
             <div
               role="button"
               tabIndex={isEditingUploadText ? -1 : 0}
-              aria-label={
-                activeFile
-                  ? `Arquivo ${fileName} selecionado. Clique ou pressione Enter para substituir.`
-                  : `${currentUploadText}. Clique ou pressione Enter para selecionar um arquivo.`
-              }
+              aria-label={activeFile ? `Arquivo ${fileName} selecionado. Clique ou pressione Enter para substituir.` : `${currentUploadText}. Clique ou pressione Enter para selecionar um arquivo.`}
               aria-describedby={uploadStatusId}
               onClick={triggerFileInput}
               onKeyDown={handleDropzoneKeyDown}
@@ -422,9 +376,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
               className={cn(
                 "group relative w-full border-2 border-dashed rounded-xl p-5 sm:p-7 md:p-8 flex flex-col items-center justify-center gap-3 transition-all cursor-pointer text-center select-none",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2",
-                isDragging
-                  ? "border-blue-500 bg-blue-50/80 scale-[0.99]"
-                  : "border-slate-300 hover:border-slate-400 bg-white/60 hover:bg-white"
+                isDragging ? "border-blue-500 bg-blue-50/80 scale-[0.99]" : "border-slate-300 hover:border-slate-400 bg-white/60 hover:bg-white",
               )}
             >
               {activeFile ? (
@@ -432,35 +384,24 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                   {previewUrl ? (
                     <div className="relative group/preview w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-lg overflow-hidden border border-slate-200 shadow-xs">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={previewUrl}
-                        alt={`Pré-visualização do arquivo ${fileName}`}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={previewUrl} alt={`Pré-visualização do arquivo ${fileName}`} className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div
-                      className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500"
-                      aria-hidden="true"
-                    >
+                    <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500" aria-hidden="true">
                       <FileText className="w-6 h-6" />
                     </div>
                   )}
 
                   <div className="text-center px-2 max-w-full">
-                    <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate max-w-[220px] sm:max-w-[260px]">
-                      {fileName}
-                    </p>
-                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
-                      Clique ou arraste para substituir
-                    </p>
+                    <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate max-w-55 sm:max-w-55">{fileName}</p>
+                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Clique ou arraste para substituir</p>
                   </div>
 
                   <button
                     type="button"
                     onClick={removeFile}
                     aria-label={`Remover arquivo ${fileName}`}
-                    className="mt-1 inline-flex items-center justify-center gap-1.5 min-h-[36px] sm:min-h-[40px] px-3 py-1.5 text-xs sm:text-sm text-rose-600 hover:text-rose-700 font-medium rounded-lg hover:bg-rose-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1"
+                    className="mt-1 inline-flex items-center justify-center gap-1.5 min-h-9 sm:min-h-10 px-3 py-1.5 text-xs sm:text-sm text-rose-600 hover:text-rose-700 font-medium rounded-lg hover:bg-rose-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
                     <span>Remover</span>
@@ -473,11 +414,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                   </div>
 
                   {isEditingUploadText ? (
-                    <div
-                      className="flex items-center gap-2 w-full max-w-xs z-10"
-                      onClick={(e) => e.stopPropagation()}
-                      onKeyDown={(e) => e.stopPropagation()}
-                    >
+                    <div className="flex items-center gap-2 w-full max-w-xs z-10" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                       <input
                         ref={textInputRef}
                         type="text"
@@ -495,7 +432,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                         type="button"
                         onClick={handleSaveUploadText}
                         aria-label="Confirmar alteração de texto"
-                        className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1"
+                        className="min-w-9 min-h-9 flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1"
                       >
                         <Check className="w-4 h-4" aria-hidden="true" />
                       </button>
@@ -503,7 +440,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                         type="button"
                         onClick={handleCancelUploadText}
                         aria-label="Cancelar alteração de texto"
-                        className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-1"
+                        className="min-w-9 min-h-9 flex items-center justify-center rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-1"
                       >
                         <X className="w-4 h-4" aria-hidden="true" />
                       </button>
@@ -511,10 +448,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                   ) : (
                     <div className="flex items-center justify-center gap-1.5 group/uploadtext max-w-full">
                       <p
-                        className={cn(
-                          "text-xs sm:text-sm font-medium text-slate-700 leading-snug break-words px-1",
-                          editableUploadText && "hover:text-blue-600 cursor-text"
-                        )}
+                        className={cn("text-xs sm:text-sm font-medium text-slate-700 leading-snug wrap-break-word px-1", editableUploadText && "hover:text-blue-600 cursor-text")}
                         title={editableUploadText ? "Duplo clique para editar o texto" : undefined}
                         onDoubleClick={(e) => {
                           if (editableUploadText) {
@@ -533,7 +467,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
                             setIsEditingUploadText(true);
                           }}
                           aria-label={`Editar texto: ${currentUploadText}`}
-                          className="min-w-[32px] min-h-[32px] flex items-center justify-center opacity-70 hover:opacity-100 text-slate-500 hover:text-blue-600 transition-all rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                          className="min-w-8 min-h-8 flex items-center justify-center opacity-70 hover:opacity-100 text-slate-500 hover:text-blue-600 transition-all rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                         >
                           <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
@@ -548,28 +482,23 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
         ) : (
           <div className="w-full">
             {title && (
-              <h3
-                id={titleId}
-                className="text-base sm:text-lg md:text-xl font-bold text-slate-900 tracking-tight leading-snug break-words"
-              >
+              <h3 id={titleId} className="text-base sm:text-lg md:text-xl font-bold text-slate-900 tracking-tight leading-snug wrap-break-word">
                 {title}
               </h3>
             )}
 
             {subtitle && (
-              <p
-                id={subtitleId}
-                className="mt-2 text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed break-words"
-              >
+              <p id={subtitleId} className="mt-2 text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed wrap-break-word">
                 {subtitle}
               </p>
             )}
 
-            {items && items.length > 0 && (
-              listType === "ol" ? (
+            {items &&
+              items.length > 0 &&
+              (listType === "ol" ? (
                 <ol className="mt-4 list-decimal pl-5 space-y-1.5 text-xs sm:text-sm md:text-base text-slate-600">
                   {items.map((item, index) => (
-                    <li key={`${item}-${index}`} className="leading-relaxed break-words">
+                    <li key={`${item}-${index}`} className="leading-relaxed wrap-break-word">
                       <span>{item}</span>
                     </li>
                   ))}
@@ -577,13 +506,12 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
               ) : (
                 <ul className="mt-4 list-disc pl-5 space-y-1.5 text-xs sm:text-sm md:text-base text-slate-600">
                   {items.map((item, index) => (
-                    <li key={`${item}-${index}`} className="leading-relaxed break-words">
+                    <li key={`${item}-${index}`} className="leading-relaxed wrap-break-word">
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
-              )
-            )}
+              ))}
 
             {children}
           </div>
@@ -596,12 +524,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
 
     if (asChild) {
       return (
-        <Slot
-          ref={ref}
-          className={commonClasses}
-          style={commonStyles}
-          {...props}
-        >
+        <Slot ref={ref} className={commonClasses} style={commonStyles} {...props}>
           {content}
         </Slot>
       );
@@ -627,18 +550,11 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     }
 
     return (
-      <article
-        ref={ref}
-        className={commonClasses}
-        style={commonStyles}
-        aria-labelledby={titleId}
-        aria-describedby={subtitleId}
-        {...props}
-      >
+      <article ref={ref} className={commonClasses} style={commonStyles} aria-labelledby={titleId} aria-describedby={subtitleId} {...props}>
         {content}
       </article>
     );
-  }
+  },
 );
 
 Card.displayName = "Card";

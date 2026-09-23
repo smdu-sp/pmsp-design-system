@@ -1,14 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Table,
-  type TableProps,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/Table";
+import { Table, type TableProps, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/Table";
 
 const CIPA_HEADERS = ["Tema", "Descrição", "Acesso"];
 
@@ -16,47 +8,65 @@ const CIPA_DATA = [
   [
     "Cartaz do mês (histórico)",
     "Cartazes já publicados, disponíveis para consulta.",
-    <span key="1" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="1" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
   [
     "E-mails informativos",
     "Comunicados enviados periodicamente pela CIPA.",
-    <span key="2" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="2" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
   [
     "Mapa de risco",
     "Mapeamento de riscos por unidade/setor.",
-    <span key="3" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="3" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
   [
     "Legislação",
     "Normas regulamentadoras e legislação aplicável.",
-    <span key="4" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="4" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
   [
     "CAT — Comunicação de Acidente de Trabalho",
     "Como preencher e onde encaminhar.",
-    <span key="5" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="5" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
   [
     "Assédio — acolhimento e orientações",
     "Como identificar, denunciar e buscar apoio.",
-    <span key="6" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="6" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
   [
     "Calendário e atas de reuniões",
     "Datas dos encontros e registros das decisões da CIPA.",
-    <span key="7" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="7" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
   [
     "Perguntas frequentes (FAQ)",
     "Respostas para as dúvidas mais comuns.",
-    <span key="8" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="8" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
   [
     "Artigos e temas",
     "Conteúdos aprofundando prevenção e saúde no trabalho.",
-    <span key="9" className="italic text-slate-400 font-normal">Em breve</span>,
+    <span key="9" className="italic text-slate-400 font-normal">
+      Em breve
+    </span>,
   ],
 ];
 
@@ -204,9 +214,7 @@ export const CompoundComposition: Story = {
           <TableCell bold>SEC-01</TableCell>
           <TableCell>Edifício Central - Gabinete</TableCell>
           <TableCell align="center">
-            <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">
-              Baixo
-            </span>
+            <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">Baixo</span>
           </TableCell>
           <TableCell align="right">120</TableCell>
         </TableRow>
@@ -214,9 +222,7 @@ export const CompoundComposition: Story = {
           <TableCell bold>SEC-02</TableCell>
           <TableCell>Almoxarifado e Manutenção</TableCell>
           <TableCell align="center">
-            <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
-              Médio
-            </span>
+            <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">Médio</span>
           </TableCell>
           <TableCell align="right">45</TableCell>
         </TableRow>
@@ -224,9 +230,7 @@ export const CompoundComposition: Story = {
           <TableCell bold>SEC-03</TableCell>
           <TableCell>Oficina Operacional</TableCell>
           <TableCell align="center">
-            <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-rose-100 text-rose-800">
-              Alto
-            </span>
+            <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-rose-100 text-rose-800">Alto</span>
           </TableCell>
           <TableCell align="right">78</TableCell>
         </TableRow>
@@ -251,7 +255,7 @@ export const MobileView: Story = {
     data: CIPA_DATA.slice(0, 4),
   },
   render: (args) => (
-    <div className="max-w-[360px] p-2 bg-slate-100 rounded-2xl">
+    <div className="max-w-90 p-2 bg-slate-100 rounded-2xl">
       <Table {...args} />
     </div>
   ),
