@@ -2,7 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Image as ImageIcon, X, FileText, Pencil, Check, MessageCircle } from "lucide-react";
+import { Image as ImageIcon, X, FileText, Pencil, Check, MessageCircle, Play } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 export const cardVariants = cva(
@@ -14,6 +14,8 @@ export const cardVariants = cva(
         file: "flex flex-col items-center justify-center",
         "quick-access":
           "group flex flex-col justify-start text-left hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 no-underline",
+        media:
+          "group flex flex-col justify-start text-left p-4 sm:p-5 transition-all duration-200 hover:border-slate-300 hover:shadow-md",
       },
     },
     defaultVariants: {
@@ -31,10 +33,24 @@ export interface CardProps
   asChild?: boolean;
 
   /**
-   * Alterna entre o modo textual com lista, modo de upload de arquivo e acesso rápido.
+   * Alterna entre o modo textual com lista, modo de upload de arquivo, acesso rápido e mídia/vídeo.
    * Padrão: "text".
    */
-  variant?: "text" | "file" | "quick-access";
+  variant?: "text" | "file" | "quick-access" | "media";
+
+  // --- Modo Mídia / Vídeo ---
+  /** Imagem da miniatura do vídeo/mídia (URL ou componente). Caso não seja fornecida, exibe o fallback tracejado */
+  image?: string | React.ReactNode;
+  /** Texto alternativo para a imagem da miniatura */
+  imageAlt?: string;
+  /** Imagem ou URL da miniatura (alias compatível com a prop image) */
+  thumbnail?: string | React.ReactNode;
+  /** Texto exibido no fallback quando não houver imagem fornecida (padrão: "Miniatura do vídeo") */
+  thumbnailText?: string;
+  /** Ícone customizado no centro do fallback da miniatura */
+  thumbnailIcon?: React.ReactNode;
+  /** Indicador ou badge de status exibido no card de mídia (ex: "Em breve") */
+  status?: string;
 
   // --- Modo Acesso Rápido / Navegação ---
   /** Rota ou URL para onde o card direciona (ex: '/fale-conosco', '/cipa/atas', 'https://...') */
@@ -108,6 +124,12 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
       accept = "image/*",
       file: controlledFile,
       onFileSelect,
+      image,
+      imageAlt,
+      thumbnail,
+      thumbnailText = "Miniatura do vídeo",
+      thumbnailIcon,
+      status,
       backgroundColor,
       textColor,
       borderRadius,
@@ -276,7 +298,62 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
 
     const content = (
       <>
-        {variant === "quick-access" ? (
+        {variant === "media" ? (
+          <div className="w-full flex flex-col items-start">
+            {image || thumbnail ? (
+              typeof (image || thumbnail) === "string" ? (
+                <div className="relative w-full h-36 sm:h-40 rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-slate-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={(image || thumbnail) as string}
+                    alt={imageAlt || title || "Miniatura do vídeo"}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-10 h-10 rounded-full bg-white/95 text-slate-800 flex items-center justify-center shadow-md transition-transform duration-200 group-hover:scale-110">
+                      <Play className="w-4 h-4 ml-0.5 fill-current text-slate-800" aria-hidden="true" />
+                    </div>
+                  </div>
+                </div>
+              ) : React.isValidElement(image || thumbnail) ? (
+                <div className="relative w-full h-36 sm:h-40 rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-slate-100">
+                  {image || thumbnail}
+                </div>
+              ) : null
+            ) : (
+              <div className="relative w-full h-36 sm:h-40 rounded-xl border border-dashed border-slate-300/90 bg-slate-50/50 overflow-hidden flex flex-col items-center justify-center gap-2 text-slate-400 group-hover:border-slate-400 group-hover:bg-slate-100/60 transition-all select-none">
+                <div className="text-slate-400 group-hover:text-slate-500 transition-colors" aria-hidden="true">
+                  {thumbnailIcon ?? <ImageIcon className="w-7 h-7 stroke-[1.25]" />}
+                </div>
+                <span className="text-xs sm:text-sm text-slate-500 font-normal">
+                  {thumbnailText}
+                </span>
+              </div>
+            )}
+
+            <div className="mt-4 sm:mt-5 w-full">
+              {title && (
+                <h3
+                  id={titleId}
+                  className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug break-words group-hover:text-blue-600 transition-colors"
+                >
+                  {title}
+                </h3>
+              )}
+
+              {(subtitle || status) && (
+                <p
+                  id={subtitleId}
+                  className="mt-1.5 text-xs sm:text-sm italic text-slate-500 leading-relaxed break-words"
+                >
+                  {subtitle ?? status}
+                </p>
+              )}
+
+              {children}
+            </div>
+          </div>
+        ) : variant === "quick-access" ? (
           <div className="w-full flex flex-col items-start">
             {icon !== null && (
               <div

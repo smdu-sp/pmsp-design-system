@@ -33,8 +33,8 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
   argTypes: {
     variant: {
       control: "select",
-      options: ["text", "file", "quick-access"],
-      description: "Alterna entre o card de conteúdo textual, upload de arquivo e acesso rápido com tag Link do Next.js",
+      options: ["text", "file", "quick-access", "media"],
+      description: "Alterna entre texto com lista, upload de arquivo, acesso rápido via Link ou card de mídia/vídeo",
     },
     route: {
       control: "text",
@@ -53,9 +53,21 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
       control: "boolean",
       description: "Habilita a edição direta do texto no próprio card através de duplo clique ou botão de lápis",
     },
+    thumbnailText: {
+      control: "text",
+      description: "Texto do placeholder quando não houver miniatura (modo mídia)",
+    },
+    image: {
+      control: "text",
+      description: "URL da imagem de miniatura do vídeo. Se vazia, exibe o fallback tracejado (modo mídia)",
+    },
+    status: {
+      control: "text",
+      description: "Status ou indicação complementar do vídeo (ex: 'Em breve') (modo mídia)",
+    },
     title: {
       control: "text",
-      description: "Título ou texto principal (modo texto)",
+      description: "Título ou texto principal (modo texto, acesso rápido e mídia)",
     },
     subtitle: {
       control: "text",
@@ -181,6 +193,27 @@ export const QuickAccess: Story = {
   },
 };
 
+/** Card de Mídia / Vídeo da CIPA com fallback idêntico à imagem de referência */
+export const VideoFallback: Story = {
+  args: {
+    variant: "media",
+    title: "O que é a CIPA ?",
+    subtitle: "É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho.",
+    thumbnailText: "Miniatura do vídeo",
+  },
+};
+
+/** Card de Mídia com imagem de miniatura fornecida */
+export const VideoWithImage: Story = {
+  args: {
+    variant: "media",
+    title: "O que é a CIPA ?",
+    subtitle: "É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho.",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80",
+    href: "/videos/o-que-e-a-cipa",
+  },
+};
+
 /** Simulação em tela compacta/mobile demonstrando padding e quebra de palavras */
 export const MobileView: Story = {
   parameters: {
@@ -202,16 +235,16 @@ export const MobileView: Story = {
   ),
 };
 
-/** Demonstração das 3 variantes reunidas em um Grid Responsivo */
+/** Demonstração das 4 variantes reunidas em um Grid Responsivo */
 export const ResponsiveGrid: Story = {
   render: () => (
-    <div className="w-full max-w-5xl mx-auto p-4">
-      <h2 className="text-xl font-bold text-slate-800 mb-4">Painel Integrado da CIPA (Grid com as 3 Variantes)</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="w-full max-w-6xl mx-auto p-4">
+      <h2 className="text-xl font-bold text-slate-800 mb-4">Painel Integrado da CIPA (Grid com as 4 Variantes)</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <Card
           variant="text"
           title="O que é a CIPA ?"
-          subtitle="Comissão voltada à segurança, prevenção e saúde no ambiente corporativo."
+          subtitle="Comissão voltada à segurança, prevenção e saúde corporativa."
         />
 
         <Card
@@ -224,7 +257,13 @@ export const ResponsiveGrid: Story = {
           variant="quick-access"
           route="/"
           title="Quer falar com a gente ?"
-          subtitle="E-mails, caixas de recado e canal de acolhimento"
+          subtitle="E-mails, caixas de recado e acolhimento"
+        />
+
+        <Card
+          variant="media"
+          title="Vídeo da CIPA #4"
+          status="Em breve"
         />
       </div>
     </div>
