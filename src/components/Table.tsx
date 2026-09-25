@@ -94,15 +94,6 @@ export interface TableProps extends React.HTMLAttributes<HTMLTableElement>, Vari
   /** Habilita efeito hover nas linhas da tabela (padrão: true) */
   hoverable?: boolean;
 
-  /** Legenda descritiva acessível para a tabela (renderiza <caption>) */
-  caption?: React.ReactNode;
-
-  /** Posicionamento visual do caption ('top' ou 'bottom', padrão: 'bottom') */
-  captionSide?: "top" | "bottom";
-
-  /** Oculta o caption visualmente, mantendo-o perceptível exclusivamente para leitores de tela */
-  captionSrOnly?: boolean;
-
   /**
    * Índice da coluna que servirá semanticamente como cabeçalho de linha (<th scope="row">).
    * Essencial para usuários de leitores de tela identificarem o contexto da linha ao navegar pelas colunas.
@@ -375,9 +366,6 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
       hasHeader,
       data,
       hoverable = true,
-      caption,
-      captionSide = "bottom",
-      captionSrOnly = false,
       rowHeaderColIndex,
       emptyMessage = "Nenhum dado encontrado.",
       isLoading = false,
@@ -412,8 +400,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
     // Determina o nome acessível da região com rolagem
     const containerAriaLabel =
       scrollableRegionLabel ||
-      (props["aria-label"] ? `${props["aria-label"]} (região com rolagem)` : undefined) ||
-      (typeof caption === "string" ? `${caption} (região com rolagem)` : "Tabela de dados com rolagem horizontal");
+      (props["aria-label"] ? `${props["aria-label"]} (região com rolagem)` : "Tabela de dados com rolagem horizontal");
 
     // Função utilitária para verificar se a coluna deve ser renderizada em negrito
     const isColumnBold = (colIndex: number, columnDef?: TableColumn): boolean => {
@@ -513,12 +500,6 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
           className={cn(tableVariants({ variant, density }))}
           {...props}
         >
-          {caption && (
-            <TableCaption side={captionSide} srOnly={captionSrOnly}>
-              {caption}
-            </TableCaption>
-          )}
-
           {isDeclarativeMode ? (
             <>
               {shouldRenderHeader && normalizedColumns.length > 0 && (

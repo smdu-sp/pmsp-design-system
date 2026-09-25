@@ -79,9 +79,6 @@ const meta: Meta<TableProps> = {
     columnsCount: 3,
     boldColumns: [0],
     rowHeaderColIndex: 0,
-    caption: "Materiais informativos e canais de atendimento da CIPA",
-    captionSide: "bottom",
-    captionSrOnly: false,
     headers: CIPA_HEADERS,
     data: CIPA_DATA,
     variant: "default",
@@ -104,19 +101,6 @@ const meta: Meta<TableProps> = {
     rowHeaderColIndex: {
       control: { type: "number", min: 0, max: 4, step: 1 },
       description: 'Índice da coluna que age semanticamente como cabeçalho de linha (<th scope="row">)',
-    },
-    caption: {
-      control: "text",
-      description: "Legenda descritiva acessível (renderiza <caption>)",
-    },
-    captionSide: {
-      control: "select",
-      options: ["top", "bottom"],
-      description: "Posição do caption na tabela",
-    },
-    captionSrOnly: {
-      control: "boolean",
-      description: "Oculta visualmente o caption mantendo acessível para leitores de tela",
     },
     isLoading: {
       control: "boolean",
@@ -163,7 +147,6 @@ export const Default: Story = {
     columnsCount: 3,
     boldColumns: [0],
     rowHeaderColIndex: 0,
-    caption: "Materiais informativos e canais de atendimento da CIPA",
     headers: CIPA_HEADERS,
     data: CIPA_DATA,
   },
@@ -230,7 +213,7 @@ export const Empty: Story = {
  */
 export const CompoundComposition: Story = {
   render: () => (
-    <Table className="max-w-4xl mx-auto" caption={<TableCaption side="top">Mapeamento de riscos e trabalhadores por unidade operacional</TableCaption>}>
+    <Table className="max-w-4xl mx-auto">
       <TableHeader>
         <TableRow hoverable={false}>
           <TableHead>Identificador</TableHead>
@@ -274,4 +257,3 @@ export const CompoundComposition: Story = {
     </Table>
   ),
 };
-
