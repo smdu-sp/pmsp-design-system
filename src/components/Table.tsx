@@ -535,7 +535,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                         className="inline-flex flex-col items-center justify-center gap-2 text-slate-600 font-medium"
                       >
                         <Loader2
-                          className="w-6 h-6 animate-spin text-blue-600 motion-reduce:animate-none"
+                          className="w-6 h-6 animate-spin text-blue-600 shrink-0 inline-block"
                           aria-hidden="true"
                         />
                         <span>{loadingMessage}</span>
