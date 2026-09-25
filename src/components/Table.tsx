@@ -487,7 +487,10 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
     }, [columns, headers, columnsCount, boldColumns]);
 
     const isDeclarativeMode = normalizedColumns.length > 0 || (data && data.length > 0);
-    const shouldRenderHeader = hasHeader !== undefined ? hasHeader : showHeader;
+    const shouldRenderHeader =
+      showHeader === false || (showHeader as unknown) === "false" || hasHeader === false || (hasHeader as unknown) === "false"
+        ? false
+        : true;
 
     return (
       <div
@@ -627,8 +630,20 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 )}
               </TableBody>
             </>
-          ) : (
+          ) : shouldRenderHeader ? (
             children
+          ) : (
+            React.Children.map(children, (child) => {
+              if (
+                React.isValidElement(child) &&
+                (child.type === TableHeader ||
+                  (child.type as any)?.displayName === "TableHeader" ||
+                  (typeof child.type === "string" && child.type === "thead"))
+              ) {
+                return null;
+              }
+              return child;
+            })
           )}
         </table>
       </div>

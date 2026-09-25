@@ -75,6 +75,7 @@ const meta: Meta<TableProps> = {
   component: Table,
   tags: ["autodocs"],
   args: {
+    showHeader: true,
     columnsCount: 3,
     boldColumns: [0],
     rowHeaderColIndex: 0,
@@ -88,6 +89,10 @@ const meta: Meta<TableProps> = {
     hoverable: true,
   },
   argTypes: {
+    showHeader: {
+      control: "boolean",
+      description: "Define se o cabeçalho (<thead>) da tabela deve ser exibido",
+    },
     columnsCount: {
       control: { type: "range", min: 1, max: 5, step: 1 },
       description: "Define quantas colunas vão existir na tabela",
@@ -161,6 +166,15 @@ export const Default: Story = {
     caption: "Materiais informativos e canais de atendimento da CIPA",
     headers: CIPA_HEADERS,
     data: CIPA_DATA,
+  },
+};
+
+/**
+ * Tabela sem a linha de cabeçalho (`showHeader={false}`), indicada para listagens compactas ou cards tabulares.
+ */
+export const WithoutHeader: Story = {
+  args: {
+    showHeader: false,
   },
 };
 
