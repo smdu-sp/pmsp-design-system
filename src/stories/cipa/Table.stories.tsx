@@ -1,74 +1,9 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Table, type TableProps, TableHeader, TableBody, TableRow, TableHead, TableCell, TableCaption } from "@/components/Table";
+import { CIPA_DATA } from "@/components/mock-cipa-data";
+import { Table, type TableProps, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/Table";
 
 const CIPA_HEADERS = ["Tema", "Descrição", "Acesso"];
-
-const CIPA_DATA = [
-  [
-    "Cartaz do mês (histórico)",
-    "Cartazes já publicados, disponíveis para consulta.",
-    <span key="1" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-  [
-    "E-mails informativos",
-    "Comunicados enviados periodicamente pela CIPA.",
-    <span key="2" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-  [
-    "Mapa de risco",
-    "Mapeamento de riscos por unidade/setor.",
-    <span key="3" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-  [
-    "Legislação",
-    "Normas regulamentadoras e legislação aplicável.",
-    <span key="4" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-  [
-    "CAT — Comunicação de Acidente de Trabalho",
-    "Como preencher e onde encaminhar.",
-    <span key="5" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-  [
-    "Assédio — acolhimento e orientações",
-    "Como identificar, denunciar e buscar apoio.",
-    <span key="6" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-  [
-    "Calendário e atas de reuniões",
-    "Datas dos encontros e registros das decisões da CIPA.",
-    <span key="7" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-  [
-    "Perguntas frequentes (FAQ)",
-    "Respostas para as dúvidas mais comuns.",
-    <span key="8" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-  [
-    "Artigos e temas",
-    "Conteúdos aprofundando prevenção e saúde no trabalho.",
-    <span key="9" className="italic text-slate-600 font-medium">
-      Em breve
-    </span>,
-  ],
-];
 
 const meta: Meta<TableProps> = {
   title: "CIPA/Table",
@@ -101,6 +36,30 @@ const meta: Meta<TableProps> = {
     rowHeaderColIndex: {
       control: { type: "number", min: 0, max: 4, step: 1 },
       description: 'Índice da coluna que age semanticamente como cabeçalho de linha (<th scope="row">)',
+    },
+    limit: {
+      control: { type: "range", min: 1, max: 100, step: 1 },
+      description: "Limite de itens exibidos na tabela. Se o limite for atingido, a paginação é exibida automaticamente.",
+    },
+    pageSize: {
+      control: { type: "range", min: 1, max: 100, step: 1 },
+      description: "Alias para o limite de itens por página.",
+    },
+    showPaginationInfo: {
+      control: "boolean",
+      description: "Exibe o resumo informativo com a contagem de itens exibidos.",
+    },
+    showFirstLastButtons: {
+      control: "boolean",
+      description: "Exibe botões para navegar diretamente para a primeira e última página.",
+    },
+    pageSizeOptions: {
+      control: "object",
+      description: "Opções para o seletor de limite de itens por página (ex: [3, 5, 9]).",
+    },
+    hideOnSinglePage: {
+      control: "boolean",
+      description: "Oculta a barra de paginação quando houver apenas 1 página.",
     },
     isLoading: {
       control: "boolean",
@@ -145,10 +104,25 @@ type Story = StoryObj<TableProps>;
 export const Default: Story = {
   args: {
     columnsCount: 3,
+    limit: 5,
+    pageSizeOptions: [5, 10, 20, 50],
     boldColumns: [0],
     rowHeaderColIndex: 0,
     headers: CIPA_HEADERS,
     data: CIPA_DATA,
+  },
+};
+
+/**
+ * Tabela padrão com paginação e seletor de quantidade de itens por página (`pageSizeOptions={[3, 5, 9]}`).
+ */
+export const Pagination: Story = {
+  args: {
+    limit: 5,
+    pageSizeOptions: [5, 10, 20, 50],
+    showFirstLastButtons: true,
+    showPaginationInfo: true,
+    hideOnSinglePage: false,
   },
 };
 
@@ -158,33 +132,20 @@ export const Default: Story = {
 export const WithoutHeader: Story = {
   args: {
     showHeader: false,
+    limit: 5,
+    pageSizeOptions: [5, 10, 20, 50],
   },
 };
 
 /**
- * Tabela zebrada (striped) com linhas alternadas para facilitar a leitura.
+ * Demonstração dos estilos visuais da tabela, englobando as variações de estilo (striped, bordered)
+ * e densidade de espaçamento das células (compact, relaxed).
  */
-export const Striped: Story = {
+export const VisualStyles: Story = {
   args: {
     variant: "striped",
-  },
-};
-
-/**
- * Tabela com bordas (bordered) entre células e colunas.
- */
-export const Bordered: Story = {
-  args: {
-    variant: "bordered",
-  },
-};
-
-/**
- * Modo compacto com espaçamento reduzido para modais ou painéis com espaço restrito.
- */
-export const Compact: Story = {
-  args: {
     density: "compact",
+    limit: 5,
   },
 };
 

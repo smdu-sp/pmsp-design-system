@@ -9,6 +9,7 @@ export {
   type TableRowProps,
   type TableCellProps,
   type TableCaptionProps,
+  type TablePaginationProps,
   TableHeader,
   TableBody,
   TableFooter,
@@ -16,5 +17,7 @@ export {
   TableHead,
   TableCell,
   TableCaption,
+  TablePagination,
 } from "./Table";
+
 

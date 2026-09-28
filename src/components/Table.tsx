@@ -1,6 +1,15 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { ArrowUpDown, ArrowUp, ArrowDown, Loader2 } from "lucide-react";
+import {
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import { cn } from "@/utils/cn";
 
 export const tableVariants = cva("w-full text-left text-sm border-collapse", {
@@ -131,6 +140,83 @@ export interface TableProps extends React.HTMLAttributes<HTMLTableElement>, Vari
 
   /** Raio de borda personalizado do container (ex: '16px', '1rem', '9999px' ou número) */
   borderRadius?: string | number;
+
+  /**
+   * Define o limite de itens exibidos por página na tabela.
+   * Se a quantidade de itens atingir ou ultrapassar esse limite, a paginação é exibida automaticamente.
+   */
+  limit?: number;
+
+  /**
+   * Alias para `limit`. Define a quantidade de linhas por página.
+   */
+  pageSize?: number;
+
+  /**
+   * Página atual em modo controlado (iniciando em 1).
+   */
+  page?: number;
+
+  /**
+   * Página inicial padrão para modo não-controlado (padrão: 1).
+   */
+  defaultPage?: number;
+
+  /**
+   * Callback acionado ao alterar de página.
+   */
+  onPageChange?: (page: number) => void;
+
+  /**
+   * Quantidade total de registros para cálculo da paginação.
+   * Por padrão, assume a quantidade de itens no array `data`.
+   */
+  totalItems?: number;
+
+  /**
+   * Força a exibição (true) ou ocultação (false) dos controles de paginação.
+   * Se omitido, é exibido automaticamente caso o total de registros atinja ou supere o limite definido.
+   */
+  showPagination?: boolean;
+
+  /**
+   * Se verdadeiro, oculta os controles de paginação quando houver apenas 1 página.
+   * @default false
+   */
+  hideOnSinglePage?: boolean;
+
+  /**
+   * Define se exibe a contagem informativa de itens (ex: "Mostrando 1 a 4 de 9 itens").
+   * @default true
+   */
+  showPaginationInfo?: boolean;
+
+  /**
+   * Exibe botões para saltar diretamente para a primeira e última página.
+   * @default false
+   */
+  showFirstLastButtons?: boolean;
+
+  /**
+   * Opções numéricas para o seletor de limite de itens por página (ex: [3, 5, 10]).
+   */
+  pageSizeOptions?: number[];
+
+  /**
+   * Callback acionado ao alterar o limite de itens por página pelo seletor.
+   */
+  onPageSizeChange?: (pageSize: number) => void;
+
+  /**
+   * Rótulo acessível da barra de navegação de páginas.
+   * @default "Paginação da tabela"
+   */
+  paginationAriaLabel?: string;
+
+  /**
+   * Classes CSS complementares para a barra de paginação.
+   */
+  paginationClassName?: string;
 }
 
 // --- Componentes Compostos ---
@@ -350,6 +436,325 @@ export const TableCaption = React.forwardRef<HTMLTableCaptionElement, TableCapti
 );
 TableCaption.displayName = "TableCaption";
 
+// --- Subcomponente de Paginação ---
+
+export interface TablePaginationProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Página atual (1-indexada) */
+  currentPage: number;
+  /** Quantidade total de páginas */
+  totalPages: number;
+  /** Quantidade total de itens */
+  totalItems?: number;
+  /** Quantidade de itens exibidos por página */
+  pageSize?: number;
+  /** Callback acionado ao alterar de página */
+  onPageChange: (page: number) => void;
+  /** Define se exibe o texto resumo (ex: "Mostrando 1 a 4 de 9 itens") */
+  showInfo?: boolean;
+  /** Exibe botões para saltar para a primeira e última página */
+  showFirstLast?: boolean;
+  /** Opções numéricas para o seletor de quantidade de itens por página */
+  pageSizeOptions?: number[];
+  /** Callback acionado ao alterar o pageSize pelo seletor */
+  onPageSizeChange?: (pageSize: number) => void;
+  /** Rótulo acessível da região de paginação */
+  ariaLabel?: string;
+  /** Termo utilizado para nomear os itens no resumo (padrão: "itens") */
+  itemLabel?: string;
+}
+
+/**
+ * Calcula a lista de páginas e reticências a serem exibidas na paginação.
+ */
+function getPaginationRange(currentPage: number, totalPages: number): (number | string)[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const showLeftEllipsis = currentPage > 4;
+  const showRightEllipsis = currentPage < totalPages - 3;
+
+  if (!showLeftEllipsis && showRightEllipsis) {
+    return [1, 2, 3, 4, 5, "...", totalPages];
+  }
+
+  if (showLeftEllipsis && !showRightEllipsis) {
+    return [
+      1,
+      "...",
+      totalPages - 4,
+      totalPages - 3,
+      totalPages - 2,
+      totalPages - 1,
+      totalPages,
+    ];
+  }
+
+  return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+}
+
+export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationProps>(
+  (
+    {
+      className,
+      currentPage,
+      totalPages,
+      totalItems,
+      pageSize,
+      onPageChange,
+      showInfo = true,
+      showFirstLast = true,
+      pageSizeOptions,
+      onPageSizeChange,
+      ariaLabel = "Paginação da tabela",
+      itemLabel = "itens",
+      ...props
+    },
+    ref,
+  ) => {
+    const pages = React.useMemo(
+      () => getPaginationRange(currentPage, totalPages),
+      [currentPage, totalPages],
+    );
+
+    const startIndex = pageSize ? (currentPage - 1) * pageSize : 0;
+    const endIndex = pageSize ? startIndex + pageSize : (totalItems ?? 0);
+
+    const navButtonClass = cn(
+      "inline-flex items-center justify-center h-8 rounded-lg border border-slate-200/80 bg-white text-slate-700 shadow-xs transition-colors motion-reduce:transition-none shrink-0",
+      "hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300 cursor-pointer",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1",
+      "disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none disabled:border-slate-200",
+    );
+
+    return (
+      <div
+        ref={ref}
+        role="group"
+        aria-label={ariaLabel}
+        className={cn(
+          "flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 px-3 sm:px-6 py-3 border-t border-slate-200/80 bg-slate-50/50 text-slate-700 text-xs sm:text-sm select-none",
+          className,
+        )}
+        {...props}
+      >
+        {/* Bloco de informações e seletor de linhas por página */}
+        <div className="flex items-center justify-between w-full sm:w-auto gap-2 sm:gap-4">
+          {showInfo && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="text-xs sm:text-sm text-slate-600 font-medium"
+            >
+              {totalItems !== undefined && pageSize !== undefined ? (
+                <>
+                  <span className="hidden sm:inline">Mostrando </span>
+                  <span className="font-semibold text-slate-900">
+                    {totalItems === 0 ? 0 : startIndex + 1}
+                  </span>{" "}
+                  a{" "}
+                  <span className="font-semibold text-slate-900">
+                    {Math.min(endIndex, totalItems)}
+                  </span>{" "}
+                  de{" "}
+                  <span className="font-semibold text-slate-900">{totalItems}</span>{" "}
+                  {itemLabel}
+                </>
+              ) : (
+                <>
+                  Página{" "}
+                  <span className="font-semibold text-slate-900">{currentPage}</span>{" "}
+                  de{" "}
+                  <span className="font-semibold text-slate-900">{totalPages}</span>
+                </>
+              )}
+            </div>
+          )}
+
+          {pageSizeOptions && pageSizeOptions.length > 0 && onPageSizeChange && (
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-600 shrink-0">
+              <label
+                htmlFor="table-page-size-select"
+                className="text-slate-600 font-medium whitespace-nowrap"
+              >
+                <span className="hidden sm:inline">Itens por página:</span>
+                <span className="sm:hidden text-xs">Por pág:</span>
+              </label>
+              <select
+                id="table-page-size-select"
+                value={pageSize}
+                onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                aria-label="Selecionar quantidade de itens por página"
+                className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs sm:text-sm font-medium text-slate-800 shadow-xs hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 cursor-pointer"
+              >
+                {pageSizeOptions.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Bloco de navegação acessível e responsivo */}
+        <nav
+          role="navigation"
+          aria-label={ariaLabel}
+          className="w-full sm:w-auto"
+        >
+          {/* Visualização para Mobile (< 640px): Compacta e perfeitamente ajustada */}
+          <div className="flex sm:hidden items-center justify-between w-full gap-2 pt-2 border-t border-slate-200/60">
+            <div className="inline-flex items-center gap-1">
+              {showFirstLast && (
+                <button
+                  type="button"
+                  onClick={() => onPageChange(1)}
+                  disabled={currentPage <= 1}
+                  aria-label="Ir para a primeira página"
+                  className={cn(navButtonClass, "w-8 h-8 p-0")}
+                >
+                  <ChevronsLeft className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only">Primeira página</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+                aria-label="Ir para a página anterior"
+                className={cn(navButtonClass, "w-8 h-8 p-0")}
+              >
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                <span className="sr-only">Página anterior</span>
+              </button>
+            </div>
+
+            <div className="text-xs font-medium text-slate-700 select-none text-center px-1">
+              Página <strong className="font-bold text-slate-900">{currentPage}</strong> de{" "}
+              <strong className="font-bold text-slate-900">{totalPages}</strong>
+            </div>
+
+            <div className="inline-flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+                aria-label="Ir para a próxima página"
+                className={cn(navButtonClass, "w-8 h-8 p-0")}
+              >
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                <span className="sr-only">Próxima página</span>
+              </button>
+              {showFirstLast && (
+                <button
+                  type="button"
+                  onClick={() => onPageChange(totalPages)}
+                  disabled={currentPage >= totalPages}
+                  aria-label="Ir para a última página"
+                  className={cn(navButtonClass, "w-8 h-8 p-0")}
+                >
+                  <ChevronsRight className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only">Última página</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Visualização para Desktop e Tablets (>= 640px) */}
+          <div className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 justify-end">
+            {showFirstLast && (
+              <button
+                type="button"
+                onClick={() => onPageChange(1)}
+                disabled={currentPage <= 1}
+                aria-label="Ir para a primeira página"
+                className={cn(navButtonClass, "w-8 p-0")}
+              >
+                <ChevronsLeft className="w-4 h-4" aria-hidden="true" />
+                <span className="sr-only">Primeira página</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage <= 1}
+              aria-label="Ir para a página anterior"
+              className={cn(navButtonClass, "gap-1 px-2.5 sm:px-3")}
+            >
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+              <span className="hidden sm:inline font-medium">Anterior</span>
+            </button>
+
+            <div className="inline-flex items-center gap-1">
+              {pages.map((p, idx) => {
+                if (typeof p === "string") {
+                  return (
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className="inline-flex items-center justify-center min-w-[2rem] h-8 text-slate-400 select-none text-xs sm:text-sm"
+                      aria-hidden="true"
+                    >
+                      &hellip;
+                    </span>
+                  );
+                }
+
+                const isActive = p === currentPage;
+                return (
+                  <button
+                    type="button"
+                    key={`page-${p}`}
+                    onClick={() => onPageChange(p)}
+                    aria-current={isActive ? "page" : undefined}
+                    aria-label={
+                      isActive ? `Página ${p}, página atual` : `Ir para a página ${p}`
+                    }
+                    className={cn(
+                      "inline-flex items-center justify-center min-w-[2rem] h-8 px-2 text-xs sm:text-sm font-medium rounded-lg transition-colors motion-reduce:transition-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1",
+                      isActive
+                        ? "bg-slate-900 text-white font-semibold shadow-xs"
+                        : "text-slate-700 hover:bg-slate-200/70 hover:text-slate-900 border border-transparent",
+                    )}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              aria-label="Ir para a próxima página"
+              className={cn(navButtonClass, "gap-1 px-2.5 sm:px-3")}
+            >
+              <span className="hidden sm:inline font-medium">Próxima</span>
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
+            </button>
+
+            {showFirstLast && (
+              <button
+                type="button"
+                onClick={() => onPageChange(totalPages)}
+                disabled={currentPage >= totalPages}
+                aria-label="Ir para a última página"
+                className={cn(navButtonClass, "w-8 p-0")}
+              >
+                <ChevronsRight className="w-4 h-4" aria-hidden="true" />
+                <span className="sr-only">Última página</span>
+              </button>
+            )}
+          </div>
+        </nav>
+      </div>
+    );
+  },
+);
+TablePagination.displayName = "TablePagination";
+
 // --- Componente Principal Table ---
 
 export const Table = React.forwardRef<HTMLTableElement, TableProps>(
@@ -377,18 +782,122 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
       backgroundColor,
       textColor,
       borderRadius,
+      limit,
+      pageSize,
+      page,
+      defaultPage = 1,
+      onPageChange,
+      totalItems,
+      showPagination,
+      hideOnSinglePage = false,
+      showPaginationInfo = true,
+      showFirstLastButtons = true,
+      pageSizeOptions,
+      onPageSizeChange,
+      paginationAriaLabel,
+      paginationClassName,
       style,
       children,
       ...props
     },
     ref,
   ) => {
+    // Resolução do tamanho de página / limite de itens
+    const initialPageSize =
+      typeof pageSize === "number" ? pageSize : typeof limit === "number" ? limit : undefined;
+    const [internalPageSize, setInternalPageSize] = React.useState<number | undefined>(initialPageSize);
+
+    React.useEffect(() => {
+      const resolvedSize =
+        typeof pageSize === "number" ? pageSize : typeof limit === "number" ? limit : undefined;
+      setInternalPageSize(resolvedSize);
+    }, [pageSize, limit]);
+
+    const effectivePageSize = internalPageSize;
+
+    // Resolução da página atual (modo controlado vs não-controlado)
+    const [internalPage, setInternalPage] = React.useState<number>(defaultPage ?? 1);
+    const currentPage = page !== undefined ? page : internalPage;
+
+    const totalCount = totalItems !== undefined ? totalItems : data ? data.length : 0;
+    const totalPages =
+      effectivePageSize && effectivePageSize > 0
+        ? Math.max(1, Math.ceil(totalCount / effectivePageSize))
+        : 1;
+
+    // Garante que a página ativa não ultrapasse totalPages nem seja menor que 1
+    const activePage = Math.min(Math.max(1, currentPage), totalPages);
+
+    const handlePageChange = React.useCallback(
+      (newPage: number) => {
+        const clamped = Math.min(Math.max(1, newPage), totalPages);
+        if (page === undefined) {
+          setInternalPage(clamped);
+        }
+        onPageChange?.(clamped);
+      },
+      [page, totalPages, onPageChange],
+    );
+
+    const handlePageSizeChange = React.useCallback(
+      (newSize: number) => {
+        setInternalPageSize(newSize);
+        onPageSizeChange?.(newSize);
+        if (page === undefined) {
+          setInternalPage(1);
+        }
+        onPageChange?.(1);
+      },
+      [page, onPageSizeChange, onPageChange],
+    );
+
+    // Determina se a paginação está ativa
+    const isPaginationActive = Boolean(effectivePageSize && effectivePageSize > 0);
+    const startIndex = isPaginationActive ? (activePage - 1) * effectivePageSize! : 0;
+    const endIndex = isPaginationActive ? startIndex + effectivePageSize! : totalCount;
+
+    // Se houver opções de seletor ou paginação ativa, deve permanecer visível mesmo na capacidade máxima da lista
+    const hasPageSizeSelector = Boolean(pageSizeOptions && pageSizeOptions.length > 0);
+    const shouldRenderPagination =
+      !isLoading &&
+      (showPagination !== undefined
+        ? showPagination
+        : isPaginationActive &&
+          totalCount > 0 &&
+          (!hideOnSinglePage || hasPageSizeSelector || totalPages > 1));
+
+
+    // Fatiamento dos dados a serem exibidos na tabela
+    const paginatedData = React.useMemo(() => {
+      if (!data || !isPaginationActive) return data;
+      // Caso totalItems seja fornecido e data já venha fatiado externamente
+      if (totalItems !== undefined && data.length <= effectivePageSize!) {
+        return data;
+      }
+      return data.slice(startIndex, endIndex);
+    }, [data, isPaginationActive, startIndex, endIndex, totalItems, effectivePageSize]);
+
     // Resolução de estilos customizados
-    const resolvedBg = backgroundColor ? (backgroundColor.startsWith("--") ? `var(${backgroundColor})` : backgroundColor) : undefined;
+    const resolvedBg = backgroundColor
+      ? backgroundColor.startsWith("--")
+        ? `var(${backgroundColor})`
+        : backgroundColor
+      : undefined;
 
-    const resolvedTextColor = textColor ? (textColor.startsWith("--") ? `var(${textColor})` : textColor) : undefined;
+    const resolvedTextColor = textColor
+      ? textColor.startsWith("--")
+        ? `var(${textColor})`
+        : textColor
+      : undefined;
 
-    const resolvedBr = typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius ? (borderRadius.startsWith("--") ? `var(${borderRadius})` : borderRadius) : undefined;
+    const resolvedBr =
+      typeof borderRadius === "number"
+        ? `${borderRadius}px`
+        : borderRadius
+          ? borderRadius.startsWith("--")
+            ? `var(${borderRadius})`
+            : borderRadius
+          : undefined;
 
     const containerStyles: React.CSSProperties = {
       ...(resolvedBg ? { backgroundColor: resolvedBg } : {}),
@@ -400,25 +909,23 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
     // Determina o nome acessível da região com rolagem
     const containerAriaLabel =
       scrollableRegionLabel ||
-      (props["aria-label"] ? `${props["aria-label"]} (região com rolagem)` : "Tabela de dados com rolagem horizontal");
+      (props["aria-label"]
+        ? `${props["aria-label"]} (região com rolagem)`
+        : "Tabela de dados com rolagem horizontal");
 
     // Função utilitária para verificar se a coluna deve ser renderizada em negrito
     const isColumnBold = (colIndex: number, columnDef?: TableColumn): boolean => {
-      // 1. Se o objeto de coluna definir explicitamente bold
       if (columnDef?.bold !== undefined) {
         return columnDef.bold;
       }
 
-      // 2. Se a prop global boldColumns foi informada
       if (boldColumns !== undefined && Array.isArray(boldColumns)) {
         if (boldColumns.length === 0) return false;
 
-        // Se for array de números com índices: ex: [0] ou [0, 2]
         if (typeof boldColumns[0] === "number") {
           return (boldColumns as number[]).includes(colIndex);
         }
 
-        // Se for array de booleanos: ex: [true, false, false]
         if (typeof boldColumns[colIndex] === "boolean") {
           return Boolean(boldColumns[colIndex]);
         }
@@ -440,7 +947,6 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
       if (headers && headers.length > 0) {
         const slicedHeaders = typeof columnsCount === "number" ? headers.slice(0, columnsCount) : headers;
 
-        // Se columnsCount for maior que headers fornecidos, preenche colunas restantes
         const result: TableColumn[] = slicedHeaders.map((header, idx) => ({
           key: `col-${idx}`,
           header,
@@ -481,156 +987,180 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
     return (
       <div
-        role="region"
-        aria-label={containerAriaLabel}
-        tabIndex={keyboardScrollable ? 0 : undefined}
         style={Object.keys(containerStyles).length > 0 ? containerStyles : undefined}
         {...containerProps}
         className={cn(
-          "w-full overflow-x-auto rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all motion-reduce:transition-none",
-          keyboardScrollable &&
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2",
+          "w-full rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden transition-all motion-reduce:transition-none flex flex-col",
           containerProps?.className,
           className,
         )}
       >
-        <table
-          ref={ref}
-          aria-busy={isLoading ? true : undefined}
-          className={cn(tableVariants({ variant, density }))}
-          {...props}
-        >
-          {isDeclarativeMode ? (
-            <>
-              {shouldRenderHeader && normalizedColumns.length > 0 && (
-                <TableHeader>
-                  <TableRow hoverable={false}>
-                    {normalizedColumns.map((col, colIndex) => (
-                      <TableHead
-                        key={col.key || `head-${colIndex}`}
-                        align={col.align}
-                        sortable={col.sortable}
-                        sortDirection={col.sortDirection}
-                        onSort={col.onSort}
-                        sortAriaLabel={col.sortAriaLabel}
-                        style={col.width ? { width: col.width } : undefined}
-                      >
-                        {col.header}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-              )}
-
-              <TableBody>
-                {isLoading ? (
-                  <TableRow hoverable={false}>
-                    <TableCell
-                      colSpan={normalizedColumns.length || columnsCount || 1}
-                      className="py-12 text-center"
-                    >
-                      <div
-                        role="status"
-                        aria-live="polite"
-                        className="inline-flex flex-col items-center justify-center gap-2 text-slate-600 font-medium"
-                      >
-                        <Loader2
-                          className="w-6 h-6 animate-spin text-blue-600 shrink-0 inline-block"
-                          aria-hidden="true"
-                        />
-                        <span>{loadingMessage}</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : data && data.length > 0 ? (
-                  data.map((row, rowIndex) => {
-                    const isArrayRow = Array.isArray(row);
-                    const totalCols =
-                      normalizedColumns.length > 0
-                        ? normalizedColumns.length
-                        : typeof columnsCount === "number"
-                          ? columnsCount
-                          : isArrayRow
-                            ? (row as any[]).length
-                            : Object.keys(row).length;
-
-                    return (
-                      <TableRow
-                        key={`row-${rowIndex}`}
-                        hoverable={hoverable}
-                        isInteractive={Boolean(onRowClick)}
-                        onClick={onRowClick ? () => onRowClick(row, rowIndex) : undefined}
-                      >
-                        {Array.from({ length: totalCols }).map((_, colIndex) => {
-                          const colDef = normalizedColumns[colIndex];
-                          const cellBold = isColumnBold(colIndex, colDef);
-                          const isRowHeader =
-                            colDef?.isRowHeader ??
-                            (rowHeaderColIndex !== undefined ? rowHeaderColIndex === colIndex : false);
-
-                          let cellValue: React.ReactNode = null;
-                          if (isArrayRow) {
-                            cellValue = (row as any[])[colIndex];
-                          } else if (colDef?.key && typeof row === "object") {
-                            cellValue = (row as Record<string, any>)[colDef.key];
-                          } else if (typeof row === "object") {
-                            const keys = Object.keys(row);
-                            cellValue = (row as Record<string, any>)[keys[colIndex]];
-                          }
-
-                          const renderedContent = colDef?.render
-                            ? colDef.render(cellValue, row, rowIndex, colIndex)
-                            : cellValue;
-
-                          return (
-                            <TableCell
-                              key={`cell-${rowIndex}-${colIndex}`}
-                              as={isRowHeader ? "th" : "td"}
-                              scope={isRowHeader ? "row" : undefined}
-                              bold={cellBold}
-                              align={colDef?.align}
-                            >
-                              {renderedContent}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    );
-                  })
-                ) : (
-                  <TableRow hoverable={false}>
-                    <TableCell
-                      colSpan={normalizedColumns.length || columnsCount || 1}
-                      className="py-8 text-center"
-                    >
-                      <div role="status" aria-live="polite" className="text-slate-600 font-medium italic">
-                        {emptyMessage}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </>
-          ) : shouldRenderHeader ? (
-            children
-          ) : (
-            React.Children.map(children, (child) => {
-              if (
-                React.isValidElement(child) &&
-                (child.type === TableHeader ||
-                  (child.type as any)?.displayName === "TableHeader" ||
-                  (typeof child.type === "string" && child.type === "thead"))
-              ) {
-                return null;
-              }
-              return child;
-            })
+        <div
+          role="region"
+          aria-label={containerAriaLabel}
+          tabIndex={keyboardScrollable ? 0 : undefined}
+          className={cn(
+            "w-full overflow-x-auto",
+            keyboardScrollable &&
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-inset",
           )}
-        </table>
+        >
+          <table
+            ref={ref}
+            aria-busy={isLoading ? true : undefined}
+            className={cn(tableVariants({ variant, density }))}
+            {...props}
+          >
+            {isDeclarativeMode ? (
+              <>
+                {shouldRenderHeader && normalizedColumns.length > 0 && (
+                  <TableHeader>
+                    <TableRow hoverable={false}>
+                      {normalizedColumns.map((col, colIndex) => (
+                        <TableHead
+                          key={col.key || `head-${colIndex}`}
+                          align={col.align}
+                          sortable={col.sortable}
+                          sortDirection={col.sortDirection}
+                          onSort={col.onSort}
+                          sortAriaLabel={col.sortAriaLabel}
+                          style={col.width ? { width: col.width } : undefined}
+                        >
+                          {col.header}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                )}
+
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow hoverable={false}>
+                      <TableCell
+                        colSpan={normalizedColumns.length || columnsCount || 1}
+                        className="py-12 text-center"
+                      >
+                        <div
+                          role="status"
+                          aria-live="polite"
+                          className="inline-flex flex-col items-center justify-center gap-2 text-slate-600 font-medium"
+                        >
+                          <Loader2
+                            className="w-6 h-6 animate-spin text-blue-600 shrink-0 inline-block"
+                            aria-hidden="true"
+                          />
+                          <span>{loadingMessage}</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : paginatedData && paginatedData.length > 0 ? (
+                    paginatedData.map((row, indexOnPage) => {
+                      const rowIndex = startIndex + indexOnPage;
+                      const isArrayRow = Array.isArray(row);
+                      const totalCols =
+                        normalizedColumns.length > 0
+                          ? normalizedColumns.length
+                          : typeof columnsCount === "number"
+                            ? columnsCount
+                            : isArrayRow
+                              ? (row as any[]).length
+                              : Object.keys(row).length;
+
+                      return (
+                        <TableRow
+                          key={`row-${rowIndex}`}
+                          hoverable={hoverable}
+                          isInteractive={Boolean(onRowClick)}
+                          onClick={onRowClick ? () => onRowClick(row, rowIndex) : undefined}
+                        >
+                          {Array.from({ length: totalCols }).map((_, colIndex) => {
+                            const colDef = normalizedColumns[colIndex];
+                            const cellBold = isColumnBold(colIndex, colDef);
+                            const isRowHeader =
+                              colDef?.isRowHeader ??
+                              (rowHeaderColIndex !== undefined ? rowHeaderColIndex === colIndex : false);
+
+                            let cellValue: React.ReactNode = null;
+                            if (isArrayRow) {
+                              cellValue = (row as any[])[colIndex];
+                            } else if (colDef?.key && typeof row === "object") {
+                              cellValue = (row as Record<string, any>)[colDef.key];
+                            } else if (typeof row === "object") {
+                              const keys = Object.keys(row);
+                              cellValue = (row as Record<string, any>)[keys[colIndex]];
+                            }
+
+                            const renderedContent = colDef?.render
+                              ? colDef.render(cellValue, row, rowIndex, colIndex)
+                              : cellValue;
+
+                            return (
+                              <TableCell
+                                key={`cell-${rowIndex}-${colIndex}`}
+                                as={isRowHeader ? "th" : "td"}
+                                scope={isRowHeader ? "row" : undefined}
+                                bold={cellBold}
+                                align={colDef?.align}
+                              >
+                                {renderedContent}
+                              </TableCell>
+                            );
+                          })}
+                        </TableRow>
+                      );
+                    })
+                  ) : (
+                    <TableRow hoverable={false}>
+                      <TableCell
+                        colSpan={normalizedColumns.length || columnsCount || 1}
+                        className="py-8 text-center"
+                      >
+                        <div role="status" aria-live="polite" className="text-slate-600 font-medium italic">
+                          {emptyMessage}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </>
+            ) : shouldRenderHeader ? (
+              children
+            ) : (
+              React.Children.map(children, (child) => {
+                if (
+                  React.isValidElement(child) &&
+                  (child.type === TableHeader ||
+                    (child.type as any)?.displayName === "TableHeader" ||
+                    (typeof child.type === "string" && child.type === "thead"))
+                ) {
+                  return null;
+                }
+                return child;
+              })
+            )}
+          </table>
+        </div>
+
+        {shouldRenderPagination && (
+          <TablePagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            totalItems={totalCount}
+            pageSize={effectivePageSize}
+            onPageChange={handlePageChange}
+            showInfo={showPaginationInfo}
+            showFirstLast={showFirstLastButtons}
+            pageSizeOptions={pageSizeOptions}
+            onPageSizeChange={handlePageSizeChange}
+            ariaLabel={paginationAriaLabel}
+            className={paginationClassName}
+          />
+        )}
       </div>
     );
   },
 );
 
 Table.displayName = "Table";
+
 
