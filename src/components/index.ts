@@ -10,6 +10,8 @@ export {
   type TableCellProps,
   type TableCaptionProps,
   type TablePaginationProps,
+  type TableFilterType,
+  type TableFilterOption,
   TableHeader,
   TableBody,
   TableFooter,
@@ -19,5 +21,7 @@ export {
   TableCaption,
   TablePagination,
 } from "./Table";
+export { Dropdown, type DropdownProps } from "./Dropdown";
+export { TableColumnFilter, type TableColumnFilterProps } from "./TableColumnFilter";
 
 

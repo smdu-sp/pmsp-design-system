@@ -1,20 +1,35 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  RotateCcw,
+} from "lucide-react";
 import { cn } from "@/utils/cn";
 import {
   type TableColumn,
+  type TableFilterType,
+  type TableFilterOption,
   getPaginationRange,
   isColumnBold,
   resolveContainerStyles,
   getContainerAriaLabel,
-  normalizeTableColumns,
-  paginateData,
   extractCellValue,
-  calculatePaginationValues,
+  handleRowKeyDown,
+  filterChildrenWithoutHeader,
+  useTableState,
+  updateColumnFilter,
 } from "@/utils/table";
+import { TableColumnFilter, type TableColumnFilterProps } from "./TableColumnFilter";
 
-export type { TableColumn };
+export type { TableColumn, TableFilterType, TableFilterOption, TableColumnFilterProps };
+export { TableColumnFilter, useTableState, updateColumnFilter };
 
 export const tableVariants = cva("w-full text-left text-sm border-collapse", {
   variants: {
@@ -200,6 +215,28 @@ export interface TableProps extends React.HTMLAttributes<HTMLTableElement>, Vari
    * Classes CSS complementares para a barra de paginação.
    */
   paginationClassName?: string;
+
+  /**
+   * Habilita menu dropdown de filtro no cabeçalho das colunas.
+   * Se definido como true, torna todas as colunas filtráveis por padrão (salvo se a coluna definir `filterable: false`).
+   */
+  filterable?: boolean;
+
+  /**
+   * Valores dos filtros ativos por coluna (formato `{ [colunaKey]: valor }`).
+   * Utilizado para controle externo do estado dos filtros.
+   */
+  filters?: Record<string, any>;
+
+  /**
+   * Filtros iniciais padrão para modo não-controlado.
+   */
+  defaultFilters?: Record<string, any>;
+
+  /**
+   * Callback acionado sempre que algum filtro de coluna é aplicado, alterado ou limpo.
+   */
+  onFilterChange?: (filters: Record<string, any>) => void;
 }
 
 // --- Componentes Compostos ---
@@ -225,26 +262,19 @@ export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement>
   selected?: boolean;
 }
 
-export const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(({ className, hoverable = true, isInteractive = false, selected, onClick, onKeyDown, tabIndex, role, ...props }, ref) => {
-  const isClickable = isInteractive || Boolean(onClick);
+export const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
+  ({ className, hoverable = true, isInteractive = false, selected, onClick, onKeyDown, tabIndex, role, ...props }, ref) => {
+    const isClickable = isInteractive || Boolean(onClick);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTableRowElement>) => {
-    if (isClickable && (e.key === "Enter" || e.key === " ")) {
-      e.preventDefault();
-      onClick?.(e as any);
-    }
-    onKeyDown?.(e);
-  };
-
-  return (
-    <tr
-      ref={ref}
-      tabIndex={isClickable ? (tabIndex ?? 0) : tabIndex}
-      role={isClickable ? (role ?? "button") : role}
-      aria-selected={selected}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      className={cn(
+    return (
+      <tr
+        ref={ref}
+        tabIndex={isClickable ? (tabIndex ?? 0) : tabIndex}
+        role={isClickable ? (role ?? "button") : role}
+        aria-selected={selected}
+        onClick={onClick}
+        onKeyDown={(e) => handleRowKeyDown(e, isClickable, onClick, onKeyDown)}
+        className={cn(
         "border-slate-100 last:border-b-0 transition-colors motion-reduce:transition-none",
         hoverable && "hover:bg-slate-50/70",
         selected && "bg-blue-50/70 hover:bg-blue-50/90",
@@ -263,54 +293,131 @@ export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElem
   sortDirection?: "ascending" | "descending" | "none" | false;
   onSort?: () => void;
   sortAriaLabel?: string;
+  /** Habilita menu dropdown de filtro no cabeçalho */
+  filterable?: boolean;
+  /** Tipo de filtro exibido: 'checkbox' | 'select' | 'text' */
+  filterType?: TableFilterType;
+  /** Opções de valores para o filtro */
+  filterOptions?: (string | TableFilterOption)[];
+  /** Valor atualmente selecionado no filtro */
+  filterValue?: any;
+  /** Callback acionado ao alterar o valor do filtro */
+  onFilterChange?: (value: any) => void;
+  /** Placeholder customizado para o campo de texto/busca do filtro */
+  filterPlaceholder?: string;
 }
 
 export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
-  ({ className, align = "left", scope = "col", sortable = false, sortDirection, onSort, sortAriaLabel, children, ...props }, ref) => {
+  (
+    {
+      className,
+      align = "left",
+      scope = "col",
+      sortable = false,
+      sortDirection,
+      onSort,
+      sortAriaLabel,
+      filterable = false,
+      filterType = "checkbox",
+      filterOptions,
+      filterValue,
+      onFilterChange,
+      filterPlaceholder,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
     const ariaSortValue = sortDirection || (sortable ? "none" : undefined);
+    const hasFilter = filterable && Boolean(onFilterChange || filterOptions);
+
+    const sortButton = sortable ? (
+      <button
+        type="button"
+        onClick={onSort}
+        aria-label={
+          sortAriaLabel ||
+          (typeof children === "string"
+            ? `Ordenar por ${children}${
+                sortDirection === "ascending"
+                  ? ", atualmente em ordem crescente"
+                  : sortDirection === "descending"
+                    ? ", atualmente em ordem decrescente"
+                    : ", não ordenado"
+              }`
+            : undefined)
+        }
+        className={cn(
+          "group inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 -mx-1.5 -my-1 font-bold text-slate-900",
+          "hover:bg-slate-200/70 transition-colors motion-reduce:transition-none cursor-pointer",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1",
+          align === "center" && "justify-center mx-auto",
+          align === "right" && "justify-end ml-auto",
+        )}
+      >
+        <span>{children}</span>
+        <span className="inline-flex shrink-0 text-slate-600 group-hover:text-slate-900" aria-hidden="true">
+          {sortDirection === "ascending" ? (
+            <ArrowUp className="w-3.5 h-3.5" />
+          ) : sortDirection === "descending" ? (
+            <ArrowDown className="w-3.5 h-3.5" />
+          ) : (
+            <ArrowUpDown className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
+          )}
+        </span>
+      </button>
+    ) : null;
+
+    if (!hasFilter) {
+      return (
+        <th
+          ref={ref}
+          scope={scope}
+          aria-sort={ariaSortValue}
+          className={cn(
+            "font-bold text-slate-900 tracking-tight text-left",
+            align === "center" && "text-center",
+            align === "right" && "text-right",
+            className,
+          )}
+          {...props}
+        >
+          {sortable ? sortButton : children}
+        </th>
+      );
+    }
 
     return (
       <th
         ref={ref}
         scope={scope}
         aria-sort={ariaSortValue}
-        className={cn("font-bold text-slate-900 tracking-tight text-left", align === "center" && "text-center", align === "right" && "text-right", className)}
+        className={cn(
+          "font-bold text-slate-900 tracking-tight text-left relative",
+          align === "center" && "text-center",
+          align === "right" && "text-right",
+          className,
+        )}
         {...props}
       >
-        {sortable ? (
-          <button
-            type="button"
-            onClick={onSort}
-            aria-label={
-              sortAriaLabel ||
-              (typeof children === "string"
-                ? `Ordenar por ${children}${
-                    sortDirection === "ascending" ? ", atualmente em ordem crescente" : sortDirection === "descending" ? ", atualmente em ordem decrescente" : ", não ordenado"
-                  }`
-                : undefined)
-            }
-            className={cn(
-              "group inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 -mx-1.5 -my-1 font-bold text-slate-900",
-              "hover:bg-slate-200/70 transition-colors motion-reduce:transition-none cursor-pointer",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1",
-              align === "center" && "justify-center mx-auto",
-              align === "right" && "justify-end ml-auto",
-            )}
-          >
-            <span>{children}</span>
-            <span className="inline-flex shrink-0 text-slate-600 group-hover:text-slate-900" aria-hidden="true">
-              {sortDirection === "ascending" ? (
-                <ArrowUp className="w-3.5 h-3.5" />
-              ) : sortDirection === "descending" ? (
-                <ArrowDown className="w-3.5 h-3.5" />
-              ) : (
-                <ArrowUpDown className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
-              )}
-            </span>
-          </button>
-        ) : (
-          children
-        )}
+        <div
+          className={cn(
+            "inline-flex items-center gap-1.5 max-w-full",
+            align === "center" && "justify-center mx-auto",
+            align === "right" && "justify-end ml-auto",
+          )}
+        >
+          {sortable ? sortButton : <span>{children}</span>}
+          <TableColumnFilter
+            columnTitle={children}
+            filterType={filterType}
+            options={filterOptions}
+            value={filterValue}
+            onChange={onFilterChange}
+            placeholder={filterPlaceholder}
+            align={align}
+          />
+        </div>
       </th>
     );
   },
@@ -628,70 +735,56 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
       onPageSizeChange,
       paginationAriaLabel,
       paginationClassName,
+      filterable,
+      filters,
+      defaultFilters,
+      onFilterChange,
       style,
       children,
       ...props
     },
     ref,
   ) => {
-    // Resolução do tamanho de página / limite de itens
-    const initialPageSize = typeof pageSize === "number" ? pageSize : typeof limit === "number" ? limit : undefined;
-    const [internalPageSize, setInternalPageSize] = React.useState<number | undefined>(initialPageSize);
-
-    React.useEffect(() => {
-      const resolvedSize = typeof pageSize === "number" ? pageSize : typeof limit === "number" ? limit : undefined;
-      setInternalPageSize(resolvedSize);
-    }, [pageSize, limit]);
-
-    // Resolução da página atual (modo controlado vs não-controlado)
-    const [internalPage, setInternalPage] = React.useState<number>(defaultPage ?? 1);
-    const currentPage = page !== undefined ? page : internalPage;
-
-    const { effectivePageSize, totalCount, totalPages, activePage, isPaginationActive, startIndex, endIndex } = calculatePaginationValues({
+    const {
+      activePage,
+      totalPages,
+      totalCount,
+      effectivePageSize,
+      startIndex,
+      normalizedColumns,
+      columnsFilterOptionsMap,
+      filteredData,
+      paginatedData,
+      activeFilters,
+      isFiltered,
+      shouldRenderPagination,
+      handleColumnFilterChange,
+      handleClearAllFilters,
+      handlePageChange,
+      handlePageSizeChange,
+    } = useTableState({
+      data,
+      columns,
+      headers,
+      columnsCount,
+      boldFirstColumn,
+      boldColumns,
+      pageSize,
+      limit,
+      page,
+      defaultPage,
+      onPageChange,
       totalItems,
-      dataLength: data ? data.length : 0,
-      pageSize: internalPageSize,
-      currentPage,
+      pageSizeOptions,
+      onPageSizeChange,
+      showPagination,
+      hideOnSinglePage,
+      isLoading,
+      filterable,
+      filters,
+      defaultFilters,
+      onFilterChange,
     });
-
-    const handlePageChange = React.useCallback(
-      (newPage: number) => {
-        const clamped = Math.min(Math.max(1, newPage), totalPages);
-        if (page === undefined) {
-          setInternalPage(clamped);
-        }
-        onPageChange?.(clamped);
-      },
-      [page, totalPages, onPageChange],
-    );
-
-    const handlePageSizeChange = React.useCallback(
-      (newSize: number) => {
-        setInternalPageSize(newSize);
-        onPageSizeChange?.(newSize);
-        if (page === undefined) {
-          setInternalPage(1);
-        }
-        onPageChange?.(1);
-      },
-      [page, onPageSizeChange, onPageChange],
-    );
-
-    // Se houver opções de seletor ou paginação ativa, deve permanecer visível mesmo na capacidade máxima da lista
-    const hasPageSizeSelector = Boolean(pageSizeOptions && pageSizeOptions.length > 0);
-    const shouldRenderPagination = !isLoading && (showPagination !== undefined ? showPagination : isPaginationActive && totalCount > 0 && (!hideOnSinglePage || hasPageSizeSelector || totalPages > 1));
-
-    // Fatiamento dos dados a serem exibidos na tabela via utilitário
-    const paginatedData = React.useMemo(() => {
-      return paginateData({
-        data,
-        isPaginationActive,
-        startIndex,
-        endIndex,
-        totalItems,
-        effectivePageSize,
-      });
-    }, [data, isPaginationActive, startIndex, endIndex, totalItems, effectivePageSize]);
 
     // Resolução de estilos customizados via utilitário
     const containerStyles = resolveContainerStyles({
@@ -704,19 +797,9 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
     // Determina o nome acessível da região com rolagem via utilitário
     const containerAriaLabel = getContainerAriaLabel(scrollableRegionLabel, props["aria-label"]);
 
-    // Montagem da lista normalizada de colunas via utilitário
-    const normalizedColumns: TableColumn[] = React.useMemo(() => {
-      return normalizeTableColumns({
-        columns,
-        headers,
-        columnsCount,
-        boldFirstColumn,
-        boldColumns,
-      });
-    }, [columns, headers, columnsCount, boldFirstColumn, boldColumns]);
-
     const isDeclarativeMode = normalizedColumns.length > 0 || (data && data.length > 0);
     const shouldRenderHeader = showHeader === false || (showHeader as unknown) === "false" || hasHeader === false || (hasHeader as unknown) === "false" ? false : true;
+    const hasAnyFilterableColumn = Boolean(filterable || normalizedColumns.some((c) => c.filterable));
 
     return (
       <div
@@ -732,7 +815,10 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
           role="region"
           aria-label={containerAriaLabel}
           tabIndex={keyboardScrollable ? 0 : undefined}
-          className={cn("w-full overflow-x-auto", keyboardScrollable && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-inset")}
+          className={cn(
+            "w-full overflow-x-auto",
+            keyboardScrollable && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-inset",
+          )}
         >
           <table ref={ref} aria-busy={isLoading ? true : undefined} className={cn(tableVariants({ variant, density }))} {...props}>
             {isDeclarativeMode ? (
@@ -740,19 +826,35 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                 {shouldRenderHeader && normalizedColumns.length > 0 && (
                   <TableHeader>
                     <TableRow hoverable={false}>
-                      {normalizedColumns.map((col, colIndex) => (
-                        <TableHead
-                          key={col.key || `head-${colIndex}`}
-                          align={col.align}
-                          sortable={col.sortable}
-                          sortDirection={col.sortDirection}
-                          onSort={col.onSort}
-                          sortAriaLabel={col.sortAriaLabel}
-                          style={col.width ? { width: col.width } : undefined}
-                        >
-                          {col.header}
-                        </TableHead>
-                      ))}
+                      {normalizedColumns.map((col, colIndex) => {
+                        const colKey = col.key || `col-${colIndex}`;
+                        const isColFilterable = col.filterable !== undefined ? col.filterable : (filterable ?? false);
+                        const colFilterOptions = columnsFilterOptionsMap[colIndex];
+                        const currentFilterValue =
+                          activeFilters[colKey] ??
+                          activeFilters[col.key || ""] ??
+                          (typeof col.header === "string" ? activeFilters[col.header] : undefined);
+
+                        return (
+                          <TableHead
+                            key={colKey}
+                            align={col.align}
+                            sortable={col.sortable}
+                            sortDirection={col.sortDirection}
+                            onSort={col.onSort}
+                            sortAriaLabel={col.sortAriaLabel}
+                            style={col.width ? { width: col.width } : undefined}
+                            filterable={isColFilterable}
+                            filterType={col.filterType || "checkbox"}
+                            filterOptions={colFilterOptions}
+                            filterValue={currentFilterValue}
+                            onFilterChange={(val) => handleColumnFilterChange(colKey, val)}
+                            filterPlaceholder={col.filterPlaceholder}
+                          >
+                            {col.header}
+                          </TableHead>
+                        );
+                      })}
                     </TableRow>
                   </TableHeader>
                 )}
@@ -797,6 +899,22 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                         </TableRow>
                       );
                     })
+                  ) : filteredData && filteredData.length === 0 && data && data.length > 0 && isFiltered ? (
+                    <TableRow hoverable={false}>
+                      <TableCell colSpan={normalizedColumns.length || columnsCount || 1} className="py-10 text-center">
+                        <div role="status" aria-live="polite" className="flex flex-col items-center justify-center gap-2">
+                          <p className="text-slate-600 font-medium">Nenhum resultado encontrado para os filtros aplicados.</p>
+                          <button
+                            type="button"
+                            onClick={handleClearAllFilters}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                            <span>Limpar todos os filtros</span>
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     <TableRow hoverable={false}>
                       <TableCell colSpan={normalizedColumns.length || columnsCount || 1} className="py-8 text-center">
@@ -811,12 +929,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
             ) : shouldRenderHeader ? (
               children
             ) : (
-              React.Children.map(children, (child) => {
-                if (React.isValidElement(child) && (child.type === TableHeader || (child.type as any)?.displayName === "TableHeader" || (typeof child.type === "string" && child.type === "thead"))) {
-                  return null;
-                }
-                return child;
-              })
+              filterChildrenWithoutHeader(children)
             )}
           </table>
         </div>

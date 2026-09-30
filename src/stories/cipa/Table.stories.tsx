@@ -1,7 +1,7 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { CIPA_DATA } from "@/components/mock-cipa-data";
-import { Table, type TableProps, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/Table";
+import { Table, type TableProps, type TableColumn, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/Table";
 
 const CIPA_HEADERS = ["Tema", "Descrição", "Acesso"];
 
@@ -19,11 +19,16 @@ const meta: Meta<TableProps> = {
     variant: "default",
     density: "default",
     hoverable: true,
+    filterable: false,
   },
   argTypes: {
     showHeader: {
       control: "boolean",
       description: "Define se o cabeçalho (<thead>) da tabela deve ser exibido",
+    },
+    filterable: {
+      control: "boolean",
+      description: "Habilita menus dropdown de filtro no cabeçalho das colunas",
     },
     columnsCount: {
       control: { type: "range", min: 1, max: 5, step: 1 },
@@ -218,3 +223,58 @@ export const CompoundComposition: Story = {
     </Table>
   ),
 };
+
+/**
+ * Tabela com menus dropdown de filtro no cabeçalho.
+ * O usuário pode abrir o dropdown de qualquer coluna, marcar/desmarcar opções e ver a tabela e paginação filtradas em tempo real.
+ */
+export const WithFilters: Story = {
+  args: {
+    filterable: true,
+    limit: 5,
+    pageSizeOptions: [5, 10, 20, 50],
+    boldFirstColumn: true,
+    rowHeaderColIndex: 0,
+    headers: CIPA_HEADERS,
+    data: CIPA_DATA,
+  },
+};
+
+/**
+ * Demonstração de tipos variados de filtros por coluna (`checkbox`, `text` e `select`):
+ * - Coluna "Tema": filtro tipo 'checkbox' (múltipla escolha com pesquisa)
+ * - Coluna "Descrição": filtro tipo 'text' (busca textual contida)
+ * - Coluna "Acesso": filtro tipo 'select' (única escolha com 'Todos')
+ */
+export const DiverseFilterTypes: Story = {
+  args: {
+    limit: 5,
+    pageSizeOptions: [5, 10, 20, 50],
+    boldFirstColumn: true,
+    rowHeaderColIndex: 0,
+    columns: [
+      {
+        key: "tema",
+        header: "Tema",
+        filterable: true,
+        filterType: "checkbox",
+      },
+      {
+        key: "descricao",
+        header: "Descrição",
+        filterable: true,
+        filterType: "text",
+        filterPlaceholder: "Buscar por termo na descrição...",
+      },
+      {
+        key: "acesso",
+        header: "Acesso",
+        filterable: true,
+        filterType: "select",
+        filterOptions: ["Disponível", "Download", "Em breve", "Sob consulta"],
+      },
+    ],
+    data: CIPA_DATA,
+  },
+};
+
