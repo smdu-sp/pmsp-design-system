@@ -12,7 +12,7 @@ const meta: Meta<TableProps> = {
   args: {
     showHeader: true,
     columnsCount: 3,
-    boldColumns: [0],
+    boldFirstColumn: true,
     rowHeaderColIndex: 0,
     headers: CIPA_HEADERS,
     data: CIPA_DATA,
@@ -29,9 +29,9 @@ const meta: Meta<TableProps> = {
       control: { type: "range", min: 1, max: 5, step: 1 },
       description: "Define quantas colunas vão existir na tabela",
     },
-    boldColumns: {
-      control: "object",
-      description: "Array de índices das colunas com texto em negrito (ex: [0], [0, 2] ou [true, false, false])",
+    boldFirstColumn: {
+      control: "boolean",
+      description: "Define se o texto da primeira coluna vai ser exibido em negrito (font-bold)",
     },
     rowHeaderColIndex: {
       control: { type: "number", min: 0, max: 4, step: 1 },
@@ -106,7 +106,7 @@ export const Default: Story = {
     columnsCount: 3,
     limit: 5,
     pageSizeOptions: [5, 10, 20, 50],
-    boldColumns: [0],
+    boldFirstColumn: true,
     rowHeaderColIndex: 0,
     headers: CIPA_HEADERS,
     data: CIPA_DATA,
