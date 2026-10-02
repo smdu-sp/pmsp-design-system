@@ -21,7 +21,12 @@ export {
   TableCaption,
   TablePagination,
 } from "./Table";
-export { Dropdown, type DropdownProps } from "./Dropdown";
+export {
+  Dropdown,
+  DropdownItem,
+  type DropdownProps,
+  type DropdownItemProps,
+} from "./Dropdown";
 export { TableColumnFilter, type TableColumnFilterProps } from "./TableColumnFilter";
 
 
