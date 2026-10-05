@@ -1,4 +1,27 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+
+export const tableVariants = cva("w-full text-left text-sm border-collapse", {
+  variants: {
+    variant: {
+      default: "text-slate-700",
+      striped: "text-slate-700 [&_tbody_tr:nth-child(even)]:bg-slate-50/70",
+      bordered: "text-slate-700 border border-slate-200 [&_th]:border-r [&_th]:border-slate-200 [&_td]:border-r [&_td]:border-slate-100",
+    },
+    density: {
+      default: "[&_th]:px-5 [&_th]:py-3.5 sm:[&_th]:px-6 sm:[&_th]:py-4 [&_td]:px-5 [&_td]:py-3.5 sm:[&_td]:px-6 sm:[&_td]:py-4",
+      compact: "[&_th]:px-4 [&_th]:py-2.5 sm:[&_th]:px-4.5 sm:[&_th]:py-3 [&_td]:px-4 [&_td]:py-2.5 sm:[&_td]:px-4.5 sm:[&_td]:py-3",
+      relaxed: "[&_th]:px-6 [&_th]:py-4 sm:[&_th]:px-7 sm:[&_th]:py-5 [&_td]:px-6 [&_td]:py-4.5 sm:[&_td]:px-7 sm:[&_td]:py-5",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+    density: "default",
+  },
+});
+
+export type TableVariant = "default" | "striped" | "bordered";
+export type TableDensity = "default" | "compact" | "relaxed";
 
 export type TableFilterType = "checkbox" | "select" | "text";
 
@@ -827,4 +850,58 @@ export function useTableState<T = any>({
   };
 }
 
+/**
+ * Resolve o texto acessível aria-label do botão de ordenação de cabeçalho da coluna.
+ */
+export function resolveSortButtonAriaLabel(
+  columnTitle?: React.ReactNode,
+  sortDirection?: "ascending" | "descending" | "none" | false,
+  sortAriaLabel?: string,
+): string | undefined {
+  if (sortAriaLabel) return sortAriaLabel;
+  if (typeof columnTitle === "string") {
+    const statusText =
+      sortDirection === "ascending"
+        ? ", atualmente em ordem crescente"
+        : sortDirection === "descending"
+          ? ", atualmente em ordem decrescente"
+          : ", não ordenado";
+    return `Ordenar por ${columnTitle}${statusText}`;
+  }
+  return undefined;
+}
 
+/**
+ * Avalia se o cabeçalho da tabela deve ser renderizado considerando as props showHeader e hasHeader.
+ */
+export function checkShouldRenderHeader(
+  showHeader?: boolean | string,
+  hasHeader?: boolean | string,
+): boolean {
+  if (showHeader === false || (showHeader as unknown) === "false") return false;
+  if (hasHeader === false || (hasHeader as unknown) === "false") return false;
+  return true;
+}
+
+/**
+ * Avalia se a tabela está operando em modo declarativo baseado nas colunas ou dados fornecidos.
+ */
+export function checkIsDeclarativeTable(
+  columnsLength: number,
+  dataLength?: number,
+): boolean {
+  return columnsLength > 0 || Boolean(dataLength && dataLength > 0);
+}
+
+/**
+ * Calcula índices de início e fim da paginação para a exibição de resumo informativo.
+ */
+export function calculatePaginationOffsets(
+  currentPage: number,
+  pageSize?: number,
+  totalItems?: number,
+): { startIndex: number; endIndex: number } {
+  const startIndex = pageSize ? (currentPage - 1) * pageSize : 0;
+  const endIndex = pageSize ? startIndex + pageSize : (totalItems ?? 0);
+  return { startIndex, endIndex };
+}

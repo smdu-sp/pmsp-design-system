@@ -131,6 +131,24 @@ type Story = StoryObj<DropdownStoryProps>;
  * Menu padrão com texto e chevron na direita. Use os controles para alternar ícones e texto.
  */
 export const Default: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Dropdown
+            label="Opções da linha"
+            iconRight
+            rightIcon={<ChevronDown />}
+          >
+            <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
+            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
+          </Dropdown>
+        `.trim(),
+      },
+    },
+  },
   args: {
     label: "Opções da linha",
     iconLeft: false,
@@ -144,6 +162,24 @@ export const Default: Story = {
  * Exibe apenas o ícone no gatilho quando não houver texto (ex: botão de ações de linha com MoreVertical).
  */
 export const IconOnly: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Dropdown
+            iconLeft
+            leftIcon={<MoreVertical />}
+            ariaLabel="Mais opções da linha"
+          >
+            <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
+            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
+          </Dropdown>
+        `.trim(),
+      },
+    },
+  },
   args: {
     label: "",
     iconLeft: true,
@@ -157,6 +193,26 @@ export const IconOnly: Story = {
  * Gatilho com ícone na esquerda, texto e indicador chevron na direita.
  */
 export const BothIcons: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Dropdown
+            label="Filtrar Resultados"
+            iconLeft
+            leftIcon={<Filter />}
+            iconRight
+            rightIcon={<ChevronDown />}
+          >
+            <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
+            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
+          </Dropdown>
+        `.trim(),
+      },
+    },
+  },
   args: {
     label: "Filtrar Resultados",
     iconLeft: true,
@@ -170,6 +226,26 @@ export const BothIcons: Story = {
  * Caso não haja texto mas ambos os ícones estejam ativos, exibe apenas os dois ícones juntos.
  */
 export const BothIconsWithoutText: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Dropdown
+            iconLeft
+            leftIcon={<Filter />}
+            iconRight
+            rightIcon={<ChevronDown />}
+            ariaLabel="Filtro rápido"
+          >
+            <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
+            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
+          </Dropdown>
+        `.trim(),
+      },
+    },
+  },
   args: {
     label: "",
     iconLeft: true,
@@ -179,7 +255,3 @@ export const BothIconsWithoutText: Story = {
     ariaLabel: "Filtro rápido",
   },
 };
-
-/**
- * Menu de perfil de usuário com avatar, status e atalhos rápidos.
- */

@@ -88,6 +88,17 @@ export default meta;
 type Story = StoryObj<ButtonStoryProps>;
 
 export const Primary: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Button variant="primary" size="md" iconLeft leftIcon={<ShieldCheck />}>
+            Registrar Inspeção CIPA
+          </Button>
+        `.trim(),
+      },
+    },
+  },
   args: {
     variant: "primary",
     size: "md",
@@ -99,6 +110,17 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Button variant="secondary" size="md" iconLeft leftIcon={<FileText />}>
+            Consultar Atas e Normas
+          </Button>
+        `.trim(),
+      },
+    },
+  },
   args: {
     variant: "secondary",
     size: "md",
@@ -110,6 +132,27 @@ export const Secondary: Story = {
 };
 
 export const CustomStyle: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Button
+            variant="primary"
+            size="lg"
+            backgroundColor="#d97706"
+            borderRadius="9999px"
+            iconLeft
+            leftIcon={<AlertTriangle />}
+            iconRight
+            rightIcon={<ArrowRight />}
+            className="text-white shadow-lg shadow-amber-600/30 border border-amber-400/40 hover:brightness-110"
+          >
+            Emitir Alerta de Incidente
+          </Button>
+        `.trim(),
+      },
+    },
+  },
   args: {
     variant: "primary",
     size: "lg",
@@ -123,3 +166,4 @@ export const CustomStyle: Story = {
     children: "Emitir Alerta de Incidente",
   },
 };
+

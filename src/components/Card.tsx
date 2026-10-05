@@ -1,24 +1,21 @@
 import * as React from "react";
 import Link from "next/link";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import { Image as ImageIcon, X, FileText, Pencil, Check, MessageCircle, Play } from "lucide-react";
 import { cn } from "@/utils/cn";
+import {
+  cardVariants,
+  type CardVariant,
+  type CardListType,
+  resolveCardStyles,
+  resolveCardLink,
+  resolveCardAriaIds,
+  useCardUpload,
+} from "@/utils/card";
 
-export const cardVariants = cva("rounded-2xl border border-slate-200/80 bg-slate-50/80 text-slate-900 transition-all p-5 sm:p-6 md:p-7 shadow-xs w-full max-w-full sm:max-w-md", {
-  variants: {
-    variant: {
-      text: "flex flex-col justify-center text-left",
-      file: "flex flex-col items-center justify-center",
-      "quick-access":
-        "group flex flex-col justify-start text-left hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 no-underline",
-      media: "group flex flex-col justify-start text-left p-4 sm:p-5 transition-all duration-200 hover:border-slate-300 hover:shadow-md",
-    },
-  },
-  defaultVariants: {
-    variant: "text",
-  },
-});
+export { cardVariants };
+export type { CardVariant, CardListType };
 
 export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, "title">, VariantProps<typeof cardVariants> {
   /**
@@ -30,7 +27,7 @@ export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, "titl
    * Alterna entre o modo textual com lista, modo de upload de arquivo, acesso rápido e mídia/vídeo.
    * Padrão: "text".
    */
-  variant?: "text" | "file" | "quick-access" | "media";
+  variant?: CardVariant;
 
   // --- Modo Mídia / Vídeo ---
   /** Imagem da miniatura do vídeo/mídia (URL ou componente). Caso não seja fornecida, exibe o fallback tracejado */
@@ -68,7 +65,7 @@ export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, "titl
   /** Lista opcional de textos/tópicos */
   items?: string[];
   /** Tipo de lista para os itens: 'ul' (marcadores) ou 'ol' (ordenada/numerada) */
-  listType?: "ul" | "ol";
+  listType?: CardListType;
 
   // --- Modo Arquivo ---
   /** Texto orientativo exibido na área de upload */
@@ -134,146 +131,50 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     ref,
   ) => {
     const generatedId = React.useId();
-    const titleId = title ? `card-title-${generatedId}` : undefined;
-    const subtitleId = subtitle ? `card-subtitle-${generatedId}` : undefined;
-    const fileInputId = `card-file-input-${generatedId}`;
-    const uploadStatusId = `card-upload-status-${generatedId}`;
+    const { titleId, subtitleId, fileInputId, uploadStatusId } = resolveCardAriaIds(generatedId, title, subtitle);
 
-    const isLink = variant === "quick-access" || (Boolean(href) && variant !== "file");
-    const linkHref = href || route || "/";
+    const { isLink, linkHref, resolvedRel } = resolveCardLink({
+      variant,
+      href,
+      route,
+      rel,
+      target,
+    });
 
-    const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-    const textInputRef = React.useRef<HTMLInputElement | null>(null);
-    const [internalFile, setInternalFile] = React.useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-    const [isDragging, setIsDragging] = React.useState(false);
+    const {
+      fileInputRef,
+      textInputRef,
+      activeFile,
+      fileName,
+      previewUrl,
+      isDragging,
+      currentUploadText,
+      isEditingUploadText,
+      setIsEditingUploadText,
+      tempUploadText,
+      setTempUploadText,
+      handleSaveUploadText,
+      handleCancelUploadText,
+      handleInputChange,
+      handleDragOver,
+      handleDragLeave,
+      handleDrop,
+      triggerFileInput,
+      handleDropzoneKeyDown,
+      removeFile,
+    } = useCardUpload({
+      uploadText,
+      onUploadTextChange,
+      controlledFile,
+      onFileSelect,
+    });
 
-    // Estado e handlers para edição do texto de upload
-    const [currentUploadText, setCurrentUploadText] = React.useState(uploadText);
-    const [isEditingUploadText, setIsEditingUploadText] = React.useState(false);
-    const [tempUploadText, setTempUploadText] = React.useState(uploadText);
-
-    React.useEffect(() => {
-      setCurrentUploadText(uploadText);
-      if (!isEditingUploadText) {
-        setTempUploadText(uploadText);
-      }
-    }, [uploadText, isEditingUploadText]);
-
-    React.useEffect(() => {
-      if (isEditingUploadText) {
-        textInputRef.current?.focus();
-        textInputRef.current?.select();
-      }
-    }, [isEditingUploadText]);
-
-    const handleSaveUploadText = (e?: React.SyntheticEvent) => {
-      e?.preventDefault();
-      e?.stopPropagation();
-      setIsEditingUploadText(false);
-      setCurrentUploadText(tempUploadText);
-      onUploadTextChange?.(tempUploadText);
-    };
-
-    const handleCancelUploadText = (e?: React.SyntheticEvent) => {
-      e?.preventDefault();
-      e?.stopPropagation();
-      setIsEditingUploadText(false);
-      setTempUploadText(currentUploadText);
-    };
-
-    const activeFile = controlledFile !== undefined ? controlledFile : internalFile;
-    const fileName = typeof activeFile === "string" ? "Imagem carregada" : activeFile?.name;
-
-    // Gerar URL de preview para imagens
-    React.useEffect(() => {
-      if (!activeFile) {
-        setPreviewUrl(null);
-        return;
-      }
-
-      if (typeof activeFile === "string") {
-        setPreviewUrl(activeFile);
-        return;
-      }
-
-      if (activeFile.type.startsWith("image/")) {
-        const objectUrl = URL.createObjectURL(activeFile);
-        setPreviewUrl(objectUrl);
-        return () => URL.revokeObjectURL(objectUrl);
-      } else {
-        setPreviewUrl(null);
-      }
-    }, [activeFile]);
-
-    const handleFileChosen = (selectedFile: File | null) => {
-      if (controlledFile === undefined) {
-        setInternalFile(selectedFile);
-      }
-      onFileSelect?.(selectedFile);
-    };
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const selected = e.target.files?.[0] || null;
-      handleFileChosen(selected);
-    };
-
-    const handleDragOver = (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(true);
-    };
-
-    const handleDragLeave = (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-    };
-
-    const handleDrop = (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        const droppedFile = e.dataTransfer.files[0];
-        handleFileChosen(droppedFile);
-      }
-    };
-
-    const triggerFileInput = () => {
-      fileInputRef.current?.click();
-    };
-
-    const handleDropzoneKeyDown = (e: React.KeyboardEvent) => {
-      if (isEditingUploadText) return;
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        triggerFileInput();
-      }
-    };
-
-    const removeFile = (e: React.SyntheticEvent) => {
-      e.stopPropagation();
-      handleFileChosen(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    };
-
-    // Resolução de cores e borda dinâmicos
-    const resolvedBg = backgroundColor ? (backgroundColor.startsWith("--") ? `var(${backgroundColor})` : backgroundColor) : undefined;
-
-    const resolvedTextColor = textColor ? (textColor.startsWith("--") ? `var(${textColor})` : textColor) : undefined;
-
-    const resolvedBr = typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius ? (borderRadius.startsWith("--") ? `var(${borderRadius})` : borderRadius) : undefined;
-
-    const dynamicStyles: React.CSSProperties = {
-      ...(resolvedBg ? { backgroundColor: resolvedBg } : {}),
-      ...(resolvedTextColor ? { color: resolvedTextColor } : {}),
-      ...(resolvedBr ? { borderRadius: resolvedBr } : {}),
-      ...style,
-    };
+    const commonStyles = resolveCardStyles({
+      backgroundColor,
+      textColor,
+      borderRadius,
+      style,
+    });
 
     const content = (
       <>
@@ -520,7 +421,6 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     );
 
     const commonClasses = cn(cardVariants({ variant, className }));
-    const commonStyles = Object.keys(dynamicStyles).length > 0 ? dynamicStyles : undefined;
 
     if (asChild) {
       return (
@@ -531,7 +431,6 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     }
 
     if (isLink) {
-      const resolvedRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
       return (
         <Link
           href={linkHref}

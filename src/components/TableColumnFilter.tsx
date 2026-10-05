@@ -4,8 +4,8 @@ import { cn } from "@/utils/cn";
 import {
   type TableFilterType,
   type TableFilterOption,
-  normalizeFilterOptions,
 } from "@/utils/table";
+import { useTableColumnFilter } from "@/utils/tableColumnFilter";
 import { Dropdown } from "./Dropdown";
 
 export interface TableColumnFilterProps {
@@ -41,62 +41,29 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
     },
     ref,
   ) => {
-    const [isOpen, setIsOpen] = React.useState(false);
-    const [searchQuery, setSearchQuery] = React.useState("");
-
-    const normalizedOptions = React.useMemo(() => {
-      return normalizeFilterOptions(options);
-    }, [options]);
-
-    const isFilterActive = React.useMemo(() => {
-      if (value === undefined || value === null) return false;
-      if (Array.isArray(value)) return value.length > 0;
-      if (typeof value === "string") return value.trim().length > 0;
-      return true;
-    }, [value]);
-
-    const activeCount = Array.isArray(value) ? value.length : isFilterActive ? 1 : 0;
-
-    const selectedValues: any[] = React.useMemo(() => {
-      if (Array.isArray(value)) return value;
-      if (value !== undefined && value !== null && value !== "") return [value];
-      return [];
-    }, [value]);
-
-    React.useEffect(() => {
-      if (!isOpen) {
-        setSearchQuery("");
-      }
-    }, [isOpen]);
-
-    const handleCheckboxToggle = (optValue: any) => {
-      const exists = selectedValues.some((v) => String(v) === String(optValue));
-      let next: any[];
-      if (exists) {
-        next = selectedValues.filter((v) => String(v) !== String(optValue));
-      } else {
-        next = [...selectedValues, optValue];
-      }
-      onChange?.(next.length > 0 ? next : undefined);
-    };
-
-    const handleSelectAll = () => {
-      const allVals = normalizedOptions.map((o) => o.value);
-      onChange?.(allVals);
-    };
-
-    const handleClear = () => {
-      onChange?.(undefined);
-      setSearchQuery("");
-    };
-
-    const visibleOptions = React.useMemo(() => {
-      if (!searchQuery.trim()) return normalizedOptions;
-      const q = searchQuery.toLowerCase().trim();
-      return normalizedOptions.filter((opt) => opt.label.toLowerCase().includes(q));
-    }, [normalizedOptions, searchQuery]);
-
-    const titleText = typeof columnTitle === "string" ? columnTitle : undefined;
+    const {
+      isOpen,
+      setIsOpen,
+      searchQuery,
+      setSearchQuery,
+      normalizedOptions,
+      isFilterActive,
+      activeCount,
+      selectedValues,
+      visibleOptions,
+      titleText,
+      triggerAriaLabel,
+      menuAriaLabel,
+      handleCheckboxToggle,
+      handleSelectAll,
+      handleClear,
+    } = useTableColumnFilter({
+      options,
+      value,
+      onChange,
+      columnTitle,
+      ariaLabel,
+    });
 
     return (
       <Dropdown
@@ -104,22 +71,13 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
         open={isOpen}
         onOpenChange={setIsOpen}
         align={align}
-        ariaLabel={titleText ? `Menu de filtros para ${titleText}` : "Menu de filtros da coluna"}
+        ariaLabel={menuAriaLabel}
         trigger={
           <button
             type="button"
             aria-haspopup="dialog"
             aria-expanded={isOpen}
-            aria-label={
-              ariaLabel ||
-              (titleText
-                ? isFilterActive
-                  ? `Filtrar coluna ${titleText}, filtro ativo com ${activeCount} item(ns) selecionado(s)`
-                  : `Filtrar coluna ${titleText}`
-                : isFilterActive
-                  ? `Filtrar coluna, filtro ativo`
-                  : `Filtrar coluna`)
-            }
+            aria-label={triggerAriaLabel}
             className={cn(
               "relative inline-flex items-center justify-center p-1 rounded-md transition-all duration-150 motion-reduce:transition-none cursor-pointer",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1 active:scale-95",

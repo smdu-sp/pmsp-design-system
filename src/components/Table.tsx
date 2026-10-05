@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import {
   ArrowUpDown,
   ArrowUp,
@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import {
+  tableVariants,
+  type TableVariant,
+  type TableDensity,
   type TableColumn,
   type TableFilterType,
   type TableFilterOption,
@@ -25,30 +28,15 @@ import {
   filterChildrenWithoutHeader,
   useTableState,
   updateColumnFilter,
+  resolveSortButtonAriaLabel,
+  checkShouldRenderHeader,
+  checkIsDeclarativeTable,
+  calculatePaginationOffsets,
 } from "@/utils/table";
 import { TableColumnFilter, type TableColumnFilterProps } from "./TableColumnFilter";
 
-export type { TableColumn, TableFilterType, TableFilterOption, TableColumnFilterProps };
-export { TableColumnFilter, useTableState, updateColumnFilter };
-
-export const tableVariants = cva("w-full text-left text-sm border-collapse", {
-  variants: {
-    variant: {
-      default: "text-slate-700",
-      striped: "text-slate-700 [&_tbody_tr:nth-child(even)]:bg-slate-50/70",
-      bordered: "text-slate-700 border border-slate-200 [&_th]:border-r [&_th]:border-slate-200 [&_td]:border-r [&_td]:border-slate-100",
-    },
-    density: {
-      default: "[&_th]:px-5 [&_th]:py-3.5 sm:[&_th]:px-6 sm:[&_th]:py-4 [&_td]:px-5 [&_td]:py-3.5 sm:[&_td]:px-6 sm:[&_td]:py-4",
-      compact: "[&_th]:px-4 [&_th]:py-2.5 sm:[&_th]:px-4.5 sm:[&_th]:py-3 [&_td]:px-4 [&_td]:py-2.5 sm:[&_td]:px-4.5 sm:[&_td]:py-3",
-      relaxed: "[&_th]:px-6 [&_th]:py-4 sm:[&_th]:px-7 sm:[&_th]:py-5 [&_td]:px-6 [&_td]:py-4.5 sm:[&_td]:px-7 sm:[&_td]:py-5",
-    },
-  },
-  defaultVariants: {
-    variant: "default",
-    density: "default",
-  },
-});
+export { tableVariants, TableColumnFilter, useTableState, updateColumnFilter };
+export type { TableVariant, TableDensity, TableColumn, TableFilterType, TableFilterOption, TableColumnFilterProps };
 
 export interface TableProps extends React.HTMLAttributes<HTMLTableElement>, VariantProps<typeof tableVariants> {
   /**
@@ -330,23 +318,13 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
   ) => {
     const ariaSortValue = sortDirection || (sortable ? "none" : undefined);
     const hasFilter = filterable && Boolean(onFilterChange || filterOptions);
+    const resolvedSortAriaLabel = resolveSortButtonAriaLabel(children, sortDirection, sortAriaLabel);
 
     const sortButton = sortable ? (
       <button
         type="button"
         onClick={onSort}
-        aria-label={
-          sortAriaLabel ||
-          (typeof children === "string"
-            ? `Ordenar por ${children}${
-                sortDirection === "ascending"
-                  ? ", atualmente em ordem crescente"
-                  : sortDirection === "descending"
-                    ? ", atualmente em ordem decrescente"
-                    : ", não ordenado"
-              }`
-            : undefined)
-        }
+        aria-label={resolvedSortAriaLabel}
         className={cn(
           "group inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 -mx-1.5 -my-1 font-bold text-slate-900",
           "hover:bg-slate-200/70 transition-colors motion-reduce:transition-none cursor-pointer",
@@ -515,9 +493,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
     ref,
   ) => {
     const pages = React.useMemo(() => getPaginationRange(currentPage, totalPages), [currentPage, totalPages]);
-
-    const startIndex = pageSize ? (currentPage - 1) * pageSize : 0;
-    const endIndex = pageSize ? startIndex + pageSize : (totalItems ?? 0);
+    const { startIndex, endIndex } = calculatePaginationOffsets(currentPage, pageSize, totalItems);
 
     const navButtonClass = cn(
       "inline-flex items-center justify-center h-8 rounded-lg border border-slate-200/80 bg-white text-slate-700 shadow-xs transition-colors motion-reduce:transition-none shrink-0",
@@ -797,8 +773,8 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
     // Determina o nome acessível da região com rolagem via utilitário
     const containerAriaLabel = getContainerAriaLabel(scrollableRegionLabel, props["aria-label"]);
 
-    const isDeclarativeMode = normalizedColumns.length > 0 || (data && data.length > 0);
-    const shouldRenderHeader = showHeader === false || (showHeader as unknown) === "false" || hasHeader === false || (hasHeader as unknown) === "false" ? false : true;
+    const isDeclarativeMode = checkIsDeclarativeTable(normalizedColumns.length, data?.length);
+    const shouldRenderHeader = checkShouldRenderHeader(showHeader, hasHeader);
     const hasAnyFilterableColumn = Boolean(filterable || normalizedColumns.some((c) => c.filterable));
 
     return (

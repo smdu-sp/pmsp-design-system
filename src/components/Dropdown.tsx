@@ -2,6 +2,19 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, MoreVertical } from "lucide-react";
 import { cn } from "@/utils/cn";
+import {
+  calculateDropdownCoords,
+  getDropdownFixedStyles,
+  getDropdownTriggerSizeClass,
+  getDropdownTriggerVariantClass,
+  resolveDropdownTriggerState,
+  type DropdownAlign,
+  type DropdownCoords,
+  type DropdownSize,
+  type DropdownVariant,
+} from "@/utils/dropdown";
+
+export type { DropdownAlign, DropdownPlacement, DropdownSize, DropdownVariant, DropdownCoords } from "@/utils/dropdown";
 
 export interface DropdownProps {
   /** Estado de abertura controlado */
@@ -27,13 +40,13 @@ export interface DropdownProps {
   /** Classes CSS adicionais para o botão gatilho padrão */
   triggerClassName?: string;
   /** Variante visual do botão gatilho padrão */
-  triggerVariant?: "outline" | "primary" | "secondary" | "ghost";
+  triggerVariant?: DropdownVariant;
   /** Tamanho do botão gatilho padrão */
-  size?: "sm" | "md" | "lg";
+  size?: DropdownSize;
   /** Conteúdo exibido dentro do menu dropdown */
   children: React.ReactNode;
   /** Alinhamento horizontal do menu em relação ao gatilho */
-  align?: "left" | "center" | "right";
+  align?: DropdownAlign;
   /** Classes CSS adicionais para o container flutuante do popover */
   className?: string;
   /** Estilos inline adicionais para o container do popover */
@@ -81,7 +94,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
 
     const [isMounted, setIsMounted] = React.useState(false);
     const [isVisible, setIsVisible] = React.useState(false);
-    const [coords, setCoords] = React.useState<{ top: number; left: number; placement: "bottom" | "top" }>({
+    const [coords, setCoords] = React.useState<DropdownCoords>({
       top: 0,
       left: 0,
       placement: "bottom",
@@ -106,54 +119,24 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
       handleSetOpen(!isOpen);
     }, [handleSetOpen, isOpen]);
 
-    // Calcula as coordenadas do dropdown com base na posição do trigger na tela
-    const calculateCoords = React.useCallback(() => {
-      if (!triggerContainerRef.current) return null;
-      const rect = triggerContainerRef.current.getBoundingClientRect();
-
-      // Fecha se o gatilho foi rolado completamente para fora da tela
-      if (rect.bottom < -50 || rect.top > window.innerHeight + 50) {
-        return null;
-      }
-
-      const dropdownWidth = width;
-      const dropdownEstimatedHeight = 320;
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-
-      // Inverte para cima se o espaço inferior for insuficiente
-      const spaceBelow = viewportHeight - rect.bottom;
-      const shouldFlipToTop =
-        spaceBelow < dropdownEstimatedHeight && rect.top > dropdownEstimatedHeight;
-
-      let left: number;
-      if (align === "right") {
-        left = rect.right - dropdownWidth;
-      } else if (align === "center") {
-        left = rect.left + rect.width / 2 - dropdownWidth / 2;
-      } else {
-        left = rect.left;
-      }
-
-      // Garante margem de segurança de 12px das bordas da tela
-      const clampedLeft = Math.max(12, Math.min(left, viewportWidth - dropdownWidth - 12));
-
-      return {
-        top: rect.bottom + 6,
-        left: clampedLeft,
-        placement: shouldFlipToTop ? ("top" as const) : ("bottom" as const),
-      };
+    // Função utilitária para calcular as coordenadas atuais do popover
+    const getCoords = React.useCallback(() => {
+      return calculateDropdownCoords({
+        triggerElement: triggerContainerRef.current,
+        align,
+        width,
+      });
     }, [align, width]);
 
     // Atualiza o posicionamento fixo do popover ancorado ao trigger
     const updatePosition = React.useCallback(() => {
-      const nextCoords = calculateCoords();
+      const nextCoords = getCoords();
       if (!nextCoords) {
         handleSetOpen(false);
         return;
       }
       setCoords(nextCoords);
-    }, [calculateCoords, handleSetOpen]);
+    }, [getCoords, handleSetOpen]);
 
     // Animação de entrada (fade-in) e saída (fade-out) fluida com opacidade
     const isFirstRender = React.useRef(true);
@@ -166,7 +149,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
 
       if (isOpen) {
         // Pré-posiciona antes de iniciar a transição para evitar saltos visuais
-        const initialCoords = calculateCoords();
+        const initialCoords = getCoords();
         if (initialCoords) {
           setCoords(initialCoords);
         }
@@ -187,7 +170,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
         }, animationDuration);
         return () => clearTimeout(timer);
       }
-    }, [isOpen, animationDuration, calculateCoords]);
+    }, [isOpen, animationDuration, getCoords]);
 
     // Acompanha a rolagem da página e da tabela para reposicionar o menu
     React.useEffect(() => {
@@ -212,12 +195,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
 
       const handleClickOutside = (event: MouseEvent | TouchEvent) => {
         const target = event.target as Node;
-        if (
-          popoverRef.current &&
-          !popoverRef.current.contains(target) &&
-          triggerContainerRef.current &&
-          !triggerContainerRef.current.contains(target)
-        ) {
+        if (popoverRef.current && !popoverRef.current.contains(target) && triggerContainerRef.current && !triggerContainerRef.current.contains(target)) {
           handleSetOpen(false);
         }
       };
@@ -241,21 +219,12 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
       };
     }, [isOpen, handleSetOpen]);
 
-    const fixedStyles: React.CSSProperties = {
-      position: "fixed",
-      left: `${coords.left}px`,
-      ...(coords.placement === "top"
-        ? {
-            bottom: `${
-              triggerContainerRef.current
-                ? window.innerHeight - triggerContainerRef.current.getBoundingClientRect().top + 6
-                : 0
-            }px`,
-          }
-        : { top: `${coords.top}px` }),
-      transitionDuration: `${animationDuration}ms`,
-      ...style,
-    };
+    const fixedStyles = getDropdownFixedStyles(
+      coords,
+      triggerContainerRef.current,
+      animationDuration,
+      style,
+    );
 
     const popoverContent = (
       <div
@@ -266,7 +235,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
         onClick={(e) => e.stopPropagation()}
         style={fixedStyles}
         className={cn(
-          "z-[9999] min-w-[220px] max-w-xs w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl shadow-slate-900/20 border border-slate-200/90 ring-1 ring-slate-900/5 p-3.5 text-xs text-slate-800",
+          "z-9999 min-w-55 max-w-xs w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl shadow-slate-900/20 border border-slate-200/90 ring-1 ring-slate-900/5 p-3.5 text-xs text-slate-800",
           "transform-gpu motion-reduce:transition-none",
           "transition-[opacity,transform] will-change-[opacity,transform]",
           isVisible
@@ -281,85 +250,43 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
       </div>
     );
 
-    const resolvedLabel = label !== undefined ? label : triggerText;
-    const hasText =
-      resolvedLabel !== undefined &&
-      resolvedLabel !== null &&
-      resolvedLabel !== "";
+    const {
+      resolvedLabel,
+      hasText,
+      showIconLeft,
+      showIconRight,
+      fallbackNeeded,
+      isSingleIcon,
+    } = resolveDropdownTriggerState({
+      label,
+      triggerText,
+      iconLeft,
+      iconRight,
+      leftIcon,
+      rightIcon,
+      hasCustomTrigger: Boolean(trigger),
+    });
 
-    const showIconLeft = iconLeft !== undefined ? iconLeft : Boolean(leftIcon);
-    const showIconRight = iconRight !== undefined ? iconRight : Boolean(rightIcon);
-
-    const defaultChevron = (
-      <ChevronDown
-        className={cn(
-          "w-4 h-4 text-slate-500 transition-transform duration-200",
-          isOpen && "rotate-180",
-        )}
-      />
-    );
+    const defaultChevron = <ChevronDown className={cn("w-4 h-4 text-slate-500 transition-transform duration-200", isOpen && "rotate-180")} />;
     const defaultLeftIcon = <MoreVertical className="w-4 h-4 text-slate-500" />;
 
     const resolvedLeftIcon = leftIcon ?? (showIconLeft ? defaultLeftIcon : null);
     const resolvedRightIcon = rightIcon ?? (showIconRight ? defaultChevron : null);
 
-    // Se nenhum gatilho customizado for fornecido e nenhum texto/ícone for configurado
-    const fallbackNeeded = !trigger && !hasText && !showIconLeft && !showIconRight;
-
-    // Detecta se é um botão de apenas um ícone (sem texto e com apenas um dos lados com ícone)
-    const isSingleIcon =
-      !hasText &&
-      ((showIconLeft && !showIconRight) ||
-        (!showIconLeft && showIconRight) ||
-        fallbackNeeded);
-
-    const sizeClasses = {
-      sm: hasText
-        ? "h-8 px-2.5 text-xs rounded-md gap-1.5"
-        : isSingleIcon
-          ? "w-8 h-8 p-0 rounded-md justify-center"
-          : "h-8 px-2 text-xs rounded-md gap-1 justify-center",
-      md: hasText
-        ? "h-9 px-3.5 text-sm rounded-lg gap-2"
-        : isSingleIcon
-          ? "w-9 h-9 p-0 rounded-lg justify-center"
-          : "h-9 px-2.5 text-sm rounded-lg gap-1.5 justify-center",
-      lg: hasText
-        ? "h-11 px-4 text-base rounded-xl gap-2.5"
-        : isSingleIcon
-          ? "w-11 h-11 p-0 rounded-xl justify-center"
-          : "h-11 px-3 text-base rounded-xl gap-2 justify-center",
-    };
-
-    const variantClasses = {
-      outline:
-        "bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 active:bg-slate-100 shadow-2xs",
-      primary:
-        "bg-slate-900 border border-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] shadow-sm",
-      secondary:
-        "bg-slate-100 border border-slate-200 text-slate-900 hover:bg-slate-200 active:scale-[0.98]",
-      ghost:
-        "bg-transparent border border-transparent text-slate-700 hover:bg-slate-100 active:bg-slate-200",
-    };
+    const sizeClass = getDropdownTriggerSizeClass(size, hasText, isSingleIcon);
+    const variantClass = getDropdownTriggerVariantClass(triggerVariant);
 
     const renderDefaultTrigger = () => (
       <button
         type="button"
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        aria-label={
-          typeof resolvedLabel === "string" && resolvedLabel
-            ? resolvedLabel
-            : ariaLabel || "Menu de opções"
-        }
+        aria-label={typeof resolvedLabel === "string" && resolvedLabel ? resolvedLabel : ariaLabel || "Menu de opções"}
         className={cn(
           "inline-flex items-center font-medium transition-all duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2",
-          variantClasses[triggerVariant],
-          sizeClasses[size],
-          isOpen &&
-            (triggerVariant === "primary"
-              ? "ring-2 ring-slate-950/20"
-              : "bg-slate-50 border-slate-400 ring-2 ring-slate-400/20"),
+          variantClass,
+          sizeClass,
+          isOpen && (triggerVariant === "primary" ? "ring-2 ring-slate-950/20" : "bg-slate-50 border-slate-400 ring-2 ring-slate-400/20"),
           triggerClassName,
         )}
       >
@@ -369,27 +296,15 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
           </span>
         ) : (
           <>
-            {showIconLeft && resolvedLeftIcon && (
-              <span className="shrink-0 inline-flex items-center justify-center">
-                {resolvedLeftIcon}
-              </span>
-            )}
+            {showIconLeft && resolvedLeftIcon && <span className="shrink-0 inline-flex items-center justify-center">{resolvedLeftIcon}</span>}
             {hasText && <span className="truncate">{resolvedLabel}</span>}
-            {showIconRight && resolvedRightIcon && (
-              <span className="shrink-0 inline-flex items-center justify-center">
-                {resolvedRightIcon}
-              </span>
-            )}
+            {showIconRight && resolvedRightIcon && <span className="shrink-0 inline-flex items-center justify-center">{resolvedRightIcon}</span>}
           </>
         )}
       </button>
     );
 
-    const triggerElement = trigger
-      ? typeof trigger === "function"
-        ? trigger({ isOpen, toggle })
-        : trigger
-      : renderDefaultTrigger();
+    const triggerElement = trigger ? (typeof trigger === "function" ? trigger({ isOpen, toggle }) : trigger) : renderDefaultTrigger();
 
     return (
       <div ref={triggerContainerRef} className="relative inline-flex items-center">
@@ -403,9 +318,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
           {triggerElement}
         </div>
 
-        {isMounted &&
-          typeof document !== "undefined" &&
-          (portal ? createPortal(popoverContent, document.body) : popoverContent)}
+        {isMounted && typeof document !== "undefined" && (portal ? createPortal(popoverContent, document.body) : popoverContent)}
       </div>
     );
   },
@@ -428,51 +341,33 @@ export interface DropdownItemProps extends React.ButtonHTMLAttributes<HTMLButton
   variant?: "default" | "danger";
 }
 
-export const DropdownItem = React.forwardRef<HTMLButtonElement, DropdownItemProps>(
-  (
-    {
-      children,
-      label,
-      iconLeft,
-      iconRight,
-      leftIcon,
-      rightIcon,
-      variant = "default",
-      className,
-      ...props
-    },
-    ref,
-  ) => {
-    const rawLabel = label ?? children;
-    const hasText = rawLabel !== undefined && rawLabel !== null && rawLabel !== "";
-    const showIconLeft = iconLeft !== undefined ? iconLeft : Boolean(leftIcon);
-    const showIconRight = iconRight !== undefined ? iconRight : Boolean(rightIcon);
+export const DropdownItem = React.forwardRef<HTMLButtonElement, DropdownItemProps>(({ children, label, iconLeft, iconRight, leftIcon, rightIcon, variant = "default", className, ...props }, ref) => {
+  const { resolvedLabel, hasText, showIconLeft, showIconRight } = resolveDropdownTriggerState({
+    label: label ?? children,
+    iconLeft,
+    iconRight,
+    leftIcon,
+    rightIcon,
+  });
 
-    return (
-      <button
-        ref={ref}
-        type="button"
-        className={cn(
-          "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors text-left cursor-pointer text-xs",
-          variant === "danger"
-            ? "text-rose-600 hover:bg-rose-50 font-medium"
-            : "text-slate-700 hover:bg-slate-100",
-          !hasText && "justify-center",
-          className,
-        )}
-        {...props}
-      >
-        {showIconLeft && leftIcon && (
-          <span className="shrink-0 inline-flex items-center">{leftIcon}</span>
-        )}
-        {hasText && <span className="grow truncate">{rawLabel}</span>}
-        {showIconRight && rightIcon && (
-          <span className="shrink-0 inline-flex items-center ml-auto">{rightIcon}</span>
-        )}
-      </button>
-    );
-  },
-);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className={cn(
+        "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors text-left cursor-pointer text-xs",
+        variant === "danger" ? "text-rose-600 hover:bg-rose-50 font-medium" : "text-slate-700 hover:bg-slate-100",
+        !hasText && "justify-center",
+        className,
+      )}
+      {...props}
+    >
+      {showIconLeft && leftIcon && <span className="shrink-0 inline-flex items-center">{leftIcon}</span>}
+      {hasText && <span className="grow truncate">{resolvedLabel}</span>}
+      {showIconRight && rightIcon && <span className="shrink-0 inline-flex items-center ml-auto">{rightIcon}</span>}
+    </button>
+  );
+});
 
 DropdownItem.displayName = "DropdownItem";
 

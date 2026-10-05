@@ -107,6 +107,23 @@ type Story = StoryObj<TableProps>;
  * (`<th scope="row">`), contraste AA/AAA e legenda descritiva.
  */
 export const Default: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table
+            headers={["Tema", "Descrição", "Acesso"]}
+            data={data}
+            columnsCount={3}
+            boldFirstColumn
+            rowHeaderColIndex={0}
+            limit={5}
+            pageSizeOptions={[5, 10, 20, 50]}
+          />
+        `.trim(),
+      },
+    },
+  },
   args: {
     columnsCount: 3,
     limit: 5,
@@ -122,6 +139,23 @@ export const Default: Story = {
  * Tabela padrão com paginação e seletor de quantidade de itens por página (`pageSizeOptions={[3, 5, 9]}`).
  */
 export const Pagination: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table
+            headers={["Tema", "Descrição", "Acesso"]}
+            data={data}
+            limit={5}
+            pageSizeOptions={[5, 10, 20, 50]}
+            showFirstLastButtons
+            showPaginationInfo
+            hideOnSinglePage={false}
+          />
+        `.trim(),
+      },
+    },
+  },
   args: {
     limit: 5,
     pageSizeOptions: [5, 10, 20, 50],
@@ -135,6 +169,20 @@ export const Pagination: Story = {
  * Tabela sem a linha de cabeçalho (`showHeader={false}`), indicada para listagens compactas ou cards tabulares.
  */
 export const WithoutHeader: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table
+            showHeader={false}
+            data={data}
+            limit={5}
+            pageSizeOptions={[5, 10, 20, 50]}
+          />
+        `.trim(),
+      },
+    },
+  },
   args: {
     showHeader: false,
     limit: 5,
@@ -147,6 +195,20 @@ export const WithoutHeader: Story = {
  * e densidade de espaçamento das células (compact, relaxed).
  */
 export const VisualStyles: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table
+            variant="striped"
+            density="compact"
+            data={data}
+            limit={5}
+          />
+        `.trim(),
+      },
+    },
+  },
   args: {
     variant: "striped",
     density: "compact",
@@ -158,6 +220,19 @@ export const VisualStyles: Story = {
  * Estado de carregamento com indicador acessível (aria-busy e role status).
  */
 export const Loading: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table
+            isLoading
+            loadingMessage="Carregando documentos da CIPA..."
+            data={data}
+          />
+        `.trim(),
+      },
+    },
+  },
   args: {
     isLoading: true,
     loadingMessage: "Carregando documentos da CIPA...",
@@ -168,6 +243,18 @@ export const Loading: Story = {
  * Estado exibido quando a tabela não possui nenhum registro retornado.
  */
 export const Empty: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table
+            data={[]}
+            emptyMessage="Nenhum documento encontrado."
+          />
+        `.trim(),
+      },
+    },
+  },
   args: {
     data: [],
     emptyMessage: "Nenhum documento encontrado.",
@@ -178,6 +265,44 @@ export const Empty: Story = {
  * Demonstração do modo composto utilizando os subcomponentes (`TableHeader`, `TableRow`, `TableCell`, etc.).
  */
 export const CompoundComposition: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table className="max-w-4xl mx-auto">
+            <TableHeader>
+              <TableRow hoverable={false}>
+                <TableHead>Identificador</TableHead>
+                <TableHead>Unidade / Setor</TableHead>
+                <TableHead align="center">Grau de Risco</TableHead>
+                <TableHead align="right">Trabalhadores</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+          <TableRow>
+            <TableCell as="th" scope="row" bold>SEC-01</TableCell>
+            <TableCell>Edifício Central - Gabinete</TableCell>
+            <TableCell align="center">Baixo</TableCell>
+            <TableCell align="right">120</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell as="th" scope="row" bold>SEC-02</TableCell>
+            <TableCell>Almoxarifado e Manutenção</TableCell>
+            <TableCell align="center">Médio</TableCell>
+            <TableCell align="right">45</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell as="th" scope="row" bold>SEC-03</TableCell>
+            <TableCell>Oficina Operacional</TableCell>
+            <TableCell align="center">Alto</TableCell>
+            <TableCell align="right">78</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+        `.trim(),
+      },
+    },
+  },
   render: () => (
     <Table className="max-w-4xl mx-auto">
       <TableHeader>
@@ -229,6 +354,23 @@ export const CompoundComposition: Story = {
  * O usuário pode abrir o dropdown de qualquer coluna, marcar/desmarcar opções e ver a tabela e paginação filtradas em tempo real.
  */
 export const WithFilters: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table
+            headers={["Tema", "Descrição", "Acesso"]}
+            data={data}
+            filterable
+            limit={5}
+            pageSizeOptions={[5, 10, 20, 50]}
+            boldFirstColumn
+            rowHeaderColIndex={0}
+          />
+        `.trim(),
+      },
+    },
+  },
   args: {
     filterable: true,
     limit: 5,
@@ -247,6 +389,43 @@ export const WithFilters: Story = {
  * - Coluna "Acesso": filtro tipo 'select' (única escolha com 'Todos')
  */
 export const DiverseFilterTypes: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+          <Table
+            columns={[
+              {
+                key: "tema",
+                header: "Tema",
+                filterable: true,
+                filterType: "checkbox",
+              },
+              {
+                key: "descricao",
+                header: "Descrição",
+                filterable: true,
+                filterType: "text",
+                filterPlaceholder: "Buscar por termo na descrição...",
+              },
+              {
+                key: "acesso",
+                header: "Acesso",
+                filterable: true,
+                filterType: "select",
+                filterOptions: ["Disponível", "Download", "Em breve", "Sob consulta"],
+              },
+            ]}
+            data={data}
+            limit={5}
+            pageSizeOptions={[5, 10, 20, 50]}
+            boldFirstColumn
+            rowHeaderColIndex={0}
+          />
+        `.trim(),
+      },
+    },
+  },
   args: {
     limit: 5,
     pageSizeOptions: [5, 10, 20, 50],
@@ -277,4 +456,3 @@ export const DiverseFilterTypes: Story = {
     data: CIPA_DATA,
   },
 };
-
