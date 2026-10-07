@@ -4,3 +4,4 @@ export * from "./dropdown";
 export * from "./button";
 export * from "./card";
 export * from "./tableColumnFilter";
+export * from "./cafTable";

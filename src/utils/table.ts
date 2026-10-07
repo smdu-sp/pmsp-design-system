@@ -7,6 +7,7 @@ export const tableVariants = cva("w-full text-left text-sm border-collapse", {
       default: "text-slate-700",
       striped: "text-slate-700 [&_tbody_tr:nth-child(even)]:bg-slate-50/70",
       bordered: "text-slate-700 border border-slate-200 [&_th]:border-r [&_th]:border-slate-200 [&_td]:border-r [&_td]:border-slate-100",
+      caf: "text-slate-700 [&_thead]:bg-[#0b3299] [&_thead_th]:text-white [&_thead_th]:font-semibold [&_thead_th]:border-none [&_thead]:border-none",
     },
     density: {
       default: "[&_th]:px-5 [&_th]:py-3.5 sm:[&_th]:px-6 sm:[&_th]:py-4 [&_td]:px-5 [&_td]:py-3.5 sm:[&_td]:px-6 sm:[&_td]:py-4",
@@ -20,8 +21,9 @@ export const tableVariants = cva("w-full text-left text-sm border-collapse", {
   },
 });
 
-export type TableVariant = "default" | "striped" | "bordered";
+export type TableVariant = "default" | "striped" | "bordered" | "caf";
 export type TableDensity = "default" | "compact" | "relaxed";
+export type TablePaginationVariant = "default" | "caf";
 
 export type TableFilterType = "checkbox" | "select" | "text";
 

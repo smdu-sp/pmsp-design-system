@@ -94,6 +94,7 @@ export const CARD_ICONS = {
   Download: <Download className="h-6 w-6 shrink-0 text-slate-600 stroke-[1.75]" />,
   Search: <Search className="h-6 w-6 shrink-0 text-slate-600 stroke-[1.75]" />,
   ImageIcon: <ImageIcon className="h-6 w-6 shrink-0 text-slate-600 stroke-[1.75]" />,
+  Plus: <Plus className="h-5 w-5 shrink-0 text-slate-800 stroke-[2]" />,
   None: null,
 } as const;
 

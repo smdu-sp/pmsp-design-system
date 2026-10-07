@@ -1,16 +1,7 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import type { VariantProps } from "class-variance-authority";
-import {
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Loader2,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  RotateCcw,
-} from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown, Check, RotateCcw } from "lucide-react";
 import { cn } from "@/utils/cn";
 import {
   tableVariants,
@@ -250,19 +241,18 @@ export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement>
   selected?: boolean;
 }
 
-export const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
-  ({ className, hoverable = true, isInteractive = false, selected, onClick, onKeyDown, tabIndex, role, ...props }, ref) => {
-    const isClickable = isInteractive || Boolean(onClick);
+export const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(({ className, hoverable = true, isInteractive = false, selected, onClick, onKeyDown, tabIndex, role, ...props }, ref) => {
+  const isClickable = isInteractive || Boolean(onClick);
 
-    return (
-      <tr
-        ref={ref}
-        tabIndex={isClickable ? (tabIndex ?? 0) : tabIndex}
-        role={isClickable ? (role ?? "button") : role}
-        aria-selected={selected}
-        onClick={onClick}
-        onKeyDown={(e) => handleRowKeyDown(e, isClickable, onClick, onKeyDown)}
-        className={cn(
+  return (
+    <tr
+      ref={ref}
+      tabIndex={isClickable ? (tabIndex ?? 0) : tabIndex}
+      role={isClickable ? (role ?? "button") : role}
+      aria-selected={selected}
+      onClick={onClick}
+      onKeyDown={(e) => handleRowKeyDown(e, isClickable, onClick, onKeyDown)}
+      className={cn(
         "border-slate-100 last:border-b-0 transition-colors motion-reduce:transition-none",
         hoverable && "hover:bg-slate-50/70",
         selected && "bg-blue-50/70 hover:bg-blue-50/90",
@@ -276,6 +266,7 @@ export const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
 TableRow.displayName = "TableRow";
 
 export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
+  variant?: TableVariant | null;
   align?: "left" | "center" | "right";
   sortable?: boolean;
   sortDirection?: "ascending" | "descending" | "none" | false;
@@ -311,11 +302,13 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
       filterValue,
       onFilterChange,
       filterPlaceholder,
+      variant,
       children,
       ...props
     },
     ref,
   ) => {
+    const isCaf = variant === "caf";
     const ariaSortValue = sortDirection || (sortable ? "none" : undefined);
     const hasFilter = filterable && Boolean(onFilterChange || filterOptions);
     const resolvedSortAriaLabel = resolveSortButtonAriaLabel(children, sortDirection, sortAriaLabel);
@@ -326,15 +319,16 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
         onClick={onSort}
         aria-label={resolvedSortAriaLabel}
         className={cn(
-          "group inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 -mx-1.5 -my-1 font-bold text-slate-900",
-          "hover:bg-slate-200/70 transition-colors motion-reduce:transition-none cursor-pointer",
+          "group inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 -mx-1.5 -my-1 font-semibold",
+          isCaf ? "text-white hover:bg-white/10" : "font-bold text-slate-900 hover:bg-slate-200/70",
+          "transition-colors motion-reduce:transition-none cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1",
           align === "center" && "justify-center mx-auto",
           align === "right" && "justify-end ml-auto",
         )}
       >
         <span>{children}</span>
-        <span className="inline-flex shrink-0 text-slate-600 group-hover:text-slate-900" aria-hidden="true">
+        <span className={cn("inline-flex shrink-0", isCaf ? "text-white/80 group-hover:text-white" : "text-slate-600 group-hover:text-slate-900")} aria-hidden="true">
           {sortDirection === "ascending" ? (
             <ArrowUp className="w-3.5 h-3.5" />
           ) : sortDirection === "descending" ? (
@@ -346,20 +340,16 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
       </button>
     ) : null;
 
+    const baseThClasses = cn(
+      isCaf ? "font-semibold text-white tracking-tight text-left" : "font-bold text-slate-900 tracking-tight text-left",
+      align === "center" && "text-center",
+      align === "right" && "text-right",
+      className,
+    );
+
     if (!hasFilter) {
       return (
-        <th
-          ref={ref}
-          scope={scope}
-          aria-sort={ariaSortValue}
-          className={cn(
-            "font-bold text-slate-900 tracking-tight text-left",
-            align === "center" && "text-center",
-            align === "right" && "text-right",
-            className,
-          )}
-          {...props}
-        >
+        <th ref={ref} scope={scope} aria-sort={ariaSortValue} className={baseThClasses} {...props}>
           {sortable ? sortButton : children}
         </th>
       );
@@ -371,20 +361,14 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
         scope={scope}
         aria-sort={ariaSortValue}
         className={cn(
-          "font-bold text-slate-900 tracking-tight text-left relative",
+          isCaf ? "font-semibold text-white tracking-tight text-left relative" : "font-bold text-slate-900 tracking-tight text-left relative",
           align === "center" && "text-center",
           align === "right" && "text-right",
           className,
         )}
         {...props}
       >
-        <div
-          className={cn(
-            "inline-flex items-center gap-1.5 max-w-full",
-            align === "center" && "justify-center mx-auto",
-            align === "right" && "justify-end ml-auto",
-          )}
-        >
+        <div className={cn("inline-flex items-center gap-1.5 max-w-full", align === "center" && "justify-center mx-auto", align === "right" && "justify-end ml-auto")}>
           {sortable ? sortButton : <span>{children}</span>}
           <TableColumnFilter
             columnTitle={children}
@@ -394,6 +378,7 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
             onChange={onFilterChange}
             placeholder={filterPlaceholder}
             align={align}
+            isCaf={isCaf}
           />
         </div>
       </th>
@@ -449,6 +434,7 @@ TableCaption.displayName = "TableCaption";
 // --- Subcomponente de Paginação ---
 
 export interface TablePaginationProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: TableVariant | null;
   /** Página atual (1-indexada) */
   currentPage: number;
   /** Quantidade total de páginas */
@@ -477,6 +463,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
   (
     {
       className,
+      variant = "default",
       currentPage,
       totalPages,
       totalItems,
@@ -492,8 +479,75 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
     },
     ref,
   ) => {
+    const isCaf = variant === "caf";
     const pages = React.useMemo(() => getPaginationRange(currentPage, totalPages), [currentPage, totalPages]);
     const { startIndex, endIndex } = calculatePaginationOffsets(currentPage, pageSize, totalItems);
+
+    const [isPageSizeOpen, setIsPageSizeOpen] = React.useState(false);
+    const pageSizeButtonRef = React.useRef<HTMLButtonElement>(null);
+    const pageSizeMenuRef = React.useRef<HTMLDivElement>(null);
+    const [menuCoords, setMenuCoords] = React.useState<{ top?: number; bottom?: number; left: number } | null>(null);
+
+    const updateMenuPosition = React.useCallback(() => {
+      if (!pageSizeButtonRef.current || typeof window === "undefined") return;
+      const rect = pageSizeButtonRef.current.getBoundingClientRect();
+      const menuWidth = 84;
+      const spaceAbove = rect.top;
+      const spaceBelow = window.innerHeight - rect.bottom;
+
+      // Abre acima do botão ("acima de qualquer outro item" e evita corte na borda inferior da tela/container)
+      const openAbove = spaceAbove >= 160 || spaceAbove >= spaceBelow;
+      const left = Math.max(12, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 12));
+
+      if (openAbove) {
+        setMenuCoords({
+          bottom: window.innerHeight - rect.top + 6,
+          left,
+        });
+      } else {
+        setMenuCoords({
+          top: rect.bottom + 6,
+          left,
+        });
+      }
+    }, []);
+
+    React.useEffect(() => {
+      if (!isPageSizeOpen) return;
+      updateMenuPosition();
+
+      const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+        const target = e.target as Node;
+        if (pageSizeMenuRef.current && !pageSizeMenuRef.current.contains(target) && pageSizeButtonRef.current && !pageSizeButtonRef.current.contains(target)) {
+          setIsPageSizeOpen(false);
+        }
+      };
+
+      const handleScrollOrResize = () => {
+        updateMenuPosition();
+      };
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          setIsPageSizeOpen(false);
+          pageSizeButtonRef.current?.focus();
+        }
+      };
+
+      document.addEventListener("mousedown", handleOutsideClick);
+      document.addEventListener("touchstart", handleOutsideClick);
+      document.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("scroll", handleScrollOrResize, true);
+      window.addEventListener("resize", handleScrollOrResize);
+
+      return () => {
+        document.removeEventListener("mousedown", handleOutsideClick);
+        document.removeEventListener("touchstart", handleOutsideClick);
+        document.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("scroll", handleScrollOrResize, true);
+        window.removeEventListener("resize", handleScrollOrResize);
+      };
+    }, [isPageSizeOpen, updateMenuPosition]);
 
     const navButtonClass = cn(
       "inline-flex items-center justify-center h-8 rounded-lg border border-slate-200/80 bg-white text-slate-700 shadow-xs transition-colors motion-reduce:transition-none shrink-0",
@@ -509,15 +563,20 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
         aria-label={ariaLabel}
         className={cn(
           "flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 px-3 sm:px-6 py-3 border-t border-slate-200/80 bg-slate-50/50 text-slate-700 text-xs sm:text-sm select-none",
+          isCaf && "bg-white border-slate-100 text-slate-500",
           className,
         )}
         {...props}
       >
-        {/* Bloco de informações e seletor de linhas por página */}
+        {/* Bloco de informações */}
         <div className="flex items-center justify-between w-full sm:w-auto gap-2 sm:gap-4">
           {showInfo && (
-            <div role="status" aria-live="polite" className="text-xs sm:text-sm text-slate-600 font-medium">
-              {totalItems !== undefined && pageSize !== undefined ? (
+            <div role="status" aria-live="polite" className={cn("text-xs sm:text-sm font-medium", isCaf ? "text-slate-500 font-normal" : "text-slate-600")}>
+              {isCaf ? (
+                <>
+                  Página <span className="font-semibold text-slate-800">{currentPage}</span> de <span className="font-semibold text-slate-800">{totalPages}</span> ({totalItems ?? 0} {itemLabel})
+                </>
+              ) : totalItems !== undefined && pageSize !== undefined ? (
                 <>
                   <span className="hidden sm:inline">Mostrando </span>
                   <span className="font-semibold text-slate-900">{totalItems === 0 ? 0 : startIndex + 1}</span> a <span className="font-semibold text-slate-900">{Math.min(endIndex, totalItems)}</span>{" "}
@@ -530,19 +589,243 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
               )}
             </div>
           )}
+        </div>
 
-          {pageSizeOptions && pageSizeOptions.length > 0 && onPageSizeChange && (
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-600 shrink-0">
-              <label htmlFor="table-page-size-select" className="text-slate-600 font-medium whitespace-nowrap">
-                <span className="hidden sm:inline">Itens por página:</span>
-                <span className="sm:hidden text-xs">Por pág:</span>
-              </label>
+        {/* Bloco de navegação centralizado */}
+        {isCaf ? (
+          <nav role="navigation" aria-label={ariaLabel} className="inline-flex items-center gap-1 sm:gap-1.5">
+            <button
+              type="button"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage <= 1}
+              aria-label="Página anterior"
+              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+
+            {pages.map((p, idx) => {
+              if (typeof p === "string") {
+                return (
+                  <span key={`ellipsis-${idx}`} className="inline-flex items-center justify-center min-w-7 h-7 text-slate-400 select-none text-xs">
+                    &hellip;
+                  </span>
+                );
+              }
+
+              const isActive = p === currentPage;
+              return (
+                <button
+                  key={`page-${p}`}
+                  type="button"
+                  onClick={() => onPageChange(p)}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center text-xs font-bold rounded-md transition-colors cursor-pointer",
+                    isActive ? "bg-[#0b3299] text-white shadow-2xs" : "bg-white text-slate-700 hover:bg-slate-100 border border-transparent",
+                  )}
+                >
+                  {p}
+                </button>
+              );
+            })}
+
+            <button
+              type="button"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              aria-label="Próxima página"
+              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          </nav>
+        ) : (
+          <nav role="navigation" aria-label={ariaLabel} className="w-full sm:w-auto">
+            {/* Visualização para Mobile (< 640px) */}
+            <div className="flex sm:hidden items-center justify-between w-full gap-2 pt-2 border-t border-slate-200/60">
+              <div className="inline-flex items-center gap-1">
+                {showFirstLast && (
+                  <button type="button" onClick={() => onPageChange(1)} disabled={currentPage <= 1} aria-label="Ir para a primeira página" className={cn(navButtonClass, "w-8 h-8 p-0")}>
+                    <ChevronsLeft className="w-4 h-4" aria-hidden="true" />
+                    <span className="sr-only">Primeira página</span>
+                  </button>
+                )}
+                <button type="button" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage <= 1} aria-label="Ir para a página anterior" className={cn(navButtonClass, "w-8 h-8 p-0")}>
+                  <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only">Página anterior</span>
+                </button>
+              </div>
+
+              <div className="text-xs font-medium text-slate-700 select-none text-center px-1">
+                Página <strong className="font-bold text-slate-900">{currentPage}</strong> de <strong className="font-bold text-slate-900">{totalPages}</strong>
+              </div>
+
+              <div className="inline-flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onPageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                  aria-label="Ir para a próxima página"
+                  className={cn(navButtonClass, "w-8 h-8 p-0")}
+                >
+                  <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only">Próxima página</span>
+                </button>
+                {showFirstLast && (
+                  <button
+                    type="button"
+                    onClick={() => onPageChange(totalPages)}
+                    disabled={currentPage >= totalPages}
+                    aria-label="Ir para a última página"
+                    className={cn(navButtonClass, "w-8 h-8 p-0")}
+                  >
+                    <ChevronsRight className="w-4 h-4" aria-hidden="true" />
+                    <span className="sr-only">Última página</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Visualização para Desktop e Tablets (>= 640px) */}
+            <div className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 justify-end">
+              {showFirstLast && (
+                <button type="button" onClick={() => onPageChange(1)} disabled={currentPage <= 1} aria-label="Ir para a primeira página" className={cn(navButtonClass, "w-8 p-0")}>
+                  <ChevronsLeft className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only">Primeira página</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+                aria-label="Ir para a página anterior"
+                className={cn(navButtonClass, "gap-1 px-2.5 sm:px-3")}
+              >
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                <span className="hidden sm:inline font-medium">Anterior</span>
+              </button>
+
+              <div className="inline-flex items-center gap-1">
+                {pages.map((p, idx) => {
+                  if (typeof p === "string") {
+                    return (
+                      <span key={`ellipsis-${idx}`} className="inline-flex items-center justify-center min-w-8 h-8 text-slate-400 select-none text-xs sm:text-sm" aria-hidden="true">
+                        &hellip;
+                      </span>
+                    );
+                  }
+
+                  const isActive = p === currentPage;
+                  return (
+                    <button
+                      type="button"
+                      key={`page-${p}`}
+                      onClick={() => onPageChange(p)}
+                      aria-current={isActive ? "page" : undefined}
+                      aria-label={isActive ? `Página ${p}, página atual` : `Ir para a página ${p}`}
+                      className={cn(
+                        "inline-flex items-center justify-center min-w-8 h-8 px-2 text-xs sm:text-sm font-medium rounded-lg transition-colors motion-reduce:transition-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1",
+                        isActive ? "bg-slate-900 text-white font-semibold shadow-xs" : "text-slate-700 hover:bg-slate-200/70 hover:text-slate-900 border border-transparent",
+                      )}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+                aria-label="Ir para a próxima página"
+                className={cn(navButtonClass, "gap-1 px-2.5 sm:px-3")}
+              >
+                <span className="hidden sm:inline font-medium">Próxima</span>
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
+              </button>
+
+              {showFirstLast && (
+                <button type="button" onClick={() => onPageChange(totalPages)} disabled={currentPage >= totalPages} aria-label="Ir para a última página" className={cn(navButtonClass, "w-8 p-0")}>
+                  <ChevronsRight className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only">Última página</span>
+                </button>
+              )}
+            </div>
+          </nav>
+        )}
+
+        {/* Bloco seletor de linhas por página */}
+        {pageSizeOptions && pageSizeOptions.length > 0 && onPageSizeChange && (
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-500 font-normal shrink-0">
+            <span className="whitespace-nowrap">Itens por página:</span>
+            {isCaf ? (
+              <div className="relative inline-flex items-center">
+                <button
+                  ref={pageSizeButtonRef}
+                  type="button"
+                  onClick={() => setIsPageSizeOpen((prev) => !prev)}
+                  aria-haspopup="listbox"
+                  aria-expanded={isPageSizeOpen}
+                  aria-label={`Selecionar itens por página, atualmente ${pageSize}`}
+                  className="inline-flex items-center justify-between gap-1.5 min-w-[54px] px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-800 shadow-2xs hover:border-slate-300 hover:bg-slate-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                >
+                  <span>{pageSize}</span>
+                  <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform duration-150", isPageSizeOpen && "rotate-180")} aria-hidden="true" />
+                </button>
+
+                {isPageSizeOpen &&
+                  typeof document !== "undefined" &&
+                  createPortal(
+                    <div
+                      ref={pageSizeMenuRef}
+                      role="listbox"
+                      aria-label="Opções de quantidade de itens por página"
+                      style={{
+                        position: "fixed",
+                        left: menuCoords ? `${menuCoords.left}px` : undefined,
+                        top: menuCoords?.top !== undefined ? `${menuCoords.top}px` : undefined,
+                        bottom: menuCoords?.bottom !== undefined ? `${menuCoords.bottom}px` : undefined,
+                        zIndex: 99999,
+                      }}
+                      className="min-w-[84px] max-h-60 overflow-y-auto bg-white rounded-xl shadow-2xl border border-slate-200/90 ring-1 ring-slate-900/5 py-1.5 animate-in fade-in-50 zoom-in-95 duration-100"
+                    >
+                      {pageSizeOptions.map((opt) => {
+                        const isSelected = opt === pageSize;
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            role="option"
+                            aria-selected={isSelected}
+                            onClick={() => {
+                              onPageSizeChange(opt);
+                              setIsPageSizeOpen(false);
+                              pageSizeButtonRef.current?.focus();
+                            }}
+                            className={cn(
+                              "w-full flex items-center gap-1.5 pl-2.5 pr-4 py-1.5 text-xs text-slate-700 hover:bg-slate-100/80 cursor-pointer transition-colors text-left",
+                              isSelected && "font-semibold text-slate-900 bg-slate-50/80",
+                            )}
+                          >
+                            <span className="w-3.5 flex items-center justify-center text-[#0b3299]">{isSelected ? <Check className="w-3.5 h-3.5 stroke-[2.5]" aria-hidden="true" /> : null}</span>
+                            <span>{opt}</span>
+                          </button>
+                        );
+                      })}
+                    </div>,
+                    document.body,
+                  )}
+              </div>
+            ) : (
               <select
                 id="table-page-size-select"
                 value={pageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
                 aria-label="Selecionar quantidade de itens por página"
-                className="rounded-lg border  bg-white px-2 py-1 text-xs sm:text-sm font-medium text-slate-800 shadow-xs hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 cursor-pointer"
+                className="rounded-lg border bg-white px-2 py-1 text-xs sm:text-sm font-medium text-slate-800 shadow-xs hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 cursor-pointer"
               >
                 {pageSizeOptions.map((opt) => (
                   <option key={opt} value={opt}>
@@ -550,119 +833,9 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
                   </option>
                 ))}
               </select>
-            </div>
-          )}
-        </div>
-
-        {/* Bloco de navegação acessível e responsivo */}
-        <nav role="navigation" aria-label={ariaLabel} className="w-full sm:w-auto">
-          {/* Visualização para Mobile (< 640px): Compacta e perfeitamente ajustada */}
-          <div className="flex sm:hidden items-center justify-between w-full gap-2 pt-2 border-t border-slate-200/60">
-            <div className="inline-flex items-center gap-1">
-              {showFirstLast && (
-                <button type="button" onClick={() => onPageChange(1)} disabled={currentPage <= 1} aria-label="Ir para a primeira página" className={cn(navButtonClass, "w-8 h-8 p-0")}>
-                  <ChevronsLeft className="w-4 h-4" aria-hidden="true" />
-                  <span className="sr-only">Primeira página</span>
-                </button>
-              )}
-              <button type="button" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage <= 1} aria-label="Ir para a página anterior" className={cn(navButtonClass, "w-8 h-8 p-0")}>
-                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-                <span className="sr-only">Página anterior</span>
-              </button>
-            </div>
-
-            <div className="text-xs font-medium text-slate-700 select-none text-center px-1">
-              Página <strong className="font-bold text-slate-900">{currentPage}</strong> de <strong className="font-bold text-slate-900">{totalPages}</strong>
-            </div>
-
-            <div className="inline-flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage >= totalPages}
-                aria-label="Ir para a próxima página"
-                className={cn(navButtonClass, "w-8 h-8 p-0")}
-              >
-                <ChevronRight className="w-4 h-4" aria-hidden="true" />
-                <span className="sr-only">Próxima página</span>
-              </button>
-              {showFirstLast && (
-                <button type="button" onClick={() => onPageChange(totalPages)} disabled={currentPage >= totalPages} aria-label="Ir para a última página" className={cn(navButtonClass, "w-8 h-8 p-0")}>
-                  <ChevronsRight className="w-4 h-4" aria-hidden="true" />
-                  <span className="sr-only">Última página</span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Visualização para Desktop e Tablets (>= 640px) */}
-          <div className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 justify-end">
-            {showFirstLast && (
-              <button type="button" onClick={() => onPageChange(1)} disabled={currentPage <= 1} aria-label="Ir para a primeira página" className={cn(navButtonClass, "w-8 p-0")}>
-                <ChevronsLeft className="w-4 h-4" aria-hidden="true" />
-                <span className="sr-only">Primeira página</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage <= 1}
-              aria-label="Ir para a página anterior"
-              className={cn(navButtonClass, "gap-1 px-2.5 sm:px-3")}
-            >
-              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-              <span className="hidden sm:inline font-medium">Anterior</span>
-            </button>
-
-            <div className="inline-flex items-center gap-1">
-              {pages.map((p, idx) => {
-                if (typeof p === "string") {
-                  return (
-                    <span key={`ellipsis-${idx}`} className="inline-flex items-center justify-center min-w-8 h-8 text-slate-400 select-none text-xs sm:text-sm" aria-hidden="true">
-                      &hellip;
-                    </span>
-                  );
-                }
-
-                const isActive = p === currentPage;
-                return (
-                  <button
-                    type="button"
-                    key={`page-${p}`}
-                    onClick={() => onPageChange(p)}
-                    aria-current={isActive ? "page" : undefined}
-                    aria-label={isActive ? `Página ${p}, página atual` : `Ir para a página ${p}`}
-                    className={cn(
-                      "inline-flex items-center justify-center min-w-8 h-8 px-2 text-xs sm:text-sm font-medium rounded-lg transition-colors motion-reduce:transition-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1",
-                      isActive ? "bg-slate-900 text-white font-semibold shadow-xs" : "text-slate-700 hover:bg-slate-200/70 hover:text-slate-900 border border-transparent",
-                    )}
-                  >
-                    {p}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage >= totalPages}
-              aria-label="Ir para a próxima página"
-              className={cn(navButtonClass, "gap-1 px-2.5 sm:px-3")}
-            >
-              <span className="hidden sm:inline font-medium">Próxima</span>
-              <ChevronRight className="w-4 h-4" aria-hidden="true" />
-            </button>
-
-            {showFirstLast && (
-              <button type="button" onClick={() => onPageChange(totalPages)} disabled={currentPage >= totalPages} aria-label="Ir para a última página" className={cn(navButtonClass, "w-8 p-0")}>
-                <ChevronsRight className="w-4 h-4" aria-hidden="true" />
-                <span className="sr-only">Última página</span>
-              </button>
             )}
           </div>
-        </nav>
+        )}
       </div>
     );
   },
@@ -791,29 +964,32 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
           role="region"
           aria-label={containerAriaLabel}
           tabIndex={keyboardScrollable ? 0 : undefined}
-          className={cn(
-            "w-full overflow-x-auto",
-            keyboardScrollable && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-inset",
-          )}
+          className={cn("w-full overflow-x-auto", keyboardScrollable && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-inset")}
         >
           <table ref={ref} aria-busy={isLoading ? true : undefined} className={cn(tableVariants({ variant, density }))} {...props}>
             {isDeclarativeMode ? (
               <>
                 {shouldRenderHeader && normalizedColumns.length > 0 && (
-                  <TableHeader>
-                    <TableRow hoverable={false}>
+                  <TableHeader className={variant === "caf" ? "bg-[#0b3299] text-white border-b-0" : undefined}>
+                    <TableRow hoverable={false} className={variant === "caf" ? "border-b-0 hover:bg-transparent" : undefined}>
                       {normalizedColumns.map((col, colIndex) => {
                         const colKey = col.key || `col-${colIndex}`;
-                        const isColFilterable = col.filterable !== undefined ? col.filterable : (filterable ?? false);
+                        const isAvaliacaoCol =
+                          col.key?.toLowerCase() === "avaliacao" ||
+                          (typeof col.header === "string" &&
+                            col.header
+                              .toLowerCase()
+                              .normalize("NFD")
+                              .replace(/[\u0300-\u036f]/g, "")
+                              .includes("avaliacao"));
+                        const isColFilterable = variant === "caf" && isAvaliacaoCol ? false : col.filterable !== undefined ? col.filterable : (filterable ?? false);
                         const colFilterOptions = columnsFilterOptionsMap[colIndex];
-                        const currentFilterValue =
-                          activeFilters[colKey] ??
-                          activeFilters[col.key || ""] ??
-                          (typeof col.header === "string" ? activeFilters[col.header] : undefined);
+                        const currentFilterValue = activeFilters[colKey] ?? activeFilters[col.key || ""] ?? (typeof col.header === "string" ? activeFilters[col.header] : undefined);
 
                         return (
                           <TableHead
                             key={colKey}
+                            variant={variant}
                             align={col.align}
                             sortable={col.sortable}
                             sortDirection={col.sortDirection}
@@ -912,14 +1088,15 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
 
         {shouldRenderPagination && (
           <TablePagination
+            variant={variant}
             currentPage={activePage}
             totalPages={totalPages}
             totalItems={totalCount}
             pageSize={effectivePageSize}
             onPageChange={handlePageChange}
             showInfo={showPaginationInfo}
-            showFirstLast={showFirstLastButtons}
-            pageSizeOptions={pageSizeOptions}
+            showFirstLast={variant === "caf" ? false : showFirstLastButtons}
+            pageSizeOptions={pageSizeOptions ?? (variant === "caf" ? [5, 10, 15, 20, 30, 50] : undefined)}
             onPageSizeChange={handlePageSizeChange}
             ariaLabel={paginationAriaLabel}
             className={paginationClassName}

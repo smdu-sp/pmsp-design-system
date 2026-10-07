@@ -2,7 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Slot } from "@radix-ui/react-slot";
 import type { VariantProps } from "class-variance-authority";
-import { Image as ImageIcon, X, FileText, Pencil, Check, MessageCircle, Play } from "lucide-react";
+import { Image as ImageIcon, X, FileText, Pencil, Check, MessageCircle, Play, Plus } from "lucide-react";
 import { cn } from "@/utils/cn";
 import {
   cardVariants,
@@ -62,6 +62,8 @@ export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, "titl
   title?: string;
   /** Subtexto descritivo explicativo */
   subtitle?: string;
+  /** Alias descritivo para subtitle */
+  description?: string;
   /** Lista opcional de textos/tópicos */
   items?: string[];
   /** Tipo de lista para os itens: 'ul' (marcadores) ou 'ol' (ordenada/numerada) */
@@ -106,6 +108,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
       rel,
       title,
       subtitle,
+      description,
       items,
       listType = "ul",
       uploadText = "Arraste aqui o cartaz do mês",
@@ -131,7 +134,8 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     ref,
   ) => {
     const generatedId = React.useId();
-    const { titleId, subtitleId, fileInputId, uploadStatusId } = resolveCardAriaIds(generatedId, title, subtitle);
+    const effectiveSubtitle = subtitle || description;
+    const { titleId, subtitleId, fileInputId, uploadStatusId } = resolveCardAriaIds(generatedId, title, effectiveSubtitle);
 
     const { isLink, linkHref, resolvedRel } = resolveCardLink({
       variant,
@@ -244,6 +248,28 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
             )}
 
             {children}
+          </div>
+        ) : variant === "caf" ? (
+          <div className="w-full flex items-center gap-4 sm:gap-5">
+            <div
+              className="shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-slate-200/90 bg-white flex items-center justify-center text-slate-800 shadow-2xs group-hover:border-slate-300 group-hover:bg-slate-50 group-hover:scale-105 transition-all duration-200"
+              aria-hidden="true"
+            >
+              {icon ?? <Plus className="w-5 h-5 stroke-[2] text-slate-800" />}
+            </div>
+            <div className="flex flex-col justify-center min-w-0">
+              {title && (
+                <h3 id={titleId} className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug group-hover:text-[#0b3299] transition-colors">
+                  {title}
+                </h3>
+              )}
+              {effectiveSubtitle && (
+                <p id={subtitleId} className="mt-1 text-xs sm:text-sm text-slate-500 leading-normal sm:leading-relaxed">
+                  {effectiveSubtitle}
+                </p>
+              )}
+              {children}
+            </div>
           </div>
         ) : variant === "file" ? (
           <div className="w-full">
@@ -449,7 +475,23 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     }
 
     return (
-      <article ref={ref} className={commonClasses} style={commonStyles} aria-labelledby={titleId} aria-describedby={subtitleId} {...props}>
+      <article
+        ref={ref}
+        className={commonClasses}
+        style={commonStyles}
+        aria-labelledby={titleId}
+        aria-describedby={subtitleId}
+        role={props.onClick ? "button" : props.role}
+        tabIndex={props.onClick ? (props.tabIndex ?? 0) : props.tabIndex}
+        onKeyDown={(e) => {
+          if (props.onClick && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            props.onClick(e as any);
+          }
+          props.onKeyDown?.(e);
+        }}
+        {...props}
+      >
         {content}
       </article>
     );

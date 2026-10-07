@@ -11,6 +11,7 @@ export const cardVariants = cva(
         "quick-access":
           "group flex flex-col justify-start text-left hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 no-underline",
         media: "group flex flex-col justify-start text-left p-4 sm:p-5 transition-all duration-200 hover:border-slate-300 hover:shadow-md",
+        caf: "group flex items-center gap-4 sm:gap-5 bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-slate-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-left cursor-pointer no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2",
       },
     },
     defaultVariants: {
@@ -19,7 +20,7 @@ export const cardVariants = cva(
   },
 );
 
-export type CardVariant = "text" | "file" | "quick-access" | "media";
+export type CardVariant = "text" | "file" | "quick-access" | "media" | "caf";
 export type CardListType = "ul" | "ol";
 
 export interface ResolveCardStylesParams {
@@ -91,7 +92,10 @@ export function resolveCardLink({
   linkHref: string;
   resolvedRel?: string;
 } {
-  const isLink = variant === "quick-access" || (Boolean(href) && variant !== "file");
+  const isLink =
+    variant === "quick-access" ||
+    (Boolean(href) && variant !== "file") ||
+    (variant === "caf" && Boolean(href || (route && route !== "/")));
   const linkHref = href || route || "/";
   const resolvedRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
 
