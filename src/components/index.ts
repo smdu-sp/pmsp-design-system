@@ -40,3 +40,11 @@ export {
   type DropdownItemProps,
 } from "./Dropdown";
 export { TableColumnFilter, type TableColumnFilterProps } from "./TableColumnFilter";
+export {
+  CafHeader,
+  type CafHeaderProps,
+  type CafHeaderNavItem,
+  CAF_DEFAULT_HEADER_ITEMS,
+  resolveCafHeaderItems,
+  renderCafHeaderBadge,
+} from "./CafHeader";
