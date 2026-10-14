@@ -86,18 +86,6 @@ export const Default: Story = {
       description: {
         story: "Visual padrão completo e interativo do Header da SMUL Intranet. Clique no sino para Notificações, no sol para Tema e no avatar para Perfil.",
       },
-      source: {
-        code: `
-import { IntranetHeader } from "@/components/IntranetHeader";
-
-<IntranetHeader
-  title="SMUL Intranet"
-  subtitle="Urbanismo e Licenciamento"
-  searchPlaceholder="Buscar pessoas, comunicados, posts..."
-  onSearchSubmit={(query) => console.log("Buscando:", query)}
-/>
-        `.trim(),
-      },
     },
   },
 };
@@ -111,21 +99,6 @@ export const CustomUser: Story = {
     docs: {
       description: {
         story: "Header configurado com outro usuário corporativo da Secretaria de Urbanismo e Licenciamento.",
-      },
-      source: {
-        code: `
-import { IntranetHeader } from "@/components/IntranetHeader";
-
-<IntranetHeader
-  user={{
-    name: "Mariana Souza",
-    role: "Coordenadora de Licenciamento",
-    email: "marianasouza@prefeitura.sp.gov.br",
-    initials: "MS",
-    avatarBg: "#8b5cf6",
-  }}
-/>
-        `.trim(),
       },
     },
   },

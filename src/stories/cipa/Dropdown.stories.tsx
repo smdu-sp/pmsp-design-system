@@ -92,34 +92,39 @@ const meta: Meta<DropdownStoryProps> = {
       description: "Rótulo de acessibilidade para leitores de tela",
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="p-16 flex items-center justify-center">
+        <Story />
+      </div>
+    ),
+  ],
   render: ({ selectedIconLeft, selectedIconRight, iconLeft, iconRight, label, ...args }) => {
     const leftIcon = iconLeft && selectedIconLeft && STORY_ICONS[selectedIconLeft] ? STORY_ICONS[selectedIconLeft] : undefined;
 
     const rightIcon = iconRight && selectedIconRight && STORY_ICONS[selectedIconRight] ? STORY_ICONS[selectedIconRight] : undefined;
 
     return (
-      <div className="p-16 flex items-center justify-center">
-        <Dropdown {...args} label={label} iconLeft={iconLeft} iconRight={iconRight} leftIcon={leftIcon} rightIcon={rightIcon}>
-          <div className="py-1 divide-y divide-slate-100 text-xs">
-            <div className="pb-1.5 space-y-0.5">
-              <Dropdown.Item iconLeft leftIcon={<Edit className="w-3.5 h-3.5 text-slate-500" />}>
-                Editar registro
-              </Dropdown.Item>
-              <Dropdown.Item iconLeft leftIcon={<Copy className="w-3.5 h-3.5 text-slate-500" />}>
-                Duplicar linha
-              </Dropdown.Item>
-              <Dropdown.Item iconLeft leftIcon={<Share2 className="w-3.5 h-3.5 text-slate-500" />}>
-                Compartilhar link
-              </Dropdown.Item>
-            </div>
-            <div className="pt-1.5">
-              <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 className="w-3.5 h-3.5 text-rose-500" />}>
-                Excluir registro
-              </Dropdown.Item>
-            </div>
+      <Dropdown {...args} label={label} iconLeft={iconLeft} iconRight={iconRight} leftIcon={leftIcon} rightIcon={rightIcon}>
+        <div className="py-1 divide-y divide-slate-100 text-xs">
+          <div className="pb-1.5 space-y-0.5">
+            <Dropdown.Item iconLeft leftIcon={<Edit className="w-3.5 h-3.5 text-slate-500" />}>
+              Editar registro
+            </Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Copy className="w-3.5 h-3.5 text-slate-500" />}>
+              Duplicar linha
+            </Dropdown.Item>
+            <Dropdown.Item iconLeft leftIcon={<Share2 className="w-3.5 h-3.5 text-slate-500" />}>
+              Compartilhar link
+            </Dropdown.Item>
           </div>
-        </Dropdown>
-      </div>
+          <div className="pt-1.5">
+            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 className="w-3.5 h-3.5 text-rose-500" />}>
+              Excluir registro
+            </Dropdown.Item>
+          </div>
+        </div>
+      </Dropdown>
     );
   },
 };
@@ -131,26 +136,6 @@ type Story = StoryObj<DropdownStoryProps>;
  * Menu padrão com texto e chevron na direita. Use os controles para alternar ícones e texto.
  */
 export const Default: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { Dropdown } from "@/components/Dropdown";
-
-<Dropdown
-  label="Opções da linha"
-  iconRight
-  rightIcon={<ChevronDown />}
->
-  <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
-  <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
-  <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
-  <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
-</Dropdown>
-        `.trim(),
-      },
-    },
-  },
   args: {
     label: "Opções da linha",
     iconLeft: false,
@@ -164,26 +149,6 @@ import { Dropdown } from "@/components/Dropdown";
  * Exibe apenas o ícone no gatilho quando não houver texto (ex: botão de ações de linha com MoreVertical).
  */
 export const IconOnly: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { Dropdown } from "@/components/Dropdown";
-
-<Dropdown
-  iconLeft
-  leftIcon={<MoreVertical />}
-  ariaLabel="Mais opções da linha"
->
-  <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
-  <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
-  <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
-  <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
-</Dropdown>
-        `.trim(),
-      },
-    },
-  },
   args: {
     label: "",
     iconLeft: true,
@@ -197,28 +162,6 @@ import { Dropdown } from "@/components/Dropdown";
  * Gatilho com ícone na esquerda, texto e indicador chevron na direita.
  */
 export const BothIcons: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { Dropdown } from "@/components/Dropdown";
-
-<Dropdown
-  label="Filtrar Resultados"
-  iconLeft
-  leftIcon={<Filter />}
-  iconRight
-  rightIcon={<ChevronDown />}
->
-  <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
-  <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
-  <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
-  <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
-</Dropdown>
-        `.trim(),
-      },
-    },
-  },
   args: {
     label: "Filtrar Resultados",
     iconLeft: true,
@@ -232,28 +175,6 @@ import { Dropdown } from "@/components/Dropdown";
  * Caso não haja texto mas ambos os ícones estejam ativos, exibe apenas os dois ícones juntos.
  */
 export const BothIconsWithoutText: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { Dropdown } from "@/components/Dropdown";
-
-<Dropdown
-  iconLeft
-  leftIcon={<Filter />}
-  iconRight
-  rightIcon={<ChevronDown />}
-  ariaLabel="Filtro rápido"
->
-  <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
-  <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
-  <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
-  <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
-</Dropdown>
-        `.trim(),
-      },
-    },
-  },
   args: {
     label: "",
     iconLeft: true,

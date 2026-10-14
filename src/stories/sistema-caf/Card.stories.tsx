@@ -71,22 +71,6 @@ type Story = StoryObj<CafCardStoryProps>;
  * Ação para iniciar nova avaliação de limpeza com ícone circular de adição (+).
  */
 export const Default: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { CafCard } from "@/components/CafCard";
-
-<CafCard
-  icon={<Plus className="h-6 w-6 shrink-0 text-white stroke-[1.75]" />}
-  subtitle="Realize uma nova avaliação de limpeza para as salas da instituição"
-  title="Fazer nova avaliação"
-  href="/nova-avaliacao"
-/>
-        `.trim(),
-      },
-    },
-  },
   args: {
     title: "Fazer nova avaliação",
     subtitle: "Realize uma nova avaliação de limpeza para as salas da instituição",
@@ -98,23 +82,6 @@ import { CafCard } from "@/components/CafCard";
  * Variação para o fluxo de reserva de salas e agendamentos corporativos.
  */
 export const CriarReserva: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { CafCard } from "@/components/CafCard";
-
-<CafCard
-  icon={<Plus className="h-6 w-6 shrink-0 text-white stroke-[1.75]" />}
-  title="Criar Reserva"
-  subtitle="Agende uma nova sala para sua reunião ou evento"
-  onClick={() => console.log("Criar Reserva")}
-  href="/nova-reserva"
-/>
-        `.trim(),
-      },
-    },
-  },
   args: {
     title: "Criar Reserva",
     subtitle: "Agende uma nova sala para sua reunião ou evento",

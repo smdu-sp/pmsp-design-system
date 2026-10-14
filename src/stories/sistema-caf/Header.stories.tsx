@@ -67,25 +67,6 @@ export const Default: Story = {
       description: {
         story: "Visual padrão de referência do Sistema-CAF: inicia com 'Avaliações' selecionado e cada item possui seu respectivo `href`.",
       },
-      source: {
-        code: `
-import { CafHeader } from "@/components/CafHeader";
-
-<CafHeader
-  activeId="avaliacoes"
-  align="center"
-  allowDeselect
-  items={[
-    { id: "avaliacoes", label: "Avaliações", href: "/avaliacoes" },
-    { id: "categorias", label: "Categorias", href: "/categorias" },
-    { id: "criterios", label: "Critérios de Avaliação", href: "/criterios" },
-    { id: "salas", label: "Salas", href: "/salas" },
-  ]}
-  onActiveChange={(id) => console.log(id)}
-  variant="floating"
-/>
-        `.trim(),
-      },
     },
   },
   render: (args) => {
@@ -111,25 +92,6 @@ export const Unselected: Story = {
       description: {
         story: "Inicia com `activeId={null}`. Todas as opções aguardam seleção pelo usuário e contam com hover suave e `href` configurado.",
       },
-      source: {
-        code: `
-import { CafHeader } from "@/components/CafHeader";
-
-<CafHeader
-  activeId={null}
-  align="center"
-  allowDeselect
-  items={[
-    { id: "avaliacoes", label: "Avaliações", href: "/avaliacoes" },
-    { id: "categorias", label: "Categorias", href: "/categorias" },
-    { id: "criterios", label: "Critérios de Avaliação", href: "/criterios" },
-    { id: "salas", label: "Salas", href: "/salas" },
-  ]}
-  onActiveChange={(id) => console.log(id)}
-  variant="floating"
-/>
-        `.trim(),
-      },
     },
   },
   render: (args) => {
@@ -153,25 +115,6 @@ export const WithBadges: Story = {
       description: {
         story:
           "Itens de navegação acompanhados de badges com contagem de pendências recebidas externamente (via prop `badges` ou controles do Storybook). O estilo da pílula adapta suas cores automaticamente ao estado ativo/inativo.",
-      },
-      source: {
-        code: `
-import { CafHeader } from "@/components/CafHeader";
-
-const [active, setActive] = React.useState<string | null>("avaliacoes");
-
-// Valores de badges recebidos externamente (ex: vindos de uma API, hook ou estado)
-const badges = {
-  avaliacoes: 12,
-  salas: 48,
-};
-
-<CafHeader
-  activeId={active}
-  onActiveChange={setActive}
-  badges={badges}
-/>
-        `.trim(),
       },
     },
   },
@@ -215,23 +158,6 @@ export const WithIcons: Story = {
     docs: {
       description: {
         story: "Itens de navegação enriquecidos com ícones representativos e `href` configurado em cada item.",
-      },
-      source: {
-        code: `
-import { CafHeader } from "@/components/CafHeader";
-
-<CafHeader
-  activeId="avaliacoes"
-  align="center"
-  items={[
-    { id: "avaliacoes", label: "Avaliações", href: "/avaliacoes", icon: <FileText className="w-4 h-4" /> },
-    { id: "categorias", label: "Categorias", href: "/categorias", icon: <Layers className="w-4 h-4" /> },
-    { id: "criterios", label: "Critérios de Avaliação", href: "/criterios", icon: <CheckSquare className="w-4 h-4" /> },
-    { id: "salas", label: "Salas", href: "/salas", icon: <Building2 className="w-4 h-4" /> },
-  ]}
-  onActiveChange={(id) => console.log(id)}
-/>
-        `.trim(),
       },
     },
   },

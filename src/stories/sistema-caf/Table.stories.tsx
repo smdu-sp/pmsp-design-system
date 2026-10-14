@@ -63,31 +63,6 @@ type Story = StoryObj<CafTableProps>;
  * 3 linhas de avaliações de salas e limpeza com notas em badges, período, observações e data de criação.
  */
 export const Default: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { CafTable, CafScoreBadge } from "@/components/CafTable";
-
-<CafTable
-  columns={[
-    {
-      key: "avaliacao",
-      header: "Avaliação",
-      render: (val) => <CafScoreBadge score={val} />,
-    },
-    { key: "sala", header: "Sala", bold: true },
-    { key: "periodo", header: "Periodo" },
-    { key: "observacao", header: "Observação" },
-    { key: "criadoEm", header: "Criado em" },
-  ]}
-  data={data}
-  pageSize={10}
-/>
-        `.trim(),
-      },
-    },
-  },
   args: {
     columns: CAF_DEFAULT_COLUMNS,
     data: CAF_TABLE_SAMPLE_DATA,
@@ -99,22 +74,6 @@ import { CafTable, CafScoreBadge } from "@/components/CafTable";
  * Demonstração de múltiplas páginas ativas com seletor interativo de itens por página (1, 2, 5, 10, 15, 20, 30, 50).
  */
 export const WithPagination: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { CafTable } from "@/components/CafTable";
-
-<CafTable
-  columns={CAF_DEFAULT_COLUMNS}
-  data={data}
-  pageSize={5}
-  pageSizeOptions={[5, 10, 15, 20, 30, 50]}
-/>
-        `.trim(),
-      },
-    },
-  },
   args: {
     columns: CAF_DEFAULT_COLUMNS,
     data: CAF_TABLE_FULL_DATA,
@@ -127,31 +86,6 @@ import { CafTable } from "@/components/CafTable";
  * Tabela CAF com filtros de coluna habilitados no cabeçalho azul.
  */
 export const WithFilters: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { CafTable, CafScoreBadge } from "@/components/CafTable";
-
-<CafTable
-  columns={[
-    {
-      key: "avaliacao",
-      header: "Avaliação",
-      filterable: false,
-      render: (val) => <CafScoreBadge score={val} />,
-    },
-    { key: "sala", header: "Sala", bold: true, filterable: true },
-    { key: "periodo", header: "Periodo", filterable: true },
-    { key: "observacao", header: "Observação" },
-    { key: "criadoEm", header: "Criado em" },
-  ]}
-  data={data}
-/>
-        `.trim(),
-      },
-    },
-  },
   args: {
     columns: [
       {
@@ -174,22 +108,6 @@ import { CafTable, CafScoreBadge } from "@/components/CafTable";
  * Estado de carregamento com indicador de progresso animado.
  */
 export const Loading: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { CafTable } from "@/components/CafTable";
-
-<CafTable
-  columns={CAF_DEFAULT_COLUMNS}
-  data={[]}
-  isLoading
-  loadingMessage="Carregando avaliações do Sistema-CAF..."
-/>
-        `.trim(),
-      },
-    },
-  },
   args: {
     columns: CAF_DEFAULT_COLUMNS,
     data: [],
@@ -202,21 +120,6 @@ import { CafTable } from "@/components/CafTable";
  * Estado vazio quando nenhum registro for encontrado para os filtros ou período selecionado.
  */
 export const Empty: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: `
-import { CafTable } from "@/components/CafTable";
-
-<CafTable
-  columns={CAF_DEFAULT_COLUMNS}
-  data={[]}
-  emptyMessage="Nenhuma avaliação registrada para este período."
-/>
-        `.trim(),
-      },
-    },
-  },
   args: {
     columns: CAF_DEFAULT_COLUMNS,
     data: [],

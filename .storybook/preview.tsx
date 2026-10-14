@@ -12,17 +12,14 @@ const COMPONENT_IMPORT_MAP: Record<string, string> = {
   IntranetHeader: 'import { IntranetHeader } from "@/components/IntranetHeader";',
 };
 
-function resolveImportStatement(storyContext: any): string {
+function resolveImportStatement(storyContext: any, code?: string): string {
   const componentName =
     storyContext?.component?.displayName ||
     storyContext?.component?.name ||
     "";
 
-  if (COMPONENT_IMPORT_MAP[componentName]) {
-    return COMPONENT_IMPORT_MAP[componentName];
-  }
-
   const title = (storyContext?.title || "").toLowerCase();
+
   if (title.includes("intranet") && title.includes("header")) {
     return 'import { IntranetHeader } from "@/components/IntranetHeader";';
   }
@@ -35,17 +32,24 @@ function resolveImportStatement(storyContext: any): string {
   if (title.includes("sistema-caf") && title.includes("card")) {
     return 'import { CafCard } from "@/components/CafCard";';
   }
-  if (title.includes("button")) {
-    return 'import { Button } from "@/components/Button";';
+  if (title.includes("table")) {
+    if (code && (code.includes("<TableHeader") || code.includes("<TableRow"))) {
+      return 'import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/Table";';
+    }
+    return 'import { Table } from "@/components/Table";';
   }
   if (title.includes("dropdown")) {
     return 'import { Dropdown } from "@/components/Dropdown";';
   }
-  if (title.includes("table")) {
-    return 'import { Table } from "@/components/Table";';
+  if (title.includes("button")) {
+    return 'import { Button } from "@/components/Button";';
   }
   if (title.includes("card")) {
     return 'import { Card } from "@/components/Card";';
+  }
+
+  if (COMPONENT_IMPORT_MAP[componentName]) {
+    return COMPONENT_IMPORT_MAP[componentName];
   }
 
   return "";
@@ -61,15 +65,30 @@ const preview: Preview = {
     },
     docs: {
       source: {
+        type: "dynamic",
         transform: (code: string, storyContext: any) => {
-          if (!code || code.includes("import ")) {
+          if (!code) {
             return code;
           }
-          const importLine = resolveImportStatement(storyContext);
-          if (importLine) {
-            return `${importLine}\n\n${code.trim()}`;
+
+          let cleanCode = code.trim();
+
+          // Unwrap decorative center containers if present in generated JSX
+          const centerDivRegex = /^<div[^>]*className=["'][^"']*justify-center[^"']*["'][^>]*>\s*([\s\S]*?)\s*<\/div>$/;
+          const match = cleanCode.match(centerDivRegex);
+          if (match && match[1]) {
+            cleanCode = match[1].trim();
           }
-          return code;
+
+          if (cleanCode.includes("import ")) {
+            return cleanCode;
+          }
+
+          const importLine = resolveImportStatement(storyContext, cleanCode);
+          if (importLine) {
+            return `${importLine}\n\n${cleanCode}`;
+          }
+          return cleanCode;
         },
       },
     },
