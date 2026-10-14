@@ -7,6 +7,67 @@ export interface CardStoryProps extends Omit<CardProps, "icon"> {
   selectedIcon?: CardIconName;
 }
 
+function resolveCardPropsForVariant(args: CardStoryProps): CardProps {
+  const variant = args.variant || "text";
+
+  const styleProps: Partial<CardProps> = {
+    variant,
+    className: args.className,
+    backgroundColor: args.backgroundColor,
+    textColor: args.textColor,
+    borderRadius: args.borderRadius,
+  };
+
+  switch (variant) {
+    case "text":
+      return {
+        ...styleProps,
+        title: args.title,
+        subtitle: args.subtitle,
+        items: args.items,
+        listType: args.listType,
+      };
+
+    case "quick-access": {
+      const resolvedIcon = args.selectedIcon === "None" ? null : CARD_ICONS[args.selectedIcon && args.selectedIcon !== "Default" ? args.selectedIcon : "MessageCircle"];
+
+      return {
+        ...styleProps,
+        title: args.title,
+        subtitle: args.subtitle,
+        route: args.route,
+        href: args.href,
+        target: args.target,
+        rel: args.rel,
+        icon: resolvedIcon,
+      };
+    }
+
+    case "file":
+      return {
+        ...styleProps,
+        uploadText: args.uploadText,
+        file: args.file,
+        accept: args.accept,
+        editableUploadText: args.editableUploadText,
+      };
+
+    case "media":
+      return {
+        ...styleProps,
+        title: args.title,
+        subtitle: args.subtitle,
+        image: args.image,
+        thumbnailText: args.thumbnailText,
+        status: args.status,
+        href: args.href,
+      };
+
+    default:
+      return { ...styleProps };
+  }
+}
+
 const meta: Meta<CardStoryProps> = {
   title: "CIPA/Card",
   component: Card,
@@ -20,15 +81,6 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
       },
     },
   },
-  args: {
-    variant: "text",
-    route: "/",
-    selectedIcon: "MessageCircle",
-    title: "O que é a CIPA ?",
-    subtitle: "É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho.",
-    uploadText: "Arraste aqui o cartaz do mês",
-    listType: "ul",
-  },
   argTypes: {
     variant: {
       control: "select",
@@ -38,48 +90,59 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
     route: {
       control: "text",
       description: "Rota interna do Next.js via tag Link (padrão: '/')",
+      if: { arg: "variant", eq: "quick-access" },
     },
     selectedIcon: {
       control: "select",
       options: CARD_ICON_NAMES,
       description: "Selecione o ícone a ser exibido no topo do card (MessageCircle, Mail, Phone, Info, etc.)",
+      if: { arg: "variant", eq: "quick-access" },
     },
     uploadText: {
       control: "text",
       description: "Texto orientativo exibido na área de upload (editável diretamente nos Controls ou inline no card)",
+      if: { arg: "variant", eq: "file" },
     },
     thumbnailText: {
       control: "text",
       description: "Texto do placeholder quando não houver miniatura (modo mídia)",
+      if: { arg: "variant", eq: "media" },
     },
     image: {
       control: "text",
       description: "URL da imagem de miniatura do vídeo. Se vazia, exibe o fallback tracejado (modo mídia)",
+      if: { arg: "variant", eq: "media" },
     },
     status: {
       control: "text",
       description: "Status ou indicação complementar do vídeo (ex: 'Em breve') (modo mídia)",
+      if: { arg: "variant", eq: "media" },
     },
     title: {
       control: "text",
       description: "Título ou texto principal (modo texto, acesso rápido e mídia)",
+      if: { arg: "variant", neq: "file" },
     },
     subtitle: {
       control: "text",
-      description: "Subtexto explicativo ou descrição (modo texto)",
+      description: "Subtexto explicativo ou descrição (modo texto, acesso rápido e mídia)",
+      if: { arg: "variant", neq: "file" },
     },
     items: {
       control: "object",
       description: "Array de textos a serem exibidos como lista (modo texto)",
+      if: { arg: "variant", eq: "text" },
     },
     listType: {
       control: "inline-radio",
       options: ["ul", "ol"],
       description: "Tipo de lista: marcadores ('ul') ou numerada ('ol')",
+      if: { arg: "variant", eq: "text" },
     },
     accept: {
       control: "text",
       description: "Tipos de arquivo aceitos (ex: image/*, .pdf) (modo arquivo)",
+      if: { arg: "variant", eq: "file" },
     },
     backgroundColor: {
       control: "color",
@@ -94,10 +157,9 @@ O componente **Card** foi desenvolvido com foco em **alta acessibilidade (WCAG 2
       description: "Raio de borda personalizado (ex: 16px, 1rem, 9999px)",
     },
   },
-  render: ({ selectedIcon, ...args }) => {
-    const icon = selectedIcon && selectedIcon !== "Default" ? CARD_ICONS[selectedIcon] : undefined;
-
-    return <Card {...args} icon={icon} />;
+  render: (args) => {
+    const cardProps = resolveCardPropsForVariant(args);
+    return <Card {...cardProps} />;
   },
 };
 
@@ -172,79 +234,5 @@ export const QuickAccess: Story = {
     selectedIcon: "MessageCircle",
     title: "Quer falar com a gente ?",
     subtitle: "E-mails, caixas de recado e canal de acolhimento",
-  },
-};
-
-/** Card de Mídia / Vídeo da CIPA com fallback idêntico à imagem de referência */
-export const VideoFallback: Story = {
-  args: {
-    variant: "media",
-    title: "O que é a CIPA ?",
-    subtitle: "É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho.",
-    thumbnailText: "Miniatura do vídeo",
-  },
-};
-
-/** Card de Mídia com imagem de miniatura fornecida */
-export const VideoWithImage: Story = {
-  args: {
-    variant: "media",
-    title: "O que é a CIPA ?",
-    subtitle: "É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho.",
-    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80",
-    href: "/videos/o-que-e-a-cipa",
-  },
-};
-
-/** Simulação em tela compacta/mobile demonstrando padding e quebra de palavras */
-export const MobileView: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: "mobile1",
-    },
-  },
-  args: {
-    variant: "text",
-    title: "Comissão Interna de Prevenção de Acidentes e Assédio",
-    subtitle: "Ações preventivas e canais de apoio disponíveis para todos os colaboradores.",
-    items: ["Orientações preventivas e cartilhas digitais", "Canal de denúncias confidenciais e acolhimento"],
-    listType: "ul",
-  },
-  render: (args) => (
-    <div className="max-w-[320px] p-2 bg-slate-100 rounded-xl">
-      <Card {...args} />
-    </div>
-  ),
-};
-
-/** Demonstração das 4 variantes reunidas em um Grid Responsivo */
-export const ResponsiveGrid: Story = {
-  render: () => (
-    <div className="w-full max-w-6xl mx-auto p-4">
-      <h2 className="text-xl font-bold text-slate-800 mb-4">Painel Integrado da CIPA (Grid com as 4 Variantes)</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <Card variant="text" title="O que é a CIPA ?" subtitle="Comissão voltada à segurança, prevenção e saúde corporativa." />
-
-        <Card variant="file" uploadText="Arraste aqui o cartaz do mês" accept="image/*" />
-
-        <Card variant="quick-access" route="/" title="Quer falar com a gente ?" subtitle="E-mails, caixas de recado e acolhimento" />
-
-        <Card variant="media" title="Vídeo da CIPA #4" status="Em breve" />
-      </div>
-    </div>
-  ),
-};
-
-/** Exemplo de customização de cores e borda com alto contraste */
-export const CustomStyle: Story = {
-  args: {
-    variant: "text",
-    title: "Alerta de Segurança e Higiene",
-    subtitle: "Uso obrigatório de EPI em todas as dependências operacionais durante o período de manutenção.",
-    items: ["Capacete de segurança com jugular ajustada", "Óculos de proteção contra impactos frontais e laterais", "Calçado de segurança com biqueira de proteção"],
-    listType: "ul",
-    backgroundColor: "#eff6ff",
-    textColor: "#1e3a8a",
-    borderRadius: "16px",
   },
 };

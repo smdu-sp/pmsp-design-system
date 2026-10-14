@@ -55,6 +55,66 @@ function resolveImportStatement(storyContext: any, code?: string): string {
   return "";
 }
 
+const KNOWN_LUCIDE_ICONS = [
+  "MessageCircle",
+  "Mail",
+  "Phone",
+  "HelpCircle",
+  "Info",
+  "ShieldCheck",
+  "FileText",
+  "AlertTriangle",
+  "CheckCircle2",
+  "Filter",
+  "ReceiptText",
+  "Users",
+  "FileSpreadsheet",
+  "Megaphone",
+  "ArrowRight",
+  "ArrowLeft",
+  "ChevronRight",
+  "ChevronLeft",
+  "ChevronDown",
+  "ChevronUp",
+  "MoreVertical",
+  "MoreHorizontal",
+  "Settings",
+  "User",
+  "Edit",
+  "Copy",
+  "Check",
+  "Plus",
+  "Download",
+  "Search",
+  "Trash2",
+  "ExternalLink",
+  "UploadCloud",
+  "Building2",
+  "Bell",
+  "Layers",
+  "CheckSquare",
+  "LogOut",
+  "Share2",
+  "Play",
+  "Pencil",
+  "X",
+];
+
+function resolveIconImports(code: string): string {
+  if (!code) return "";
+  const detectedIcons: string[] = [];
+  for (const icon of KNOWN_LUCIDE_ICONS) {
+    const regex = new RegExp(`<${icon}\\b`);
+    if (regex.test(code)) {
+      detectedIcons.push(icon);
+    }
+  }
+  if (detectedIcons.length > 0) {
+    return `import { ${detectedIcons.join(", ")} } from "lucide-react";`;
+  }
+  return "";
+}
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -85,8 +145,11 @@ const preview: Preview = {
           }
 
           const importLine = resolveImportStatement(storyContext, cleanCode);
-          if (importLine) {
-            return `${importLine}\n\n${cleanCode}`;
+          const iconImportLine = resolveIconImports(cleanCode);
+
+          const imports = [importLine, iconImportLine].filter(Boolean).join("\n");
+          if (imports) {
+            return `${imports}\n\n${cleanCode}`;
           }
           return cleanCode;
         },
