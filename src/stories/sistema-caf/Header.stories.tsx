@@ -1,10 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  CafHeader,
-  type CafHeaderProps,
-  CAF_DEFAULT_HEADER_ITEMS,
-} from "@/components/CafHeader";
+import { CafHeader, type CafHeaderProps, CAF_DEFAULT_HEADER_ITEMS } from "@/components/CafHeader";
 import { FileText, Layers, CheckSquare, Building2, Bell } from "lucide-react";
 
 export interface HeaderStoryProps extends CafHeaderProps {
@@ -69,11 +65,12 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          "Visual padrão de referência do Sistema-CAF: inicia com 'Avaliações' selecionado e cada item possui seu respectivo `href`.",
+        story: "Visual padrão de referência do Sistema-CAF: inicia com 'Avaliações' selecionado e cada item possui seu respectivo `href`.",
       },
       source: {
         code: `
+import { CafHeader } from "@/components/CafHeader";
+
 <CafHeader
   activeId="avaliacoes"
   align="center"
@@ -112,11 +109,12 @@ export const Unselected: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          "Inicia com `activeId={null}`. Todas as opções aguardam seleção pelo usuário e contam com hover suave e `href` configurado.",
+        story: "Inicia com `activeId={null}`. Todas as opções aguardam seleção pelo usuário e contam com hover suave e `href` configurado.",
       },
       source: {
         code: `
+import { CafHeader } from "@/components/CafHeader";
+
 <CafHeader
   activeId={null}
   align="center"
@@ -158,6 +156,8 @@ export const WithBadges: Story = {
       },
       source: {
         code: `
+import { CafHeader } from "@/components/CafHeader";
+
 const [active, setActive] = React.useState<string | null>("avaliacoes");
 
 // Valores de badges recebidos externamente (ex: vindos de uma API, hook ou estado)
@@ -214,11 +214,12 @@ export const WithIcons: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          "Itens de navegação enriquecidos com ícones representativos e `href` configurado em cada item.",
+        story: "Itens de navegação enriquecidos com ícones representativos e `href` configurado em cada item.",
       },
       source: {
         code: `
+import { CafHeader } from "@/components/CafHeader";
+
 <CafHeader
   activeId="avaliacoes"
   align="center"
@@ -265,186 +266,6 @@ export const WithIcons: Story = {
         icon: <Building2 className="w-4 h-4" />,
       },
     ],
-    align: "center",
-  },
-};
-
-/**
- * Header corporativo completo:
- * Contém logotipo/marca do sistema à esquerda e perfil de usuário com notificações à direita.
- */
-export const WithLogoAndActions: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "Barra de navegação completa com marca/identidade visual à esquerda, botões de ação e avatar de usuário à direita.",
-      },
-      source: {
-        code: `
-<CafHeader
-  activeId="avaliacoes"
-  align="center"
-  logo={
-    <div className="flex items-center gap-2">
-      <span className="w-7 h-7 rounded-lg bg-[#0b3299] text-white flex items-center justify-center font-bold text-xs">
-        CAF
-      </span>
-      <span className="font-semibold text-slate-800 text-sm hidden sm:inline">
-        Central de Avaliações
-      </span>
-    </div>
-  }
-  rightContent={
-    <div className="flex items-center gap-3">
-      <button className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors">
-        <Bell className="w-4 h-4" />
-      </button>
-      <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-        <div className="w-7 h-7 rounded-full bg-[#0b3299]/10 text-[#0b3299] flex items-center justify-center text-xs font-bold">
-          MS
-        </div>
-        <span className="text-xs font-medium text-slate-700 hidden md:inline">Maria Silva</span>
-      </div>
-    </div>
-  }
-  items={[
-    { id: "avaliacoes", label: "Avaliações", href: "/avaliacoes" },
-    { id: "categorias", label: "Categorias", href: "/categorias" },
-    { id: "criterios", label: "Critérios de Avaliação", href: "/criterios" },
-    { id: "salas", label: "Salas", href: "/salas" },
-  ]}
-  onActiveChange={(id) => console.log(id)}
-/>
-        `.trim(),
-      },
-    },
-  },
-  render: (args) => {
-    const [active, setActive] = React.useState<string | null>("avaliacoes");
-    return <CafHeader {...args} activeId={active} onActiveChange={setActive} />;
-  },
-  args: {
-    items: CAF_DEFAULT_HEADER_ITEMS,
-    logo: (
-      <div className="flex items-center gap-2">
-        <span className="w-7 h-7 rounded-lg bg-[#0b3299] text-white flex items-center justify-center font-bold text-xs">
-          CAF
-        </span>
-        <span className="font-semibold text-slate-800 text-sm hidden sm:inline">
-          Central de Avaliações
-        </span>
-      </div>
-    ),
-    rightContent: (
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          title="Notificações"
-          className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
-        >
-          <Bell className="w-4 h-4" />
-        </button>
-        <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-          <div className="w-7 h-7 rounded-full bg-[#0b3299]/10 text-[#0b3299] flex items-center justify-center text-xs font-bold">
-            MS
-          </div>
-          <span className="text-xs font-medium text-slate-700 hidden md:inline">
-            Maria Silva
-          </span>
-        </div>
-      </div>
-    ),
-    align: "center",
-  },
-};
-
-/**
- * Item desabilitado para navegação:
- * Demonstra a apresentação visual opaca e bloqueio de cliques quando um item possui `disabled: true`.
- */
-export const WithDisabledItem: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "Demonstração de item desabilitado (`disabled: true`), mantendo cursor bloqueado e prevenindo navegação.",
-      },
-      source: {
-        code: `
-<CafHeader
-  activeId="avaliacoes"
-  align="center"
-  items={[
-    { id: "avaliacoes", label: "Avaliações", href: "/avaliacoes" },
-    { id: "categorias", label: "Categorias", href: "/categorias" },
-    { id: "criterios", label: "Critérios de Avaliação", href: "/criterios", disabled: true },
-    { id: "salas", label: "Salas", href: "/salas" },
-  ]}
-  onActiveChange={(id) => console.log(id)}
-/>
-        `.trim(),
-      },
-    },
-  },
-  render: (args) => {
-    const [active, setActive] = React.useState<string | null>("avaliacoes");
-    return <CafHeader {...args} activeId={active} onActiveChange={setActive} />;
-  },
-  args: {
-    items: [
-      { id: "avaliacoes", label: "Avaliações", href: "/avaliacoes" },
-      { id: "categorias", label: "Categorias", href: "/categorias" },
-      { id: "criterios", label: "Critérios de Avaliação", href: "/criterios", disabled: true },
-      { id: "salas", label: "Salas", href: "/salas" },
-    ],
-    align: "center",
-  },
-};
-
-/**
- * Variante Fixa ao Topo (`variant="fixed"`):
- * Adere ao topo da janela (`sticky top-0`) com contorno inferior sutil e efeito backdrop-blur.
- */
-export const FixedVariant: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "Variante `fixed`, perfeita para fixação contínua no topo durante a rolagem de tela.",
-      },
-      source: {
-        code: `
-<CafHeader
-  variant="fixed"
-  activeId="avaliacoes"
-  align="center"
-  items={[
-    { id: "avaliacoes", label: "Avaliações", href: "/avaliacoes" },
-    { id: "categorias", label: "Categorias", href: "/categorias" },
-    { id: "criterios", label: "Critérios de Avaliação", href: "/criterios" },
-    { id: "salas", label: "Salas", href: "/salas" },
-  ]}
-  onActiveChange={(id) => console.log(id)}
-/>
-        `.trim(),
-      },
-    },
-  },
-  render: (args) => {
-    const [active, setActive] = React.useState<string | null>("avaliacoes");
-    return (
-      <div className="w-full bg-slate-50 min-h-[140px] p-4 rounded-xl">
-        <CafHeader {...args} activeId={active} onActiveChange={setActive} />
-        <p className="text-center text-xs text-slate-400 mt-6">
-          Conteúdo rolado abaixo da barra de navegação fixa
-        </p>
-      </div>
-    );
-  },
-  args: {
-    variant: "fixed",
-    items: CAF_DEFAULT_HEADER_ITEMS,
     align: "center",
   },
 };

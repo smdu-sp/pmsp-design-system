@@ -111,15 +111,17 @@ export const Default: Story = {
     docs: {
       source: {
         code: `
-          <Table
-            headers={["Tema", "Descrição", "Acesso"]}
-            data={data}
-            columnsCount={3}
-            boldFirstColumn
-            rowHeaderColIndex={0}
-            limit={5}
-            pageSizeOptions={[5, 10, 20, 50]}
-          />
+import { Table } from "@/components/Table";
+
+<Table
+  headers={["Tema", "Descrição", "Acesso"]}
+  data={data}
+  columnsCount={3}
+  boldFirstColumn
+  rowHeaderColIndex={0}
+  limit={5}
+  pageSizeOptions={[5, 10, 20, 50]}
+/>
         `.trim(),
       },
     },
@@ -143,15 +145,17 @@ export const Pagination: Story = {
     docs: {
       source: {
         code: `
-          <Table
-            headers={["Tema", "Descrição", "Acesso"]}
-            data={data}
-            limit={5}
-            pageSizeOptions={[5, 10, 20, 50]}
-            showFirstLastButtons
-            showPaginationInfo
-            hideOnSinglePage={false}
-          />
+import { Table } from "@/components/Table";
+
+<Table
+  headers={["Tema", "Descrição", "Acesso"]}
+  data={data}
+  limit={5}
+  pageSizeOptions={[5, 10, 20, 50]}
+  showFirstLastButtons
+  showPaginationInfo
+  hideOnSinglePage={false}
+/>
         `.trim(),
       },
     },
@@ -173,12 +177,14 @@ export const WithoutHeader: Story = {
     docs: {
       source: {
         code: `
-          <Table
-            showHeader={false}
-            data={data}
-            limit={5}
-            pageSizeOptions={[5, 10, 20, 50]}
-          />
+import { Table } from "@/components/Table";
+
+<Table
+  showHeader={false}
+  data={data}
+  limit={5}
+  pageSizeOptions={[5, 10, 20, 50]}
+/>
         `.trim(),
       },
     },
@@ -199,12 +205,14 @@ export const VisualStyles: Story = {
     docs: {
       source: {
         code: `
-          <Table
-            variant="striped"
-            density="compact"
-            data={data}
-            limit={5}
-          />
+import { Table } from "@/components/Table";
+
+<Table
+  variant="striped"
+  density="compact"
+  data={data}
+  limit={5}
+/>
         `.trim(),
       },
     },
@@ -224,11 +232,13 @@ export const Loading: Story = {
     docs: {
       source: {
         code: `
-          <Table
-            isLoading
-            loadingMessage="Carregando documentos da CIPA..."
-            data={data}
-          />
+import { Table } from "@/components/Table";
+
+<Table
+  isLoading
+  loadingMessage="Carregando documentos da CIPA..."
+  data={data}
+/>
         `.trim(),
       },
     },
@@ -247,10 +257,12 @@ export const Empty: Story = {
     docs: {
       source: {
         code: `
-          <Table
-            data={[]}
-            emptyMessage="Nenhum documento encontrado."
-          />
+import { Table } from "@/components/Table";
+
+<Table
+  data={[]}
+  emptyMessage="Nenhum documento encontrado."
+/>
         `.trim(),
       },
     },
@@ -269,36 +281,38 @@ export const CompoundComposition: Story = {
     docs: {
       source: {
         code: `
-          <Table className="max-w-4xl mx-auto">
-            <TableHeader>
-              <TableRow hoverable={false}>
-                <TableHead>Identificador</TableHead>
-                <TableHead>Unidade / Setor</TableHead>
-                <TableHead align="center">Grau de Risco</TableHead>
-                <TableHead align="right">Trabalhadores</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-          <TableRow>
-            <TableCell as="th" scope="row" bold>SEC-01</TableCell>
-            <TableCell>Edifício Central - Gabinete</TableCell>
-            <TableCell align="center">Baixo</TableCell>
-            <TableCell align="right">120</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell as="th" scope="row" bold>SEC-02</TableCell>
-            <TableCell>Almoxarifado e Manutenção</TableCell>
-            <TableCell align="center">Médio</TableCell>
-            <TableCell align="right">45</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell as="th" scope="row" bold>SEC-03</TableCell>
-            <TableCell>Oficina Operacional</TableCell>
-            <TableCell align="center">Alto</TableCell>
-            <TableCell align="right">78</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/Table";
+
+<Table className="max-w-4xl mx-auto">
+  <TableHeader>
+    <TableRow hoverable={false}>
+      <TableHead>Identificador</TableHead>
+      <TableHead>Unidade / Setor</TableHead>
+      <TableHead align="center">Grau de Risco</TableHead>
+      <TableHead align="right">Trabalhadores</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell as="th" scope="row" bold>SEC-01</TableCell>
+      <TableCell>Edifício Central - Gabinete</TableCell>
+      <TableCell align="center">Baixo</TableCell>
+      <TableCell align="right">120</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell as="th" scope="row" bold>SEC-02</TableCell>
+      <TableCell>Almoxarifado e Manutenção</TableCell>
+      <TableCell align="center">Médio</TableCell>
+      <TableCell align="right">45</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell as="th" scope="row" bold>SEC-03</TableCell>
+      <TableCell>Oficina Operacional</TableCell>
+      <TableCell align="center">Alto</TableCell>
+      <TableCell align="right">78</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
         `.trim(),
       },
     },
@@ -358,15 +372,17 @@ export const WithFilters: Story = {
     docs: {
       source: {
         code: `
-          <Table
-            headers={["Tema", "Descrição", "Acesso"]}
-            data={data}
-            filterable
-            limit={5}
-            pageSizeOptions={[5, 10, 20, 50]}
-            boldFirstColumn
-            rowHeaderColIndex={0}
-          />
+import { Table } from "@/components/Table";
+
+<Table
+  headers={["Tema", "Descrição", "Acesso"]}
+  data={data}
+  filterable
+  limit={5}
+  pageSizeOptions={[5, 10, 20, 50]}
+  boldFirstColumn
+  rowHeaderColIndex={0}
+/>
         `.trim(),
       },
     },
@@ -393,35 +409,37 @@ export const DiverseFilterTypes: Story = {
     docs: {
       source: {
         code: `
-          <Table
-            columns={[
-              {
-                key: "tema",
-                header: "Tema",
-                filterable: true,
-                filterType: "checkbox",
-              },
-              {
-                key: "descricao",
-                header: "Descrição",
-                filterable: true,
-                filterType: "text",
-                filterPlaceholder: "Buscar por termo na descrição...",
-              },
-              {
-                key: "acesso",
-                header: "Acesso",
-                filterable: true,
-                filterType: "select",
-                filterOptions: ["Disponível", "Download", "Em breve", "Sob consulta"],
-              },
-            ]}
-            data={data}
-            limit={5}
-            pageSizeOptions={[5, 10, 20, 50]}
-            boldFirstColumn
-            rowHeaderColIndex={0}
-          />
+import { Table } from "@/components/Table";
+
+<Table
+  columns={[
+    {
+      key: "tema",
+      header: "Tema",
+      filterable: true,
+      filterType: "checkbox",
+    },
+    {
+      key: "descricao",
+      header: "Descrição",
+      filterable: true,
+      filterType: "text",
+      filterPlaceholder: "Buscar por termo na descrição...",
+    },
+    {
+      key: "acesso",
+      header: "Acesso",
+      filterable: true,
+      filterType: "select",
+      filterOptions: ["Disponível", "Download", "Em breve", "Sob consulta"],
+    },
+  ]}
+  data={data}
+  limit={5}
+  pageSizeOptions={[5, 10, 20, 50]}
+  boldFirstColumn
+  rowHeaderColIndex={0}
+/>
         `.trim(),
       },
     },

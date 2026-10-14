@@ -48,3 +48,16 @@ export {
   resolveCafHeaderItems,
   renderCafHeaderBadge,
 } from "./CafHeader";
+export {
+  IntranetHeader,
+  type IntranetHeaderProps,
+  type IntranetNotification,
+  type IntranetTheme,
+  type IntranetThemeOption,
+  type IntranetUser,
+  type IntranetUserMenuItem,
+  type IntranetDropdownType,
+  INTRANET_DEFAULT_NOTIFICATIONS,
+  INTRANET_THEME_OPTIONS,
+  INTRANET_DEFAULT_USER,
+} from "./IntranetHeader";

@@ -88,6 +88,19 @@ export default meta;
 type Story = StoryObj<ButtonStoryProps>;
 
 export const Primary: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+import { Button } from "@/components/Button";
+
+<Button variant="primary" size="md">
+  Acessar Portal do Colaborador
+</Button>
+        `.trim(),
+      },
+    },
+  },
   args: {
     variant: "primary",
     size: "md",
@@ -99,6 +112,19 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+import { Button } from "@/components/Button";
+
+<Button variant="secondary" size="md">
+  Consultar Contracheque
+</Button>
+        `.trim(),
+      },
+    },
+  },
   args: {
     variant: "secondary",
     size: "md",
@@ -110,6 +136,24 @@ export const Secondary: Story = {
 };
 
 export const CustomStyle: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+import { Button } from "@/components/Button";
+
+<Button
+  variant="primary"
+  size="md"
+  backgroundColor="#0d9488"
+  borderRadius="24px"
+>
+  Novo Comunicado Interno
+</Button>
+        `.trim(),
+      },
+    },
+  },
   args: {
     variant: "primary",
     size: "md",

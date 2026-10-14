@@ -135,16 +135,18 @@ export const Default: Story = {
     docs: {
       source: {
         code: `
-          <Dropdown
-            label="Opções da linha"
-            iconRight
-            rightIcon={<ChevronDown />}
-          >
-            <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
-            <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
-            <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
-            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
-          </Dropdown>
+import { Dropdown } from "@/components/Dropdown";
+
+<Dropdown
+  label="Opções da linha"
+  iconRight
+  rightIcon={<ChevronDown />}
+>
+  <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
+  <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
+  <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
+  <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
+</Dropdown>
         `.trim(),
       },
     },
@@ -166,16 +168,18 @@ export const IconOnly: Story = {
     docs: {
       source: {
         code: `
-          <Dropdown
-            iconLeft
-            leftIcon={<MoreVertical />}
-            ariaLabel="Mais opções da linha"
-          >
-            <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
-            <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
-            <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
-            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
-          </Dropdown>
+import { Dropdown } from "@/components/Dropdown";
+
+<Dropdown
+  iconLeft
+  leftIcon={<MoreVertical />}
+  ariaLabel="Mais opções da linha"
+>
+  <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
+  <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
+  <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
+  <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
+</Dropdown>
         `.trim(),
       },
     },
@@ -197,18 +201,20 @@ export const BothIcons: Story = {
     docs: {
       source: {
         code: `
-          <Dropdown
-            label="Filtrar Resultados"
-            iconLeft
-            leftIcon={<Filter />}
-            iconRight
-            rightIcon={<ChevronDown />}
-          >
-            <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
-            <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
-            <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
-            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
-          </Dropdown>
+import { Dropdown } from "@/components/Dropdown";
+
+<Dropdown
+  label="Filtrar Resultados"
+  iconLeft
+  leftIcon={<Filter />}
+  iconRight
+  rightIcon={<ChevronDown />}
+>
+  <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
+  <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
+  <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
+  <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
+</Dropdown>
         `.trim(),
       },
     },
@@ -230,18 +236,20 @@ export const BothIconsWithoutText: Story = {
     docs: {
       source: {
         code: `
-          <Dropdown
-            iconLeft
-            leftIcon={<Filter />}
-            iconRight
-            rightIcon={<ChevronDown />}
-            ariaLabel="Filtro rápido"
-          >
-            <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
-            <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
-            <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
-            <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
-          </Dropdown>
+import { Dropdown } from "@/components/Dropdown";
+
+<Dropdown
+  iconLeft
+  leftIcon={<Filter />}
+  iconRight
+  rightIcon={<ChevronDown />}
+  ariaLabel="Filtro rápido"
+>
+  <Dropdown.Item iconLeft leftIcon={<Edit />}>Editar registro</Dropdown.Item>
+  <Dropdown.Item iconLeft leftIcon={<Copy />}>Duplicar linha</Dropdown.Item>
+  <Dropdown.Item iconLeft leftIcon={<Share2 />}>Compartilhar link</Dropdown.Item>
+  <Dropdown.Item variant="danger" iconLeft leftIcon={<Trash2 />}>Excluir registro</Dropdown.Item>
+</Dropdown>
         `.trim(),
       },
     },

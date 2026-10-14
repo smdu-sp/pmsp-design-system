@@ -67,21 +67,23 @@ export const Default: Story = {
     docs: {
       source: {
         code: `
-          <CafTable
-            columns={[
-              {
-                key: "avaliacao",
-                header: "Avaliação",
-                render: (val) => <CafScoreBadge score={val} />,
-              },
-              { key: "sala", header: "Sala", bold: true },
-              { key: "periodo", header: "Periodo" },
-              { key: "observacao", header: "Observação" },
-              { key: "criadoEm", header: "Criado em" },
-            ]}
-            data={data}
-            pageSize={10}
-          />
+import { CafTable, CafScoreBadge } from "@/components/CafTable";
+
+<CafTable
+  columns={[
+    {
+      key: "avaliacao",
+      header: "Avaliação",
+      render: (val) => <CafScoreBadge score={val} />,
+    },
+    { key: "sala", header: "Sala", bold: true },
+    { key: "periodo", header: "Periodo" },
+    { key: "observacao", header: "Observação" },
+    { key: "criadoEm", header: "Criado em" },
+  ]}
+  data={data}
+  pageSize={10}
+/>
         `.trim(),
       },
     },
@@ -101,12 +103,14 @@ export const WithPagination: Story = {
     docs: {
       source: {
         code: `
-          <CafTable
-            columns={CAF_DEFAULT_COLUMNS}
-            data={data}
-            pageSize={5}
-            pageSizeOptions={[5, 10, 15, 20, 30, 50]}
-          />
+import { CafTable } from "@/components/CafTable";
+
+<CafTable
+  columns={CAF_DEFAULT_COLUMNS}
+  data={data}
+  pageSize={5}
+  pageSizeOptions={[5, 10, 15, 20, 30, 50]}
+/>
         `.trim(),
       },
     },
@@ -127,21 +131,23 @@ export const WithFilters: Story = {
     docs: {
       source: {
         code: `
-          <CafTable
-            columns={[
-              {
-                key: "avaliacao",
-                header: "Avaliação",
-                filterable: false,
-                render: (val) => <CafScoreBadge score={val} />,
-              },
-              { key: "sala", header: "Sala", bold: true, filterable: true },
-              { key: "periodo", header: "Periodo", filterable: true },
-              { key: "observacao", header: "Observação" },
-              { key: "criadoEm", header: "Criado em" },
-            ]}
-            data={data}
-          />
+import { CafTable, CafScoreBadge } from "@/components/CafTable";
+
+<CafTable
+  columns={[
+    {
+      key: "avaliacao",
+      header: "Avaliação",
+      filterable: false,
+      render: (val) => <CafScoreBadge score={val} />,
+    },
+    { key: "sala", header: "Sala", bold: true, filterable: true },
+    { key: "periodo", header: "Periodo", filterable: true },
+    { key: "observacao", header: "Observação" },
+    { key: "criadoEm", header: "Criado em" },
+  ]}
+  data={data}
+/>
         `.trim(),
       },
     },
@@ -172,12 +178,14 @@ export const Loading: Story = {
     docs: {
       source: {
         code: `
-          <CafTable
-            columns={CAF_DEFAULT_COLUMNS}
-            data={[]}
-            isLoading
-            loadingMessage="Carregando avaliações do Sistema-CAF..."
-          />
+import { CafTable } from "@/components/CafTable";
+
+<CafTable
+  columns={CAF_DEFAULT_COLUMNS}
+  data={[]}
+  isLoading
+  loadingMessage="Carregando avaliações do Sistema-CAF..."
+/>
         `.trim(),
       },
     },
@@ -198,11 +206,13 @@ export const Empty: Story = {
     docs: {
       source: {
         code: `
-          <CafTable
-            columns={CAF_DEFAULT_COLUMNS}
-            data={[]}
-            emptyMessage="Nenhuma avaliação registrada para este período."
-          />
+import { CafTable } from "@/components/CafTable";
+
+<CafTable
+  columns={CAF_DEFAULT_COLUMNS}
+  data={[]}
+  emptyMessage="Nenhuma avaliação registrada para este período."
+/>
         `.trim(),
       },
     },

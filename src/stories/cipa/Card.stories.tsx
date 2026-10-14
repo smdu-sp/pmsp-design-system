@@ -110,11 +110,13 @@ export const TextDefault: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="text"
-            title="O que é a CIPA ?"
-            subtitle="É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho."
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="text"
+  title="O que é a CIPA ?"
+  subtitle="É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho."
+/>
         `.trim(),
       },
     },
@@ -132,18 +134,20 @@ export const TextWithUnorderedList: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="text"
-            title="Atribuições da CIPA"
-            subtitle="Principais ações desenvolvidas para garantir a segurança no trabalho:"
-            items={[
-              "Identificar os riscos do processo de trabalho e propor medidas preventivas",
-              "Elaborar o mapa de riscos da unidade com a participação dos trabalhadores",
-              "Divulgar e zelar pela observância das normas regulamentadoras de segurança",
-              "Participar da investigação das causas de acidentes e doenças ocupacionais",
-            ]}
-            listType="ul"
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="text"
+  title="Atribuições da CIPA"
+  subtitle="Principais ações desenvolvidas para garantir a segurança no trabalho:"
+  items={[
+    "Identificar os riscos do processo de trabalho e propor medidas preventivas",
+    "Elaborar o mapa de riscos da unidade com a participação dos trabalhadores",
+    "Divulgar e zelar pela observância das normas regulamentadoras de segurança",
+    "Participar da investigação das causas de acidentes e doenças ocupacionais",
+  ]}
+  listType="ul"
+/>
         `.trim(),
       },
     },
@@ -168,19 +172,21 @@ export const TextWithOrderedList: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="text"
-            title="Cronograma de Eleição CIPA"
-            subtitle="Etapas do processo eleitoral de acordo com a NR-5:"
-            items={[
-              "Publicação e divulgação do edital de convocação em locais visíveis",
-              "Período de inscrição dos candidatos interessados",
-              "Realização da eleição por escrutínio secreto durante a jornada normal",
-              "Apuração dos votos e publicação oficial do resultado",
-              "Treinamento obrigatório para titulares e suplentes antes da posse",
-            ]}
-            listType="ol"
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="text"
+  title="Cronograma de Eleição CIPA"
+  subtitle="Etapas do processo eleitoral de acordo com a NR-5:"
+  items={[
+    "Publicação e divulgação do edital de convocação em locais visíveis",
+    "Período de inscrição dos candidatos interessados",
+    "Realização da eleição por escrutínio secreto durante a jornada normal",
+    "Apuração dos votos e publicação oficial do resultado",
+    "Treinamento obrigatório para titulares e suplentes antes da posse",
+  ]}
+  listType="ol"
+/>
         `.trim(),
       },
     },
@@ -206,11 +212,13 @@ export const FileUpload: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="file"
-            uploadText="Arraste aqui o cartaz do mês"
-            accept="image/*"
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="file"
+  uploadText="Arraste aqui o cartaz do mês"
+  accept="image/*"
+/>
         `.trim(),
       },
     },
@@ -228,11 +236,13 @@ export const FileSelectedPreview: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="file"
-            uploadText="Arraste aqui o cartaz do mês"
-            file="https://images.unsplash.com/photo-1584467735815-f778f274e296?w=400&auto=format&fit=crop&q=80"
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="file"
+  uploadText="Arraste aqui o cartaz do mês"
+  file="https://images.unsplash.com/photo-1584467735815-f778f274e296?w=400&auto=format&fit=crop&q=80"
+/>
         `.trim(),
       },
     },
@@ -250,13 +260,15 @@ export const QuickAccess: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="quick-access"
-            route="/"
-            icon={<MessageCircle />}
-            title="Quer falar com a gente ?"
-            subtitle="E-mails, caixas de recado e canal de acolhimento"
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="quick-access"
+  route="/"
+  icon={<MessageCircle />}
+  title="Quer falar com a gente ?"
+  subtitle="E-mails, caixas de recado e canal de acolhimento"
+/>
         `.trim(),
       },
     },
@@ -276,12 +288,14 @@ export const VideoFallback: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="media"
-            title="O que é a CIPA ?"
-            subtitle="É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho."
-            thumbnailText="Miniatura do vídeo"
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="media"
+  title="O que é a CIPA ?"
+  subtitle="É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho."
+  thumbnailText="Miniatura do vídeo"
+/>
         `.trim(),
       },
     },
@@ -300,13 +314,15 @@ export const VideoWithImage: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="media"
-            title="O que é a CIPA ?"
-            subtitle="É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho."
-            image="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80"
-            href="/videos/o-que-e-a-cipa"
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="media"
+  title="O que é a CIPA ?"
+  subtitle="É uma comissão de trabalho criada para promover ações voltadas à segurança e à saúde no ambiente de trabalho."
+  image="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80"
+  href="/videos/o-que-e-a-cipa"
+/>
         `.trim(),
       },
     },
@@ -329,18 +345,20 @@ export const MobileView: Story = {
     docs: {
       source: {
         code: `
-          <div className="max-w-[320px] p-2 bg-slate-100 rounded-xl">
-            <Card
-              variant="text"
-              title="Comissão Interna de Prevenção de Acidentes e Assédio"
-              subtitle="Ações preventivas e canais de apoio disponíveis para todos os colaboradores."
-              items={[
-                "Orientações preventivas e cartilhas digitais",
-                "Canal de denúncias confidenciais e acolhimento",
-              ]}
-              listType="ul"
-            />
-          </div>
+import { Card } from "@/components/Card";
+
+<div className="max-w-[320px] p-2 bg-slate-100 rounded-xl">
+  <Card
+    variant="text"
+    title="Comissão Interna de Prevenção de Acidentes e Assédio"
+    subtitle="Ações preventivas e canais de apoio disponíveis para todos os colaboradores."
+    items={[
+      "Orientações preventivas e cartilhas digitais",
+      "Canal de denúncias confidenciais e acolhimento",
+    ]}
+    listType="ul"
+  />
+</div>
         `.trim(),
       },
     },
@@ -365,29 +383,31 @@ export const ResponsiveGrid: Story = {
     docs: {
       source: {
         code: `
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <Card
-              variant="text"
-              title="O que é a CIPA ?"
-              subtitle="Comissão voltada à segurança, prevenção e saúde corporativa."
-            />
-            <Card
-              variant="file"
-              uploadText="Arraste aqui o cartaz do mês"
-              accept="image/*"
-            />
-            <Card
-              variant="quick-access"
-              route="/"
-              title="Quer falar com a gente ?"
-              subtitle="E-mails, caixas de recado e acolhimento"
-            />
-            <Card
-              variant="media"
-              title="Vídeo da CIPA #4"
-              status="Em breve"
-            />
-          </div>
+import { Card } from "@/components/Card";
+
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+  <Card
+    variant="text"
+    title="O que é a CIPA ?"
+    subtitle="Comissão voltada à segurança, prevenção e saúde corporativa."
+  />
+  <Card
+    variant="file"
+    uploadText="Arraste aqui o cartaz do mês"
+    accept="image/*"
+  />
+  <Card
+    variant="quick-access"
+    route="/"
+    title="Quer falar com a gente ?"
+    subtitle="E-mails, caixas de recado e acolhimento"
+  />
+  <Card
+    variant="media"
+    title="Vídeo da CIPA #4"
+    status="Em breve"
+  />
+</div>
         `.trim(),
       },
     },
@@ -414,20 +434,22 @@ export const CustomStyle: Story = {
     docs: {
       source: {
         code: `
-          <Card
-            variant="text"
-            title="Alerta de Segurança e Higiene"
-            subtitle="Uso obrigatório de EPI em todas as dependências operacionais durante o período de manutenção."
-            items={[
-              "Capacete de segurança com jugular ajustada",
-              "Óculos de proteção contra impactos frontais e laterais",
-              "Calçado de segurança com biqueira de proteção",
-            ]}
-            listType="ul"
-            backgroundColor="#eff6ff"
-            textColor="#1e3a8a"
-            borderRadius="16px"
-          />
+import { Card } from "@/components/Card";
+
+<Card
+  variant="text"
+  title="Alerta de Segurança e Higiene"
+  subtitle="Uso obrigatório de EPI em todas as dependências operacionais durante o período de manutenção."
+  items={[
+    "Capacete de segurança com jugular ajustada",
+    "Óculos de proteção contra impactos frontais e laterais",
+    "Calçado de segurança com biqueira de proteção",
+  ]}
+  listType="ul"
+  backgroundColor="#eff6ff"
+  textColor="#1e3a8a"
+  borderRadius="16px"
+/>
         `.trim(),
       },
     },

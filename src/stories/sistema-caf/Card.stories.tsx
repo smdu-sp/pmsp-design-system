@@ -75,12 +75,14 @@ export const Default: Story = {
     docs: {
       source: {
         code: `
-          <CafCard
-            icon={<Plus className="h-6 w-6 shrink-0 text-white stroke-[1.75]" />}
-            subtitle="Realize uma nova avaliação de limpeza para as salas da instituição"
-            title="Fazer nova avaliação"
-            href="/nova-avaliacao"
-          />
+import { CafCard } from "@/components/CafCard";
+
+<CafCard
+  icon={<Plus className="h-6 w-6 shrink-0 text-white stroke-[1.75]" />}
+  subtitle="Realize uma nova avaliação de limpeza para as salas da instituição"
+  title="Fazer nova avaliação"
+  href="/nova-avaliacao"
+/>
         `.trim(),
       },
     },
@@ -100,13 +102,15 @@ export const CriarReserva: Story = {
     docs: {
       source: {
         code: `
-          <CafCard
-            icon={<Plus className="h-6 w-6 shrink-0 text-white stroke-[1.75]" />}
-            title="Criar Reserva"
-            subtitle="Agende uma nova sala para sua reunião ou evento"
-            onClick={() => console.log("Criar Reserva")}
-            href="/nova-reserva"
-          />
+import { CafCard } from "@/components/CafCard";
+
+<CafCard
+  icon={<Plus className="h-6 w-6 shrink-0 text-white stroke-[1.75]" />}
+  title="Criar Reserva"
+  subtitle="Agende uma nova sala para sua reunião ou evento"
+  onClick={() => console.log("Criar Reserva")}
+  href="/nova-reserva"
+/>
         `.trim(),
       },
     },
