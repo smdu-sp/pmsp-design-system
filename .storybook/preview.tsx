@@ -98,6 +98,8 @@ const KNOWN_LUCIDE_ICONS = [
   "Play",
   "Pencil",
   "X",
+  "Send",
+  "ImageIcon",
 ];
 
 function resolveIconImports(code: string): string {

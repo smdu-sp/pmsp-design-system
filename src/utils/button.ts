@@ -10,6 +10,10 @@ export const buttonVariants = cva(
           "bg-slate-900 text-white shadow-sm hover:bg-slate-800 active:scale-[0.98] focus-visible:ring-slate-950 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-100",
         secondary:
           "bg-slate-100 text-slate-900 border border-slate-200 hover:bg-slate-200 active:scale-[0.98] focus-visible:ring-slate-400 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 dark:hover:bg-slate-700",
+        "intranet-primary":
+          "bg-[#0b3299] text-white shadow-xs hover:bg-[#082878] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-2",
+        "intranet-secondary":
+          "bg-white text-[#0b3299] border border-slate-200 hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-2 shadow-xs",
       },
       size: {
         sm: "h-8 px-3 text-xs",
@@ -33,7 +37,8 @@ export const buttonVariants = cva(
 );
 
 export type ButtonRoundedOption = "none" | "sm" | "md" | "lg" | "full";
-export type ButtonVariant = "primary" | "secondary";
+export type ButtonVariant = "primary" | "secondary" | "intranet-primary" | "intranet-secondary";
+export type ButtonTheme = "default" | "intranet";
 export type ButtonSize = "sm" | "md" | "lg";
 
 /**

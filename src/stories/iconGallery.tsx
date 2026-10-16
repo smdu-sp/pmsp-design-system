@@ -34,6 +34,7 @@ import {
   Edit,
   Copy,
   Check,
+  Send,
 } from "lucide-react";
 
 export const STORY_ICONS = {
@@ -60,7 +61,9 @@ export const STORY_ICONS = {
   ReceiptText: <ReceiptText className="h-4 w-4 shrink-0 text-indigo-300" />,
   Users: <Users className="h-4 w-4 shrink-0 text-teal-400" />,
   FileSpreadsheet: <FileSpreadsheet className="h-4 w-4 shrink-0 text-slate-400" />,
-  Megaphone: <Megaphone className="h-4 w-4 shrink-0 text-teal-300" />,
+  Megaphone: <Megaphone className="h-4 w-4 shrink-0" />,
+  ImageIcon: <ImageIcon className="h-4 w-4 shrink-0" />,
+  Send: <Send className="h-4 w-4 shrink-0" />,
   ArrowRight: <ArrowRight className="h-4 w-4 shrink-0" />,
   ArrowLeft: <ArrowLeft className="h-4 w-4 shrink-0" />,
   ChevronRight: <ChevronRight className="h-4 w-4 shrink-0" />,

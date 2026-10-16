@@ -5,18 +5,20 @@ import { cn } from "@/utils/cn";
 import {
   buttonVariants,
   type ButtonRoundedOption,
+  type ButtonTheme,
   normalizeButtonRounded,
   resolveButtonStyles,
   resolveButtonIconFlags,
 } from "@/utils/button";
 
 export { buttonVariants };
-export type { ButtonRoundedOption };
+export type { ButtonRoundedOption, ButtonTheme };
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     Omit<VariantProps<typeof buttonVariants>, "rounded"> {
   asChild?: boolean;
+  theme?: ButtonTheme;
   rounded?: ButtonRoundedOption | boolean;
   /** Cor de fundo customizada (hexadecimal '#...' ou variável CSS 'var(--...)' / '--...') */
   backgroundColor?: string;
@@ -39,6 +41,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     {
       className,
       variant,
+      theme,
       size,
       rounded = "md",
       asChild = false,
@@ -59,6 +62,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const normalizedRounded = normalizeButtonRounded(rounded);
 
+    const resolvedVariant =
+      variant === "intranet-primary" || variant === "intranet-secondary"
+        ? variant
+        : theme === "intranet"
+          ? variant === "secondary"
+            ? "intranet-secondary"
+            : "intranet-primary"
+          : variant;
+
     const dynamicStyles = resolveButtonStyles({
       backgroundColor,
       textColor,
@@ -76,7 +88,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     if (asChild) {
       return (
         <Comp
-          className={cn(buttonVariants({ variant, size, rounded: normalizedRounded, className }))}
+          className={cn(buttonVariants({ variant: resolvedVariant, size, rounded: normalizedRounded, className }))}
           style={dynamicStyles}
           ref={ref}
           {...props}
@@ -88,7 +100,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, rounded: normalizedRounded, className }))}
+        className={cn(buttonVariants({ variant: resolvedVariant, size, rounded: normalizedRounded, className }))}
         style={dynamicStyles}
         ref={ref}
         {...props}

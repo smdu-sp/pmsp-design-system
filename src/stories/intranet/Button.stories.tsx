@@ -1,5 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { Megaphone, Image as ImageIcon, Send } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/Button";
 import { STORY_ICONS, STORY_ICON_NAMES, type StoryIconName } from "../iconGallery";
 
@@ -12,11 +13,21 @@ const meta: Meta<ButtonStoryProps> = {
   title: "Intranet/Button",
   component: Button,
   tags: ["autodocs"],
+  args: {
+    theme: "intranet",
+    variant: "primary",
+    rounded: "lg",
+  },
   argTypes: {
     variant: {
       control: "select",
       options: ["primary", "secondary"],
-      description: "Estilo visual base do botão",
+      description: "Paleta institucional da Intranet: 'primary' (Azul #0b3299 preenchido) ou 'secondary' (Delineado com fundo branco, texto e ícone azuis)",
+    },
+    theme: {
+      control: "select",
+      options: ["intranet", "default"],
+      description: "Tema de cores aplicado ao botão (padrão da Intranet: 'intranet')",
     },
     size: {
       control: "select",
@@ -30,11 +41,11 @@ const meta: Meta<ButtonStoryProps> = {
     },
     backgroundColor: {
       control: "color",
-      description: "Cor de fundo em hexadecimal (#...) ou variável CSS (var(--...))",
+      description: "Cor de fundo customizada em hexadecimal (#...) ou variável CSS (var(--...))",
     },
     textColor: {
       control: "color",
-      description: "Cor do texto em hexadecimal (#...) ou variável CSS (var(--...))",
+      description: "Cor do texto customizada em hexadecimal (#...) ou variável CSS (var(--...))",
     },
     borderRadius: {
       control: "text",
@@ -69,57 +80,108 @@ const meta: Meta<ButtonStoryProps> = {
       description: "Texto ou conteúdo interno do botão",
     },
   },
-  render: ({ selectedIconLeft, selectedIconRight, ...args }) => {
+  render: ({ selectedIconLeft, selectedIconRight, theme = "intranet", ...args }) => {
     const leftIcon =
-      selectedIconLeft && STORY_ICONS[selectedIconLeft]
+      args.iconLeft && selectedIconLeft && STORY_ICONS[selectedIconLeft]
         ? STORY_ICONS[selectedIconLeft]
         : undefined;
 
     const rightIcon =
-      selectedIconRight && STORY_ICONS[selectedIconRight]
+      args.iconRight && selectedIconRight && STORY_ICONS[selectedIconRight]
         ? STORY_ICONS[selectedIconRight]
         : undefined;
 
-    return <Button {...args} leftIcon={leftIcon} rightIcon={rightIcon} />;
+    return <Button {...args} theme={theme} leftIcon={leftIcon} rightIcon={rightIcon} />;
   },
 };
 
 export default meta;
 type Story = StoryObj<ButtonStoryProps>;
 
+/** Botão primário preenchido em azul (#0b3299) com ícone de envio e texto branco */
 export const Primary: Story = {
   args: {
     variant: "primary",
+    theme: "intranet",
     size: "md",
+    rounded: "lg",
     iconLeft: true,
-    selectedIconLeft: "Users",
+    selectedIconLeft: "Send",
     iconRight: false,
-    children: "Acessar Portal do Colaborador",
+    children: "Publicar",
   },
 };
 
+/** Botão secundário delineado com fundo claro, texto e ícone em azul institucional (#0b3299) */
 export const Secondary: Story = {
   args: {
     variant: "secondary",
+    theme: "intranet",
     size: "md",
+    rounded: "lg",
     iconLeft: true,
-    selectedIconLeft: "FileSpreadsheet",
+    selectedIconLeft: "Megaphone",
     iconRight: false,
-    children: "Consultar Contracheque",
+    children: "Comunicado",
   },
 };
 
-export const CustomStyle: Story = {
+/** Botão secundário delineado para inserção de imagem com texto e ícone em azul institucional (#0b3299) */
+export const Imagem: Story = {
   args: {
-    variant: "primary",
+    variant: "secondary",
+    theme: "intranet",
     size: "md",
-    backgroundColor: "#0d9488",
-    borderRadius: "24px",
+    rounded: "lg",
     iconLeft: true,
-    selectedIconLeft: "Megaphone",
-    iconRight: true,
-    selectedIconRight: "ArrowRight",
-    className: "text-white shadow-md shadow-teal-500/20 border border-teal-400/30 hover:bg-teal-700",
-    children: "Novo Comunicado Interno",
+    selectedIconLeft: "ImageIcon",
+    iconRight: false,
+    children: "Imagem",
   },
+};
+
+/** Barra de publicação completa idêntica ao design da Intranet (Comunicado e Imagem à esquerda, Publicar à direita) */
+export const PostToolbar: Story = {
+  render: () => (
+    <div className="w-full max-w-2xl p-4 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2.5">
+        <Button
+          theme="intranet"
+          variant="secondary"
+          rounded="lg"
+          iconLeft
+          leftIcon={<Megaphone className="h-4 w-4" />}
+        >
+          Comunicado
+        </Button>
+        <Button
+          theme="intranet"
+          variant="secondary"
+          rounded="lg"
+          iconLeft
+          leftIcon={<ImageIcon className="h-4 w-4" />}
+        >
+          Imagem
+        </Button>
+      </div>
+
+      <Button
+        theme="intranet"
+        variant="primary"
+        rounded="lg"
+        iconLeft
+        leftIcon={<Send className="h-4 w-4" />}
+      >
+        Publicar
+      </Button>
+    </div>
+  ),
+};
+
+export const Publicar: Story = {
+  ...Primary,
+};
+
+export const Comunicado: Story = {
+  ...Secondary,
 };
