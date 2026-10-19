@@ -70,4 +70,11 @@ export {
   getIntranetSidebarItemClass,
   getIntranetSupportCardClass,
 } from "./IntranetSidebar";
+export {
+  IntranetCard,
+  type IntranetCardProps,
+  type IntranetCardVariant,
+  type IntranetCardAvatar,
+  type IntranetCardTextItem,
+} from "./IntranetCard";
 

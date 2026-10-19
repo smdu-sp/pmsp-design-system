@@ -12,6 +12,12 @@ export const cardVariants = cva(
           "group flex flex-col justify-start text-left hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 no-underline",
         media: "group flex flex-col justify-start text-left p-4 sm:p-5 transition-all duration-200 hover:border-slate-300 hover:shadow-md",
         caf: "group flex items-center gap-4 sm:gap-5 bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-slate-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-left cursor-pointer no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2",
+        "intranet-birthday":
+          "bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all text-left flex flex-col justify-between w-full max-w-sm",
+        "intranet-action":
+          "bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all text-left flex flex-col justify-between w-full max-w-sm",
+        "intranet-text":
+          "bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all text-left flex flex-col w-full max-w-sm",
       },
     },
     defaultVariants: {
@@ -20,7 +26,15 @@ export const cardVariants = cva(
   },
 );
 
-export type CardVariant = "text" | "file" | "quick-access" | "media" | "caf";
+export type CardVariant =
+  | "text"
+  | "file"
+  | "quick-access"
+  | "media"
+  | "caf"
+  | "intranet-birthday"
+  | "intranet-action"
+  | "intranet-text";
 export type CardListType = "ul" | "ol";
 
 export interface ResolveCardStylesParams {

@@ -6,3 +6,5 @@ export * from "./card";
 export * from "./tableColumnFilter";
 export * from "./cafTable";
 export * from "./cafHeader";
+export * from "./intranetSidebar";
+export * from "./intranetCard";

@@ -13,6 +13,11 @@ import {
   resolveCardAriaIds,
   useCardUpload,
 } from "@/utils/card";
+import {
+  IntranetCard,
+  type IntranetCardAvatar,
+  type IntranetCardTextItem,
+} from "./IntranetCard";
 
 export { cardVariants };
 export type { CardVariant, CardListType };
@@ -92,6 +97,38 @@ export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, "titl
   textColor?: string;
   /** Raio de borda customizado (ex: '16px', '1rem', '9999px' ou número) */
   borderRadius?: string | number;
+
+  // --- Modo Intranet ---
+  /** Nome do servidor (usado em 'intranet-action') */
+  name?: string;
+  /** Departamento ou setor do servidor */
+  department?: string;
+  /** Avatar completo com foto ou iniciais */
+  avatar?: IntranetCardAvatar;
+  /** Iniciais do avatar */
+  avatarInitials?: string;
+  /** URL da foto do avatar */
+  avatarSrc?: string;
+  /** Cor do círculo de avatar */
+  avatarColor?: string;
+  /** Badge em destaque (ex: 'hoje') */
+  badge?: string | boolean;
+  /** Data em destaque (ex: '6 de Julho', '19 de Outubro' ou objeto Date) */
+  date?: string | Date;
+  /** Data de referência para checar se é hoje (padrão: new Date()) */
+  referenceDate?: Date | string;
+  /** Texto de felicitações ou status */
+  felicitations?: string;
+  /** Texto do botão de ação */
+  buttonText?: string;
+  /** Ícone do botão de ação */
+  buttonIcon?: React.ReactNode;
+  /** Callback ao clicar no botão de ação */
+  onButtonClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  /** Lista de itens para o modo 'intranet-text' */
+  cardItems?: IntranetCardTextItem[];
+  /** Texto de estado vazio para o modo 'intranet-text' */
+  emptyText?: string;
 }
 
 export const Card = React.forwardRef<HTMLElement, CardProps>(
@@ -127,12 +164,64 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
       backgroundColor,
       textColor,
       borderRadius,
+      name,
+      department,
+      avatar,
+      avatarInitials,
+      avatarSrc,
+      avatarColor,
+      badge,
+      date,
+      referenceDate,
+      felicitations,
+      buttonText = "Parabenizar",
+      buttonIcon,
+      onButtonClick,
+      cardItems,
+      emptyText,
       style,
       children,
       ...props
     },
     ref,
   ) => {
+    if (
+      variant === "intranet-birthday" ||
+      variant === "intranet-action" ||
+      variant === "intranet-text"
+    ) {
+      return (
+        <IntranetCard
+          ref={ref as React.Ref<HTMLElement>}
+          variant={variant === "intranet-text" ? "text" : "birthday"}
+          title={title}
+          name={name}
+          subtitle={subtitle}
+          department={department}
+          avatar={avatar}
+          avatarInitials={avatarInitials}
+          avatarSrc={avatarSrc}
+          avatarColor={avatarColor}
+          badge={badge}
+          date={date}
+          referenceDate={referenceDate}
+          felicitations={felicitations}
+          buttonText={buttonText}
+          buttonIcon={buttonIcon}
+          onButtonClick={onButtonClick}
+          items={cardItems}
+          emptyText={emptyText}
+          description={description}
+          className={className}
+          backgroundColor={backgroundColor}
+          borderRadius={borderRadius}
+          style={style}
+          {...props}
+        >
+          {children}
+        </IntranetCard>
+      );
+    }
     const generatedId = React.useId();
     const effectiveSubtitle = subtitle || description;
     const { titleId, subtitleId, fileInputId, uploadStatusId } = resolveCardAriaIds(generatedId, title, effectiveSubtitle);
