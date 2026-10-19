@@ -61,3 +61,13 @@ export {
   INTRANET_THEME_OPTIONS,
   INTRANET_DEFAULT_USER,
 } from "./IntranetHeader";
+export {
+  IntranetSidebar,
+  type IntranetSidebarProps,
+  type IntranetSidebarItem,
+  INTRANET_DEFAULT_SIDEBAR_ITEMS,
+  getIntranetSidebarContainerClass,
+  getIntranetSidebarItemClass,
+  getIntranetSupportCardClass,
+} from "./IntranetSidebar";
+

@@ -10,6 +10,7 @@ const COMPONENT_IMPORT_MAP: Record<string, string> = {
   Dropdown: 'import { Dropdown } from "@/components/Dropdown";',
   CafHeader: 'import { CafHeader } from "@/components/CafHeader";',
   IntranetHeader: 'import { IntranetHeader } from "@/components/IntranetHeader";',
+  IntranetSidebar: 'import { IntranetSidebar } from "@/components/IntranetSidebar";',
 };
 
 function resolveImportStatement(storyContext: any, code?: string): string {
@@ -20,6 +21,9 @@ function resolveImportStatement(storyContext: any, code?: string): string {
 
   const title = (storyContext?.title || "").toLowerCase();
 
+  if (title.includes("intranet") && title.includes("sidebar")) {
+    return 'import { IntranetSidebar } from "@/components/IntranetSidebar";';
+  }
   if (title.includes("intranet") && title.includes("header")) {
     return 'import { IntranetHeader } from "@/components/IntranetHeader";';
   }
@@ -100,6 +104,11 @@ const KNOWN_LUCIDE_ICONS = [
   "X",
   "Send",
   "ImageIcon",
+  "Home",
+  "CalendarDays",
+  "Contact",
+  "Newspaper",
+  "LifeBuoy",
 ];
 
 function resolveIconImports(code: string): string {
