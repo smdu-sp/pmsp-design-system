@@ -8,3 +8,4 @@ export * from "./cafTable";
 export * from "./cafHeader";
 export * from "./intranetSidebar";
 export * from "./intranetCard";
+export * from "./intranetPost";

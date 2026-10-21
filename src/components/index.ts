@@ -77,4 +77,14 @@ export {
   type IntranetCardAvatar,
   type IntranetCardTextItem,
 } from "./IntranetCard";
+export {
+  IntranetPost,
+  type IntranetPostProps,
+  type IntranetPostAuthor,
+  type IntranetPostComment,
+  type IntranetPostCurrentUser,
+  INTRANET_DEFAULT_CURRENT_USER,
+  INTRANET_DEFAULT_POST_COMMENTS,
+  INTRANET_SAMPLE_POST,
+} from "./IntranetPost";
 
