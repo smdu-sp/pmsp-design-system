@@ -87,4 +87,9 @@ export {
   INTRANET_DEFAULT_POST_COMMENTS,
   INTRANET_SAMPLE_POST,
 } from "./IntranetPost";
+export {
+  IntranetEventCard,
+  type IntranetEventCardProps,
+} from "./IntranetEventCard";
+
 

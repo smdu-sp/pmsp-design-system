@@ -9,3 +9,5 @@ export * from "./cafHeader";
 export * from "./intranetSidebar";
 export * from "./intranetCard";
 export * from "./intranetPost";
+export * from "./intranetEventCard";
+
