@@ -70,15 +70,9 @@ const meta: Meta<ButtonStoryProps> = {
     },
   },
   render: ({ selectedIconLeft, selectedIconRight, ...args }) => {
-    const leftIcon =
-      selectedIconLeft && STORY_ICONS[selectedIconLeft]
-        ? STORY_ICONS[selectedIconLeft]
-        : undefined;
+    const leftIcon = selectedIconLeft && STORY_ICONS[selectedIconLeft] ? STORY_ICONS[selectedIconLeft] : undefined;
 
-    const rightIcon =
-      selectedIconRight && STORY_ICONS[selectedIconRight]
-        ? STORY_ICONS[selectedIconRight]
-        : undefined;
+    const rightIcon = selectedIconRight && STORY_ICONS[selectedIconRight] ? STORY_ICONS[selectedIconRight] : undefined;
 
     return <Button {...args} leftIcon={leftIcon} rightIcon={rightIcon} />;
   },
@@ -88,14 +82,13 @@ export default meta;
 type Story = StoryObj<ButtonStoryProps>;
 
 export const Primary: Story = {
-
   args: {
     variant: "primary",
     size: "md",
     iconLeft: true,
-    selectedIconLeft: "ShieldCheck",
     iconRight: false,
-    children: "Registrar Inspeção CIPA",
+    rounded: "full",
+    children: "Botão",
   },
 };
 
@@ -106,6 +99,7 @@ export const Secondary: Story = {
     iconLeft: true,
     selectedIconLeft: "FileText",
     iconRight: false,
+    rounded: "full",
     children: "Consultar Atas e Normas",
   },
 };
@@ -119,9 +113,9 @@ export const CustomStyle: Story = {
     iconLeft: true,
     selectedIconLeft: "AlertTriangle",
     iconRight: true,
+    rounded: "full",
     selectedIconRight: "ArrowRight",
     className: "text-white shadow-lg shadow-amber-600/30 border border-amber-400/40 hover:brightness-110",
     children: "Emitir Alerta de Incidente",
   },
 };
-
