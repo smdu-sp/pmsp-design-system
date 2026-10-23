@@ -599,7 +599,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage <= 1}
               aria-label="Página anterior"
-              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-1"
+              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-1"
             >
               <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
@@ -637,7 +637,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage >= totalPages}
               aria-label="Próxima página"
-              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-1"
+              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-1"
             >
               <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
@@ -772,7 +772,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
                   aria-haspopup="listbox"
                   aria-expanded={isPageSizeOpen}
                   aria-label={`Selecionar itens por página, atualmente ${pageSize}`}
-                  className="inline-flex items-center justify-between gap-1.5 min-w-[54px] px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-800 shadow-2xs hover:border-slate-300 hover:bg-slate-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                  className="inline-flex items-center justify-between gap-1.5 min-w-13.5 px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-800 shadow-2xs hover:border-slate-300 hover:bg-slate-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                 >
                   <span>{pageSize}</span>
                   <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform duration-150", isPageSizeOpen && "rotate-180")} aria-hidden="true" />
@@ -792,7 +792,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
                         bottom: menuCoords?.bottom !== undefined ? `${menuCoords.bottom}px` : undefined,
                         zIndex: 99999,
                       }}
-                      className="min-w-[84px] max-h-60 overflow-y-auto bg-white rounded-xl shadow-2xl border border-slate-200/90 ring-1 ring-slate-900/5 py-1.5 animate-in fade-in-50 zoom-in-95 duration-100"
+                      className="min-w-21 max-h-60 overflow-y-auto bg-white rounded-xl shadow-2xl border border-slate-200/90 ring-1 ring-slate-900/5 py-1.5 animate-in fade-in-50 zoom-in-95 duration-100"
                     >
                       {pageSizeOptions.map((opt) => {
                         const isSelected = opt === pageSize;

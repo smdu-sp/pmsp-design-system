@@ -4,20 +4,8 @@ import { Slot } from "@radix-ui/react-slot";
 import type { VariantProps } from "class-variance-authority";
 import { Image as ImageIcon, X, FileText, Pencil, Check, MessageCircle, Play, Plus } from "lucide-react";
 import { cn } from "@/utils/cn";
-import {
-  cardVariants,
-  type CardVariant,
-  type CardListType,
-  resolveCardStyles,
-  resolveCardLink,
-  resolveCardAriaIds,
-  useCardUpload,
-} from "@/utils/card";
-import {
-  IntranetCard,
-  type IntranetCardAvatar,
-  type IntranetCardTextItem,
-} from "./IntranetCard";
+import { cardVariants, type CardVariant, type CardListType, resolveCardStyles, resolveCardLink, resolveCardAriaIds, useCardUpload } from "@/utils/card";
+import { IntranetCard, type IntranetCardAvatar, type IntranetCardTextItem } from "./IntranetCard";
 
 export { cardVariants };
 export type { CardVariant, CardListType };
@@ -185,11 +173,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
     },
     ref,
   ) => {
-    if (
-      variant === "intranet-birthday" ||
-      variant === "intranet-action" ||
-      variant === "intranet-text"
-    ) {
+    if (variant === "intranet-birthday" || variant === "intranet-action" || variant === "intranet-text") {
       return (
         <IntranetCard
           ref={ref as React.Ref<HTMLElement>}
@@ -344,7 +328,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
               className="shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-slate-200/90 bg-white flex items-center justify-center text-slate-800 shadow-2xs group-hover:border-slate-300 group-hover:bg-slate-50 group-hover:scale-105 transition-all duration-200"
               aria-hidden="true"
             >
-              {icon ?? <Plus className="w-5 h-5 stroke-[2] text-slate-800" />}
+              {icon ?? <Plus className="w-5 h-5 stroke-2 text-slate-800" />}
             </div>
             <div className="flex flex-col justify-center min-w-0">
               {title && (
@@ -382,11 +366,7 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
             <div
               tabIndex={isEditingUploadText || activeFile ? undefined : 0}
               role={isEditingUploadText || activeFile ? "region" : "button"}
-              aria-label={
-                activeFile
-                  ? `Gerenciador de arquivo: ${fileName}`
-                  : `${currentUploadText}. Clique ou pressione Enter para selecionar um arquivo.`
-              }
+              aria-label={activeFile ? `Gerenciador de arquivo: ${fileName}` : `${currentUploadText}. Clique ou pressione Enter para selecionar um arquivo.`}
               aria-describedby={uploadStatusId}
               onClick={isEditingUploadText || activeFile ? undefined : triggerFileInput}
               onKeyDown={isEditingUploadText || activeFile ? undefined : handleDropzoneKeyDown}

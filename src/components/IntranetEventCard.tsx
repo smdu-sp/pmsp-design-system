@@ -1,15 +1,9 @@
 import * as React from "react";
 import { Calendar } from "lucide-react";
 import { cn } from "@/utils/cn";
-import {
-  type IntranetEventCardData,
-  INTRANET_SAMPLE_EVENT,
-  resolveEventDate,
-  resolveEventDescription,
-} from "@/utils/intranetEventCard";
+import { type IntranetEventCardData, INTRANET_SAMPLE_EVENT, resolveEventDate, resolveEventDescription } from "@/utils/intranetEventCard";
 
-export interface IntranetEventCardProps
-  extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
+export interface IntranetEventCardProps extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
   /** Dia do evento (ex: '08' ou 8) */
   day?: string | number;
   /** Mês do evento (ex: 'JUL', 'AGO') */
@@ -97,12 +91,7 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
 
     const resolvedRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
 
-    const interactiveProps =
-      href && !hasInteractiveAction
-        ? { href, target, rel: resolvedRel }
-        : onClick
-          ? { role: "button", tabIndex: 0 }
-          : {};
+    const interactiveProps = href && !hasInteractiveAction ? { href, target, rel: resolvedRel } : onClick ? { role: "button", tabIndex: 0 } : {};
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
       if (onClick && (e.key === "Enter" || e.key === " ")) {
@@ -116,8 +105,7 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
         ref={ref as unknown as React.Ref<never>}
         className={cn(
           "group block w-full max-w-2xl bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 text-left transition-all duration-200",
-          isInteractive &&
-            "cursor-pointer hover:shadow-md hover:border-slate-300 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299]",
+          isInteractive && "cursor-pointer hover:shadow-md hover:border-slate-300 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299]",
           className,
         )}
         onClick={onClick}
@@ -137,34 +125,20 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
               }}
               aria-label={`Data do evento: ${resolvedDay} de ${resolvedMonth}`}
             >
-              <span className="text-lg sm:text-xl font-bold text-white leading-none tracking-tight">
-                {resolvedDay}
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-bold text-white/95 uppercase tracking-wider leading-none mt-1">
-                {resolvedMonth}
-              </span>
+              <span className="text-lg sm:text-xl font-bold text-white leading-none tracking-tight">{resolvedDay}</span>
+              <span className="text-[10px] sm:text-[11px] font-bold text-white/95 uppercase tracking-wider leading-none mt-1">{resolvedMonth}</span>
             </time>
 
             {/* Categoria com Ícone + Título */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                {categoryIcon ?? (
-                  <Calendar
-                    className="w-3.5 h-3.5 text-slate-500 shrink-0"
-                    aria-hidden="true"
-                  />
-                )}
+                {categoryIcon ?? <Calendar className="w-3.5 h-3.5 text-slate-500 shrink-0" aria-hidden="true" />}
                 <span>{category}</span>
               </div>
 
               <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug mt-0.5 truncate transition-colors group-hover:text-[#0b3299]">
                 {href && hasInteractiveAction ? (
-                  <a
-                    href={href}
-                    target={target}
-                    rel={resolvedRel}
-                    className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] rounded"
-                  >
+                  <a href={href} target={target} rel={resolvedRel} className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] rounded">
                     {title}
                   </a>
                 ) : (
@@ -176,26 +150,15 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
 
           {/* Badge ou Ação no Canto Superior Direito */}
           {(badge || action) && (
-            <div
-              className="shrink-0 flex items-center gap-2"
-              onClick={(e) => hasInteractiveAction && e.stopPropagation()}
-            >
-              {badge && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200/60 leading-none">
-                  {badge}
-                </span>
-              )}
+            <div className="shrink-0 flex items-center gap-2" onClick={(e) => hasInteractiveAction && e.stopPropagation()}>
+              {badge && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200/60 leading-none">{badge}</span>}
               {action}
             </div>
           )}
         </div>
 
         {/* Linha de Descrição / Local / Horário */}
-        {effectiveDescription && (
-          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-normal mt-4 sm:mt-5 break-words">
-            {effectiveDescription}
-          </p>
-        )}
+        {effectiveDescription && <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-normal mt-4 sm:mt-5 wrap-break-word">{effectiveDescription}</p>}
 
         {/* Conteúdo adicional inserido via children */}
         {children}

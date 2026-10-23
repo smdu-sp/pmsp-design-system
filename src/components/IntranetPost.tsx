@@ -11,17 +11,9 @@ import {
 } from "@/utils/intranetPost";
 import { getIntranetInitials, getIntranetAvatarColor } from "@/utils/intranetCard";
 
-export {
-  type IntranetPostAuthor,
-  type IntranetPostComment,
-  type IntranetPostCurrentUser,
-  INTRANET_DEFAULT_CURRENT_USER,
-  INTRANET_DEFAULT_POST_COMMENTS,
-  INTRANET_SAMPLE_POST,
-};
+export { type IntranetPostAuthor, type IntranetPostComment, type IntranetPostCurrentUser, INTRANET_DEFAULT_CURRENT_USER, INTRANET_DEFAULT_POST_COMMENTS, INTRANET_SAMPLE_POST };
 
-export interface IntranetPostProps
-  extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
+export interface IntranetPostProps extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
   /** Dados do autor ou entidade que realizou a publicação */
   author?: IntranetPostAuthor;
   /** Nome do autor (alias caso não queira passar o objeto author completo) */
@@ -108,19 +100,13 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
     const effectiveAuthorName = authorName || author?.name || "Coordenadoria de Comunicação";
     const effectiveAuthorSubtitle = authorSubtitle || author?.subtitle || "Comunicação SMUL - há 1h";
     const effectiveAuthorTag = authorTag || author?.tag || "comunicado";
-    const effectiveAuthorInitials =
-      authorInitials || author?.initials || getIntranetInitials(effectiveAuthorName);
-    const effectiveAuthorColor =
-      authorColor || author?.avatarColor || getIntranetAvatarColor(effectiveAuthorName);
+    const effectiveAuthorInitials = authorInitials || author?.initials || getIntranetInitials(effectiveAuthorName);
+    const effectiveAuthorColor = authorColor || author?.avatarColor || getIntranetAvatarColor(effectiveAuthorName);
     const effectiveAuthorAvatar = authorAvatar || author?.avatarSrc;
 
     // --- Estado de Curtidas ---
-    const [internalIsLiked, setInternalIsLiked] = React.useState<boolean>(
-      controlledIsLiked ?? false,
-    );
-    const [internalLikesCount, setInternalLikesCount] = React.useState<number>(
-      controlledLikesCount ?? INTRANET_SAMPLE_POST.likesCount,
-    );
+    const [internalIsLiked, setInternalIsLiked] = React.useState<boolean>(controlledIsLiked ?? false);
+    const [internalLikesCount, setInternalLikesCount] = React.useState<number>(controlledLikesCount ?? INTRANET_SAMPLE_POST.likesCount);
 
     React.useEffect(() => {
       if (controlledIsLiked !== undefined) {
@@ -152,8 +138,7 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
     };
 
     // --- Estado de Comentários ---
-    const [internalComments, setInternalComments] =
-      React.useState<IntranetPostComment[]>(comments);
+    const [internalComments, setInternalComments] = React.useState<IntranetPostComment[]>(comments);
     const [commentText, setCommentText] = React.useState<string>("");
     const [copiedShare, setCopiedShare] = React.useState<boolean>(false);
 
@@ -207,14 +192,7 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
     };
 
     return (
-      <article
-        ref={ref}
-        className={cn(
-          "w-full max-w-2xl bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 transition-all duration-200 text-left",
-          className,
-        )}
-        {...props}
-      >
+      <article ref={ref} className={cn("w-full max-w-2xl bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 transition-all duration-200 text-left", className)} {...props}>
         {/* Região ao vivo para anúncios discretos a leitores de tela */}
         {feedbackMessage && (
           <div role="status" aria-live="polite" className="sr-only">
@@ -234,11 +212,7 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
           >
             {effectiveAuthorAvatar ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={effectiveAuthorAvatar}
-                alt={effectiveAuthorName}
-                className="w-full h-full object-cover"
-              />
+              <img src={effectiveAuthorAvatar} alt={effectiveAuthorName} className="w-full h-full object-cover" />
             ) : (
               <span>{effectiveAuthorInitials}</span>
             )}
@@ -247,42 +221,25 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
           {/* Nome, Tag e Subtítulo */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug truncate">
-                {effectiveAuthorName}
-              </h3>
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug truncate">{effectiveAuthorName}</h3>
 
               {effectiveAuthorTag && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200/60 leading-none">
-                  {effectiveAuthorTag}
-                </span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200/60 leading-none">{effectiveAuthorTag}</span>
               )}
             </div>
 
-            {effectiveAuthorSubtitle && (
-              <p className="text-xs text-slate-500 font-normal mt-0.5 leading-tight">
-                {effectiveAuthorSubtitle}
-              </p>
-            )}
+            {effectiveAuthorSubtitle && <p className="text-xs text-slate-500 font-normal mt-0.5 leading-tight">{effectiveAuthorSubtitle}</p>}
           </div>
         </div>
 
         {/* Texto do Conteúdo */}
-        {content && (
-          <p className="text-sm text-slate-800 leading-relaxed mt-4 font-normal break-words">
-            {content}
-          </p>
-        )}
+        {content && <p className="text-sm text-slate-800 leading-relaxed mt-4 font-normal wrap-break-word">{content}</p>}
 
         {/* Mídia / Imagem do Post */}
         {image && (
           <div className="mt-4 rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 shadow-2xs bg-slate-50">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={image}
-              alt={imageAlt || "Imagem da publicação"}
-              className="w-full h-auto object-cover max-h-[420px] transition-transform duration-300 hover:scale-[1.01]"
-              loading="lazy"
-            />
+            <img src={image} alt={imageAlt || "Imagem da publicação"} className="w-full h-auto object-cover max-h-105 transition-transform duration-300 hover:scale-[1.01]" loading="lazy" />
           </div>
         )}
 
@@ -303,13 +260,7 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
                 isLiked ? "text-rose-600 font-semibold" : "text-slate-700 hover:text-rose-600",
               )}
             >
-              <Heart
-                className={cn(
-                  "w-4 h-4 transition-transform duration-200 group-hover:scale-110",
-                  isLiked ? "text-rose-600 fill-rose-600 scale-105" : "text-slate-700",
-                )}
-                aria-hidden="true"
-              />
+              <Heart className={cn("w-4 h-4 transition-transform duration-200 group-hover:scale-110", isLiked ? "text-rose-600 fill-rose-600 scale-105" : "text-slate-700")} aria-hidden="true" />
               <span>
                 {likes} {likes === 1 ? "curtida" : "curtidas"}
               </span>
@@ -322,13 +273,9 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
               aria-label={`Comentários da publicação. Total de ${commentsList.length} comentários.`}
               className="group flex items-center gap-1.5 font-medium text-slate-700 hover:text-[#0b3299] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] rounded-md px-1.5 py-1 select-none"
             >
-              <MessageCircle
-                className="w-4 h-4 transition-transform duration-200 group-hover:scale-110 text-slate-700 group-hover:text-[#0b3299]"
-                aria-hidden="true"
-              />
+              <MessageCircle className="w-4 h-4 transition-transform duration-200 group-hover:scale-110 text-slate-700 group-hover:text-[#0b3299]" aria-hidden="true" />
               <span>
-                {commentsList.length}{" "}
-                {commentsList.length === 1 ? "comentario" : "comentarios"}
+                {commentsList.length} {commentsList.length === 1 ? "comentario" : "comentarios"}
               </span>
             </button>
           </div>
@@ -347,10 +294,7 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
               </>
             ) : (
               <>
-                <Share2
-                  className="w-4 h-4 transition-transform duration-200 group-hover:scale-110 text-slate-700 group-hover:text-[#0b3299]"
-                  aria-hidden="true"
-                />
+                <Share2 className="w-4 h-4 transition-transform duration-200 group-hover:scale-110 text-slate-700 group-hover:text-[#0b3299]" aria-hidden="true" />
                 <span>Compartilhar</span>
               </>
             )}
@@ -364,10 +308,8 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
             {commentsList.length > 0 && (
               <ul className="space-y-3">
                 {commentsList.map((comment) => {
-                  const initial =
-                    comment.authorInitials || getIntranetInitials(comment.authorName);
-                  const color =
-                    comment.authorColor || getIntranetAvatarColor(comment.authorName);
+                  const initial = comment.authorInitials || getIntranetInitials(comment.authorName);
+                  const color = comment.authorColor || getIntranetAvatarColor(comment.authorName);
 
                   return (
                     <li key={comment.id} className="flex items-start gap-2.5 group">
@@ -381,11 +323,7 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
                       >
                         {comment.authorAvatar ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={comment.authorAvatar}
-                            alt={comment.authorName}
-                            className="w-full h-full object-cover"
-                          />
+                          <img src={comment.authorAvatar} alt={comment.authorName} className="w-full h-full object-cover" />
                         ) : (
                           <span>{initial}</span>
                         )}
@@ -394,19 +332,11 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
                       {/* Balão de Comentário */}
                       <div className="flex-1 bg-slate-100/70 hover:bg-slate-100 px-3.5 py-2.5 rounded-2xl max-w-[92%] transition-colors">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
-                            {comment.authorName}
-                          </p>
-                          {comment.createdAt && (
-                            <span className="text-[11px] text-slate-400 font-normal leading-none shrink-0">
-                              {comment.createdAt}
-                            </span>
-                          )}
+                          <p className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">{comment.authorName}</p>
+                          {comment.createdAt && <span className="text-[11px] text-slate-400 font-normal leading-none shrink-0">{comment.createdAt}</span>}
                         </div>
 
-                        <p className="text-xs sm:text-sm text-slate-700 font-normal leading-relaxed mt-1 break-words">
-                          {comment.content}
-                        </p>
+                        <p className="text-xs sm:text-sm text-slate-700 font-normal leading-relaxed mt-1 wrap-break-word">{comment.content}</p>
                       </div>
                     </li>
                   );
@@ -420,19 +350,13 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-2xs select-none overflow-hidden"
                 style={{
-                  backgroundColor: currentUser.avatarSrc
-                    ? "transparent"
-                    : currentUser.avatarColor || "#e11d48",
+                  backgroundColor: currentUser.avatarSrc ? "transparent" : currentUser.avatarColor || "#e11d48",
                 }}
                 aria-hidden="true"
               >
                 {currentUser.avatarSrc ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={currentUser.avatarSrc}
-                    alt={currentUser.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={currentUser.avatarSrc} alt={currentUser.name} className="w-full h-full object-cover" />
                 ) : (
                   <span>{currentUser.initials || getIntranetInitials(currentUser.name)}</span>
                 )}
@@ -447,7 +371,7 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
                   onChange={(e) => setCommentText(e.target.value)}
                   placeholder={commentPlaceholder}
                   aria-label="Escrever um comentário para a publicação"
-                  className="w-full text-xs sm:text-sm pl-4 pr-11 py-2.5 rounded-xl border border-slate-200 bg-white placeholder:text-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0b3299]/20 focus:border-[#0b3299] transition-all"
+                  className="w-full text-xs sm:text-sm pl-4 pr-11 py-2.5 rounded-xl bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0b3299]/20 focus:border-[#0b3299] transition-all"
                 />
 
                 <button

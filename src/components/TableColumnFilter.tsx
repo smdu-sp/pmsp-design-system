@@ -1,10 +1,7 @@
 import * as React from "react";
 import { Filter, Search, Check, X, RotateCcw } from "lucide-react";
 import { cn } from "@/utils/cn";
-import {
-  type TableFilterType,
-  type TableFilterOption,
-} from "@/utils/table";
+import { type TableFilterType, type TableFilterOption } from "@/utils/table";
 import { useTableColumnFilter } from "@/utils/tableColumnFilter";
 import { Dropdown } from "./Dropdown";
 
@@ -30,20 +27,7 @@ export interface TableColumnFilterProps {
 }
 
 export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFilterProps>(
-  (
-    {
-      columnTitle,
-      filterType = "checkbox",
-      options,
-      value,
-      onChange,
-      placeholder,
-      align = "left",
-      ariaLabel,
-      isCaf = false,
-    },
-    ref,
-  ) => {
+  ({ columnTitle, filterType = "checkbox", options, value, onChange, placeholder, align = "left", ariaLabel, isCaf = false }, ref) => {
     const textInputRef = React.useRef<HTMLInputElement | null>(null);
 
     const {
@@ -113,19 +97,13 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
                   ),
             )}
           >
-            <Filter
-              className={cn(
-                "w-3.5 h-3.5 shrink-0 transition-transform duration-150",
-                isOpen && (isCaf ? "scale-110 text-white" : "scale-110 text-blue-600"),
-              )}
-              aria-hidden="true"
-            />
+            <Filter className={cn("w-3.5 h-3.5 shrink-0 transition-transform duration-150", isOpen && (isCaf ? "scale-110 text-white" : "scale-110 text-blue-600"))} aria-hidden="true" />
             {isFilterActive && activeCount > 0 && (
               <span
                 className={cn(
                   "ml-1 inline-flex items-center justify-center text-[10px] font-bold rounded-full leading-none shadow-xs",
                   isCaf ? "bg-white text-[#0b3299]" : "bg-blue-600 text-white",
-                  activeCount > 9 ? "px-1 min-w-[16px] h-4" : "w-4 h-4",
+                  activeCount > 9 ? "px-1 min-w-4 h-4" : "w-4 h-4",
                 )}
               >
                 {activeCount}
@@ -136,9 +114,7 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
       >
         {/* Cabeçalho do Popover */}
         <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-100 font-semibold text-slate-900">
-          <span className="truncate">
-            {titleText ? `Filtrar: ${titleText}` : "Filtrar coluna"}
-          </span>
+          <span className="truncate">{titleText ? `Filtrar: ${titleText}` : "Filtrar coluna"}</span>
           {isFilterActive && (
             <button
               type="button"
@@ -156,10 +132,7 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
         {filterType === "text" ? (
           <div className="space-y-2">
             <div className="relative">
-              <Search
-                className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400 pointer-events-none"
-                aria-hidden="true"
-              />
+              <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400 pointer-events-none" aria-hidden="true" />
               <input
                 ref={textInputRef}
                 type="text"
@@ -167,7 +140,7 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
                 onChange={(e) => onChange?.(e.target.value ? e.target.value : undefined)}
                 placeholder={placeholder || "Filtrar por texto..."}
                 aria-label={textInputAriaLabel}
-                className="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+                className="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
               />
               {textInputValue && (
                 <button
@@ -182,11 +155,7 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
             </div>
           </div>
         ) : filterType === "select" ? (
-          <div
-            role="listbox"
-            aria-label={titleText ? `Opções de filtro para ${titleText}` : "Opções de filtro"}
-            className="max-h-52 overflow-y-auto space-y-0.5 pr-0.5"
-          >
+          <div role="listbox" aria-label={titleText ? `Opções de filtro para ${titleText}` : "Opções de filtro"} className="max-h-52 overflow-y-auto space-y-0.5 pr-0.5">
             <button
               type="button"
               role="option"
@@ -233,17 +202,14 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
           <div className="space-y-2">
             {normalizedOptions.length > 4 && (
               <div className="relative">
-                <Search
-                  className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400 pointer-events-none"
-                  aria-hidden="true"
-                />
+                <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400 pointer-events-none" aria-hidden="true" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={placeholder || "Buscar opções..."}
                   aria-label={searchOptionsAriaLabel}
-                  className="w-full pl-8 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+                  className="w-full pl-8 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800  focus:outline-none focus:ring-2 focus:ring-blue-600  transition-all"
                 />
               </div>
             )}
@@ -272,15 +238,12 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
                 visibleOptions.map((opt, i) => {
                   const isChecked = selectedValues.some((v) => String(v) === String(opt.value));
                   return (
-                    <label
-                      key={`check-opt-${i}-${opt.value}`}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100/80 cursor-pointer select-none transition-colors"
-                    >
+                    <label key={`check-opt-${i}-${opt.value}`} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100/80 cursor-pointer select-none transition-colors">
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => handleCheckboxToggle(opt.value)}
-                        className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-600"
+                        className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer focus-visible:ring-2"
                       />
                       <span className="truncate text-slate-700">{opt.label}</span>
                     </label>

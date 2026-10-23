@@ -161,20 +161,11 @@ export const IntranetCard = React.forwardRef<HTMLElement, IntranetCardProps>(
     const isToday = isBirthdayToday(date, resolveReferenceDate(referenceDate));
 
     // A badge 'hoje' SÓ fica visível se a data do aniversário for a mesma do dia atual do calendário!
-    const hasBadge =
-      badge === false
-        ? false
-        : typeof badge === "string" && badge.toLowerCase() !== "hoje"
-          ? true
-          : isToday;
+    const hasBadge = badge === false ? false : typeof badge === "string" && badge.toLowerCase() !== "hoje" ? true : isToday;
 
-    const badgeText =
-      typeof badge === "string" && badge.toLowerCase() !== "hoje"
-        ? badge
-        : "hoje";
+    const badgeText = typeof badge === "string" && badge.toLowerCase() !== "hoje" ? badge : "hoje";
 
-    const displayDate =
-      date instanceof Date ? formatTodayAsBirthdayDate(date) : date;
+    const displayDate = date instanceof Date ? formatTodayAsBirthdayDate(date) : date;
 
     // Estilos inline opcionais
     const inlineStyles: React.CSSProperties = {
@@ -226,7 +217,7 @@ export const IntranetCard = React.forwardRef<HTMLElement, IntranetCardProps>(
                 )}
 
                 {/* Lotação / Setor */}
-                {effectiveDept && <p className={cn("text-xs text-slate-500 font-normal leading-relaxed break-words", hasBadge ? "mt-1.5" : "mt-1")}>{effectiveDept}</p>}
+                {effectiveDept && <p className={cn("text-xs text-slate-500 font-normal leading-relaxed wrap-break-word", hasBadge ? "mt-1.5" : "mt-1")}>{effectiveDept}</p>}
               </div>
             </div>
 
