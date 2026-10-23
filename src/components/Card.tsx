@@ -380,44 +380,55 @@ export const Card = React.forwardRef<HTMLElement, CardProps>(
             </span>
 
             <div
-              role="button"
-              tabIndex={isEditingUploadText ? -1 : 0}
-              aria-label={activeFile ? `Arquivo ${fileName} selecionado. Clique ou pressione Enter para substituir.` : `${currentUploadText}. Clique ou pressione Enter para selecionar um arquivo.`}
+              tabIndex={isEditingUploadText || activeFile ? undefined : 0}
+              role={isEditingUploadText || activeFile ? "region" : "button"}
+              aria-label={
+                activeFile
+                  ? `Gerenciador de arquivo: ${fileName}`
+                  : `${currentUploadText}. Clique ou pressione Enter para selecionar um arquivo.`
+              }
               aria-describedby={uploadStatusId}
-              onClick={triggerFileInput}
-              onKeyDown={handleDropzoneKeyDown}
+              onClick={isEditingUploadText || activeFile ? undefined : triggerFileInput}
+              onKeyDown={isEditingUploadText || activeFile ? undefined : handleDropzoneKeyDown}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               className={cn(
-                "group relative w-full border-2 border-dashed rounded-xl p-5 sm:p-7 md:p-8 flex flex-col items-center justify-center gap-3 transition-all cursor-pointer text-center select-none",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2",
+                "group relative w-full border-2 border-dashed rounded-xl p-5 sm:p-7 md:p-8 flex flex-col items-center justify-center gap-3 transition-all text-center select-none",
+                !activeFile && !isEditingUploadText && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2",
                 isDragging ? "border-blue-500 bg-blue-50/80 scale-[0.99]" : "border-slate-300 hover:border-slate-400 bg-white/60 hover:bg-white",
               )}
             >
               {activeFile ? (
                 <div className="flex flex-col items-center gap-3 w-full">
-                  {previewUrl ? (
-                    <div className="relative group/preview w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-lg overflow-hidden border border-slate-200 shadow-xs">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={previewUrl} alt={`Pré-visualização do arquivo ${fileName}`} className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500" aria-hidden="true">
-                      <FileText className="w-6 h-6" />
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={triggerFileInput}
+                    aria-label={`Substituir arquivo ${fileName}. Clique para selecionar outro arquivo.`}
+                    className="flex flex-col items-center gap-2 cursor-pointer rounded-lg p-2 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1"
+                  >
+                    {previewUrl ? (
+                      <div className="relative group/preview w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-lg overflow-hidden border border-slate-200 shadow-xs">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={previewUrl} alt={`Pré-visualização do arquivo ${fileName}`} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500" aria-hidden="true">
+                        <FileText className="w-6 h-6" />
+                      </div>
+                    )}
 
-                  <div className="text-center px-2 max-w-full">
-                    <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate max-w-55 sm:max-w-55">{fileName}</p>
-                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Clique ou arraste para substituir</p>
-                  </div>
+                    <div className="text-center px-2 max-w-full">
+                      <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate max-w-55 sm:max-w-55">{fileName}</p>
+                      <p className="text-[11px] sm:text-xs text-blue-600 font-medium mt-0.5">Clique ou arraste para substituir</p>
+                    </div>
+                  </button>
 
                   <button
                     type="button"
                     onClick={removeFile}
                     aria-label={`Remover arquivo ${fileName}`}
-                    className="mt-1 inline-flex items-center justify-center gap-1.5 min-h-9 sm:min-h-10 px-3 py-1.5 text-xs sm:text-sm text-rose-600 hover:text-rose-700 font-medium rounded-lg hover:bg-rose-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1"
+                    className="mt-1 inline-flex items-center justify-center gap-1.5 min-h-9 sm:min-h-10 px-3 py-1.5 text-xs sm:text-sm text-rose-600 hover:text-rose-700 font-medium rounded-lg hover:bg-rose-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 cursor-pointer"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
                     <span>Remover</span>

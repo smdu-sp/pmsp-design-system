@@ -92,7 +92,7 @@ export function getCafHeaderItemClass({
 }: GetCafHeaderItemClassOptions): string {
   if (disabled) {
     return cn(
-      "inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-medium rounded-xl transition-all select-none opacity-40 cursor-not-allowed text-slate-400",
+      "inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-medium rounded-xl transition-all select-none opacity-40 cursor-not-allowed pointer-events-none text-slate-400",
       className,
     );
   }
@@ -111,7 +111,7 @@ export function getCafHeaderItemClass({
     "text-slate-600 cursor-pointer",
     // Hover com tom azul suave (azul mais fraco)
     "hover:bg-[#0b3299]/10 hover:text-[#0b3299] hover:font-medium active:bg-[#0b3299]/15",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299]/50 focus-visible:ring-offset-2",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-2",
     className,
   );
 }

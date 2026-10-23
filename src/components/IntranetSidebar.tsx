@@ -97,13 +97,12 @@ export const IntranetSidebar = React.forwardRef<HTMLElement, IntranetSidebarProp
     return (
       <aside
         ref={ref}
-        role="navigation"
-        aria-label="Navegação da Intranet"
+        aria-label="Barra lateral da Intranet"
         className={getIntranetSidebarContainerClass(className)}
         {...props}
       >
         {/* Bloco de Navegação Superior */}
-        <div>
+        <nav aria-label="Menu principal da Intranet">
           {sectionTitle && (
             <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-800 mb-3 px-1">
               {sectionTitle}
@@ -119,7 +118,9 @@ export const IntranetSidebar = React.forwardRef<HTMLElement, IntranetSidebarProp
                   <a
                     href={item.href || "#"}
                     onClick={(e) => handleItemClick(item, e)}
+                    tabIndex={item.disabled ? -1 : undefined}
                     aria-current={isActive ? "page" : undefined}
+                    aria-disabled={item.disabled ? "true" : undefined}
                     className={getIntranetSidebarItemClass(isActive, item.disabled)}
                   >
                     {item.icon && (
@@ -128,6 +129,7 @@ export const IntranetSidebar = React.forwardRef<HTMLElement, IntranetSidebarProp
                           "w-4 h-4 shrink-0 transition-colors",
                           isActive ? "text-[#0b3299]" : "text-slate-700",
                         )}
+                        aria-hidden="true"
                       >
                         {item.icon}
                       </span>
@@ -152,14 +154,14 @@ export const IntranetSidebar = React.forwardRef<HTMLElement, IntranetSidebarProp
               );
             })}
           </ul>
-        </div>
+        </nav>
 
         {/* Card Inferior de Suporte Técnico */}
         {showSupportCard && (
-          <div className={getIntranetSupportCardClass()}>
+          <section aria-label={supportTitle} className={getIntranetSupportCardClass()}>
             <div className="flex items-center gap-2 mb-2">
               {supportIcon ?? (
-                <LifeBuoy className="w-4 h-4 text-[#0b3299] shrink-0" />
+                <LifeBuoy className="w-4 h-4 text-[#0b3299] shrink-0" aria-hidden="true" />
               )}
               <h3 className="text-sm font-semibold text-slate-900 leading-none">
                 {supportTitle}
@@ -183,11 +185,12 @@ export const IntranetSidebar = React.forwardRef<HTMLElement, IntranetSidebarProp
               variant="primary"
               rounded="lg"
               className="w-full text-sm font-medium py-2.5 shadow-2xs"
+              aria-label={`${supportButtonText}: ${supportTitle}`}
               onClick={onSupportClick}
             >
               {supportButtonText}
             </Button>
-          </div>
+          </section>
         )}
       </aside>
     );

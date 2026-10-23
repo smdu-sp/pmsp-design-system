@@ -156,8 +156,9 @@ export const CafHeader = React.forwardRef<HTMLElement, CafHeaderProps>(
                   key={item.id}
                   href={item.href}
                   onClick={handleClick}
+                  tabIndex={item.disabled ? -1 : undefined}
                   aria-current={isActive ? "page" : undefined}
-                  aria-disabled={item.disabled}
+                  aria-disabled={item.disabled ? "true" : undefined}
                   className={itemClassName}
                 >
                   {content}

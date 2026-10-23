@@ -218,7 +218,10 @@ export const IntranetCard = React.forwardRef<HTMLElement, IntranetCardProps>(
                 {/* Badge opcional ("hoje") */}
                 {hasBadge && (
                   <div className="mt-1">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#0d9488] text-white leading-tight shadow-2xs">{badgeText}</span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#0d9488] text-white leading-tight shadow-2xs">
+                      <span className="sr-only">Aniversariante de </span>
+                      {badgeText}
+                    </span>
                   </div>
                 )}
 
@@ -245,6 +248,7 @@ export const IntranetCard = React.forwardRef<HTMLElement, IntranetCardProps>(
                 variant={buttonVariant}
                 disabled={buttonDisabled}
                 onClick={onButtonClick}
+                aria-label={`${buttonText}: ${effectiveName}`}
                 className="w-full text-sm font-semibold py-2.5 rounded-lg shadow-2xs transition-transform active:scale-[0.99]"
               >
                 {buttonIcon && (

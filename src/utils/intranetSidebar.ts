@@ -72,14 +72,14 @@ export function getIntranetSidebarContainerClass(className?: string): string {
  */
 export function getIntranetSidebarItemClass(isActive: boolean, disabled?: boolean): string {
   if (disabled) {
-    return "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 cursor-not-allowed opacity-60";
+    return "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-300 cursor-not-allowed opacity-60 pointer-events-none";
   }
 
   if (isActive) {
-    return "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-[#0b3299] bg-[#f0f4ff] shadow-2xs transition-all";
+    return "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-[#0b3299] bg-[#f0f4ff] shadow-2xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-2";
   }
 
-  return "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 active:scale-[0.99] transition-all cursor-pointer";
+  return "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 active:scale-[0.99] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-2";
 }
 
 /**

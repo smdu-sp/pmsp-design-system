@@ -248,7 +248,7 @@ export const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(({ 
     <tr
       ref={ref}
       tabIndex={isClickable ? (tabIndex ?? 0) : tabIndex}
-      role={isClickable ? (role ?? "button") : role}
+      role={role}
       aria-selected={selected}
       onClick={onClick}
       onKeyDown={(e) => handleRowKeyDown(e, isClickable, onClick, onKeyDown)}
@@ -599,7 +599,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage <= 1}
               aria-label="Página anterior"
-              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-1"
             >
               <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
@@ -607,7 +607,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
             {pages.map((p, idx) => {
               if (typeof p === "string") {
                 return (
-                  <span key={`ellipsis-${idx}`} className="inline-flex items-center justify-center min-w-7 h-7 text-slate-400 select-none text-xs">
+                  <span key={`ellipsis-${idx}`} className="inline-flex items-center justify-center min-w-7 h-7 text-slate-400 select-none text-xs" aria-hidden="true">
                     &hellip;
                   </span>
                 );
@@ -620,8 +620,10 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
                   type="button"
                   onClick={() => onPageChange(p)}
                   aria-current={isActive ? "page" : undefined}
+                  aria-label={isActive ? `Página ${p}, página atual` : `Ir para a página ${p}`}
                   className={cn(
                     "w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center text-xs font-bold rounded-md transition-colors cursor-pointer",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-1",
                     isActive ? "bg-[#0b3299] text-white shadow-2xs" : "bg-white text-slate-700 hover:bg-slate-100 border border-transparent",
                   )}
                 >
@@ -635,7 +637,7 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage >= totalPages}
               aria-label="Próxima página"
-              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+              className="w-7 h-7 sm:w-8 sm:h-8 inline-flex items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-offset-1"
             >
               <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
@@ -1059,7 +1061,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
                           <button
                             type="button"
                             onClick={handleClearAllFilters}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1"
                           >
                             <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                             <span>Limpar todos os filtros</span>

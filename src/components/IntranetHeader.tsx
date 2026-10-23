@@ -201,19 +201,23 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
           </div>
 
           {/* Campo Central de Busca */}
+          {/* Campo Central de Busca */}
           {!hideSearch && (
             <form
               role="search"
+              aria-label="Busca na Intranet"
               onSubmit={handleFormSubmit}
               className="grow max-w-xs md:max-w-md lg:max-w-lg hidden sm:flex items-center"
             >
               <div className="w-full flex items-center gap-2.5 px-3.5 py-1.5 sm:py-2 bg-slate-50/90 hover:bg-slate-100/70 focus-within:bg-white rounded-full border border-slate-200/90 focus-within:border-[#0b3299] focus-within:ring-2 focus-within:ring-[#0b3299]/15 transition-all">
                 <Search className="w-4 h-4 text-slate-400 shrink-0" aria-hidden="true" />
                 <input
+                  id="intranet-search-input"
                   type="search"
                   value={currentSearchValue}
                   onChange={handleInputChange}
                   placeholder={searchPlaceholder}
+                  aria-label={searchPlaceholder || "Buscar pessoas, comunicados, posts..."}
                   className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 outline-none"
                 />
               </div>
@@ -229,7 +233,7 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
                 id="intranet-notifications-trigger"
                 onClick={() => toggleDropdown("notifications")}
                 aria-expanded={activeDropdown === "notifications"}
-                aria-haspopup="true"
+                aria-haspopup="dialog"
                 aria-label={`Notificações (${activeUnreadCount} não lidas)`}
                 className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-[#0b3299] cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299]"
               >
@@ -243,17 +247,18 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
 
               {activeDropdown === "notifications" && (
                 <div
-                  role="menu"
-                  aria-labelledby="intranet-notifications-trigger"
+                  role="region"
+                  aria-label="Painel de Notificações"
                   className={getIntranetDropdownMenuClass("w-[320px] sm:w-[360px] p-0")}
                 >
                   {/* Cabeçalho do Dropdown */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
-                    <span className="text-sm font-bold text-slate-900">Notificacoes</span>
+                    <span className="text-sm font-bold text-slate-900">Notificações</span>
                     <button
                       type="button"
                       onClick={handleMarkAllAsRead}
-                      className="text-xs font-semibold text-[#0b3299] hover:text-blue-800 hover:underline transition-colors cursor-pointer"
+                      aria-label="Marcar todas as notificações como lidas"
+                      className="text-xs font-semibold text-[#0b3299] hover:text-blue-800 hover:underline transition-colors cursor-pointer rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299]"
                     >
                       Marcar como lidas
                     </button>
@@ -267,22 +272,14 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
                       </div>
                     ) : (
                       notificationsList.map((notif) => (
-                        <div
+                        <button
                           key={notif.id}
-                          role="menuitem"
-                          tabIndex={0}
+                          type="button"
                           onClick={() => {
                             handleNotificationClick(notif);
                             onNotificationClick?.(notif);
                           }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              handleNotificationClick(notif);
-                              onNotificationClick?.(notif);
-                            }
-                          }}
-                          className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50/90 transition-colors cursor-pointer text-left select-none outline-none focus-visible:bg-slate-50"
+                          className="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50/90 transition-colors cursor-pointer text-left select-none outline-none focus-visible:bg-slate-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0b3299]"
                         >
                           <span
                             className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${getNotificationDotClass(
@@ -292,6 +289,9 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
                             aria-hidden="true"
                           />
                           <div className="flex-1 min-w-0">
+                            <span className="sr-only">
+                              {notif.read ? "Notificação lida: " : "Nova notificação: "}
+                            </span>
                             <div className="text-xs text-slate-800 leading-snug font-normal">
                               {notif.message}
                             </div>
@@ -299,7 +299,7 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
                               {notif.time}
                             </span>
                           </div>
-                        </div>
+                        </button>
                       ))
                     )}
                   </div>
@@ -314,7 +314,7 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
                 id="intranet-theme-trigger"
                 onClick={() => toggleDropdown("theme")}
                 aria-expanded={activeDropdown === "theme"}
-                aria-haspopup="true"
+                aria-haspopup="menu"
                 aria-label="Selecionar tema visual"
                 className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 text-[#0b3299] cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299]"
               >
@@ -333,7 +333,7 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
                       type="button"
                       role="menuitem"
                       onClick={() => handleSelectTheme(opt.id)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-xl transition-colors cursor-pointer flex items-center justify-between ${
+                      className={`w-full text-left px-3 py-2 text-sm rounded-xl transition-colors cursor-pointer flex items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-inset ${
                         currentTheme === opt.id
                           ? "bg-[#0b3299]/10 text-[#0b3299] font-medium"
                           : "text-slate-800 hover:bg-slate-50"
@@ -356,7 +356,7 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
                 id="intranet-user-trigger"
                 onClick={() => toggleDropdown("profile")}
                 aria-expanded={activeDropdown === "profile"}
-                aria-haspopup="true"
+                aria-haspopup="menu"
                 aria-label={`Menu de usuário: ${user.name}`}
                 className="flex items-center gap-2.5 p-1 sm:p-1.5 sm:pr-2 rounded-xl hover:bg-slate-100/80 cursor-pointer transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299]"
               >
@@ -412,7 +412,7 @@ export const IntranetHeader = React.forwardRef<HTMLElement, IntranetHeaderProps>
                           item.onClick?.();
                           closeDropdown();
                         }}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-colors cursor-pointer text-left ${
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-colors cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] focus-visible:ring-inset ${
                           item.danger
                             ? "text-rose-600 hover:bg-rose-50"
                             : "text-slate-700 hover:bg-slate-50"

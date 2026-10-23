@@ -26,3 +26,31 @@
   animation: spin 1s linear infinite !important;
 }
 
+/* Suporte global a WCAG 2.3.3: Usuários com sensibilidade a animações e movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Suporte a modo de alto contraste (Windows High Contrast / forced-colors) */
+@media (forced-colors: active) {
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    outline: 1px solid transparent;
+  }
+  
+  :focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px !important;
+  }
+}
+

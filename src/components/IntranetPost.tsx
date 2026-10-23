@@ -164,6 +164,8 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
     const commentsList = internalComments;
     const commentInputRef = React.useRef<HTMLInputElement>(null);
 
+    const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
+
     const handleCommentSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       const trimmed = commentText.trim();
@@ -181,6 +183,8 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
 
       setInternalComments((prev) => [...prev, newComment]);
       setCommentText("");
+      setFeedbackMessage("Comentário publicado com sucesso.");
+      setTimeout(() => setFeedbackMessage(""), 3000);
       onCommentSubmit?.(newComment);
     };
 
@@ -194,7 +198,11 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
       if (typeof window !== "undefined" && navigator?.clipboard) {
         navigator.clipboard.writeText(window.location.href);
         setCopiedShare(true);
-        setTimeout(() => setCopiedShare(false), 2000);
+        setFeedbackMessage("Link copiado para a área de transferência.");
+        setTimeout(() => {
+          setCopiedShare(false);
+          setFeedbackMessage("");
+        }, 2000);
       }
     };
 
@@ -207,6 +215,13 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
         )}
         {...props}
       >
+        {/* Região ao vivo para anúncios discretos a leitores de tela */}
+        {feedbackMessage && (
+          <div role="status" aria-live="polite" className="sr-only">
+            {feedbackMessage}
+          </div>
+        )}
+
         {/* Cabeçalho do Post: Avatar + Autor + Tag + Subtítulo */}
         <div className="flex items-center gap-3">
           {/* Avatar do Autor */}
@@ -277,11 +292,12 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
         {/* Barra de Ações: Curtir, Comentários e Compartilhar */}
         <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-slate-700">
           <div className="flex items-center gap-4 sm:gap-6">
-            {/* Botão de Curtida com Contador Interativo */}
+            {/* Botão de Curtida com Contador Interativo e aria-pressed */}
             <button
               type="button"
               onClick={handleLikeClick}
-              aria-label={`${isLiked ? "Descurtir" : "Curtir"} publicação. Atualmente com ${likes} curtidas.`}
+              aria-pressed={isLiked}
+              aria-label={`${isLiked ? "Descurtir" : "Curtir"} publicação. Atualmente com ${likes} ${likes === 1 ? "curtida" : "curtidas"}.`}
               className={cn(
                 "group flex items-center gap-1.5 font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] rounded-md px-1.5 py-1 -ml-1.5 select-none",
                 isLiked ? "text-rose-600 font-semibold" : "text-slate-700 hover:text-rose-600",

@@ -39,6 +39,8 @@ export const CafScoreBadge: React.FC<CafScoreBadgeProps> = ({ score, threshold =
   return (
     <span
       className={getCafScoreBadgeClass(isHigh, className)}
+      aria-label={`Nota de avaliação: ${formatted} de 10`}
+      title={`Avaliação: ${formatted}`}
       {...props}
     >
       {formatted}

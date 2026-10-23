@@ -59,6 +59,8 @@ export interface DropdownProps {
   portal?: boolean;
   /** Rótulo acessível da janela do dropdown */
   ariaLabel?: string;
+  /** Papel semântico ARIA do container do dropdown ('dialog' | 'menu', padrão: 'dialog') */
+  role?: "dialog" | "menu";
 }
 
 const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
@@ -85,6 +87,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
       animationDuration = 200,
       portal = true,
       ariaLabel = "Menu de opções",
+      role = "dialog",
     },
     ref,
   ) => {
@@ -138,7 +141,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
       setCoords(nextCoords);
     }, [getCoords, handleSetOpen]);
 
-    // Animação de entrada (fade-in) e saída (fade-out) fluida com opacidade
+    // Animação de entrada (fade-in) e saída (fade-out) fluida com opacidade e transferência de foco
     const isFirstRender = React.useRef(true);
 
     React.useEffect(() => {
@@ -158,6 +161,19 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
         const raf = requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             setIsVisible(true);
+            // Move o foco para o primeiro elemento focável do popover para suporte a leitores de tela
+            setTimeout(() => {
+              if (popoverRef.current) {
+                const focusables = popoverRef.current.querySelectorAll<HTMLElement>(
+                  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+                );
+                if (focusables.length > 0) {
+                  focusables[0].focus();
+                } else {
+                  popoverRef.current.focus();
+                }
+              }
+            }, 30);
           });
         });
         return () => cancelAnimationFrame(raf);
@@ -189,7 +205,7 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
       };
     }, [isOpen, updatePosition]);
 
-    // Fecha ao clicar fora ou ao pressionar Escape
+    // Fecha ao clicar fora ou ao pressionar Escape e gerencia navegação por teclado (Tab e Setas)
     React.useEffect(() => {
       if (!isOpen) return;
 
@@ -203,8 +219,51 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
       const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === "Escape") {
           handleSetOpen(false);
-          const button = triggerContainerRef.current?.querySelector("button");
+          const button = triggerContainerRef.current?.querySelector<HTMLElement>("button, [tabindex]");
           button?.focus();
+          return;
+        }
+
+        // Focus trap quando o popover estiver aberto (WCAG 2.4.3 / 2.1.2)
+        if (event.key === "Tab" && popoverRef.current) {
+          const focusables = Array.from(
+            popoverRef.current.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+          );
+          if (focusables.length > 0) {
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first.focus();
+            }
+          }
+        }
+
+        // Navegação rápida por setas Up / Down entre itens
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          if (popoverRef.current) {
+            const items = Array.from(
+              popoverRef.current.querySelectorAll<HTMLElement>(
+                'button:not([disabled]), [role="menuitem"]:not([disabled])',
+              ),
+            );
+            if (items.length > 0) {
+              event.preventDefault();
+              const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+              if (event.key === "ArrowDown") {
+                const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+                items[nextIndex].focus();
+              } else {
+                const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+                items[prevIndex].focus();
+              }
+            }
+          }
         }
       };
 
@@ -229,13 +288,14 @@ const DropdownComponent = React.forwardRef<HTMLDivElement, DropdownProps>(
     const popoverContent = (
       <div
         ref={popoverRef}
-        role="dialog"
-        aria-modal="true"
+        role={role}
+        tabIndex={-1}
+        aria-modal={role === "dialog" ? "true" : undefined}
         aria-label={ariaLabel}
         onClick={(e) => e.stopPropagation()}
         style={fixedStyles}
         className={cn(
-          "z-9999 min-w-55 max-w-xs w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl shadow-slate-900/20 border border-slate-200/90 ring-1 ring-slate-900/5 p-3.5 text-xs text-slate-800",
+          "z-9999 min-w-55 max-w-xs w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl shadow-slate-900/20 border border-slate-200/90 ring-1 ring-slate-900/5 p-3.5 text-xs text-slate-800 outline-none",
           "transform-gpu motion-reduce:transition-none",
           "transition-[opacity,transform] will-change-[opacity,transform]",
           isVisible
@@ -354,17 +414,21 @@ export const DropdownItem = React.forwardRef<HTMLButtonElement, DropdownItemProp
     <button
       ref={ref}
       type="button"
+      role="menuitem"
       className={cn(
         "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors text-left cursor-pointer text-xs",
-        variant === "danger" ? "text-rose-600 hover:bg-rose-50 font-medium" : "text-slate-700 hover:bg-slate-100",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-inset focus-visible:bg-slate-100",
+        variant === "danger"
+          ? "text-rose-600 hover:bg-rose-50 font-medium focus-visible:ring-rose-500 focus-visible:bg-rose-50"
+          : "text-slate-700 hover:bg-slate-100",
         !hasText && "justify-center",
         className,
       )}
       {...props}
     >
-      {showIconLeft && leftIcon && <span className="shrink-0 inline-flex items-center">{leftIcon}</span>}
+      {showIconLeft && leftIcon && <span className="shrink-0 inline-flex items-center" aria-hidden="true">{leftIcon}</span>}
       {hasText && <span className="grow truncate">{resolvedLabel}</span>}
-      {showIconRight && rightIcon && <span className="shrink-0 inline-flex items-center ml-auto">{rightIcon}</span>}
+      {showIconRight && rightIcon && <span className="shrink-0 inline-flex items-center ml-auto" aria-hidden="true">{rightIcon}</span>}
     </button>
   );
 });

@@ -92,15 +92,17 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
     });
 
     const isInteractive = Boolean(href || onClick);
-    const Component = href ? "a" : "article";
+    const hasInteractiveAction = Boolean(action);
+    const Component = href && !hasInteractiveAction ? "a" : "article";
 
     const resolvedRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
 
-    const interactiveProps = href
-      ? { href, target, rel: resolvedRel }
-      : onClick
-        ? { role: "button", tabIndex: 0 }
-        : {};
+    const interactiveProps =
+      href && !hasInteractiveAction
+        ? { href, target, rel: resolvedRel }
+        : onClick
+          ? { role: "button", tabIndex: 0 }
+          : {};
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
       if (onClick && (e.key === "Enter" || e.key === " ")) {
@@ -126,8 +128,9 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
         {/* Cabeçalho do Card: Bloco de Data + Categoria + Título + Badge */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-            {/* Bloco de Data Azul Institucional */}
-            <div
+            {/* Bloco de Data Semântico (<time>) */}
+            <time
+              dateTime={date instanceof Date ? date.toISOString().split("T")[0] : undefined}
               className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl flex flex-col items-center justify-center shrink-0 shadow-2xs select-none transition-transform duration-200 group-hover:scale-[1.02]"
               style={{
                 backgroundColor: dateBadgeColor || "#0b3299",
@@ -140,7 +143,7 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
               <span className="text-[10px] sm:text-[11px] font-bold text-white/95 uppercase tracking-wider leading-none mt-1">
                 {resolvedMonth}
               </span>
-            </div>
+            </time>
 
             {/* Categoria com Ícone + Título */}
             <div className="flex-1 min-w-0">
@@ -155,14 +158,28 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
               </div>
 
               <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug mt-0.5 truncate transition-colors group-hover:text-[#0b3299]">
-                {title}
+                {href && hasInteractiveAction ? (
+                  <a
+                    href={href}
+                    target={target}
+                    rel={resolvedRel}
+                    className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b3299] rounded"
+                  >
+                    {title}
+                  </a>
+                ) : (
+                  title
+                )}
               </h3>
             </div>
           </div>
 
           {/* Badge ou Ação no Canto Superior Direito */}
           {(badge || action) && (
-            <div className="shrink-0 flex items-center gap-2">
+            <div
+              className="shrink-0 flex items-center gap-2"
+              onClick={(e) => hasInteractiveAction && e.stopPropagation()}
+            >
               {badge && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200/60 leading-none">
                   {badge}

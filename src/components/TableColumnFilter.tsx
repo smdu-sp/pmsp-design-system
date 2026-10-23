@@ -143,7 +143,8 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
             <button
               type="button"
               onClick={handleClear}
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+              aria-label="Limpar filtros aplicados nesta coluna"
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               <RotateCcw className="w-3 h-3" aria-hidden="true" />
               <span>Limpar</span>
@@ -172,7 +173,7 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="absolute right-2 top-2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full cursor-pointer"
+                  className="absolute right-2 top-2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                   aria-label="Limpar campo de texto"
                 >
                   <X className="w-3.5 h-3.5" aria-hidden="true" />
@@ -181,15 +182,22 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
             </div>
           </div>
         ) : filterType === "select" ? (
-          <div className="max-h-52 overflow-y-auto space-y-0.5 pr-0.5">
+          <div
+            role="listbox"
+            aria-label={titleText ? `Opções de filtro para ${titleText}` : "Opções de filtro"}
+            className="max-h-52 overflow-y-auto space-y-0.5 pr-0.5"
+          >
             <button
               type="button"
+              role="option"
+              aria-selected={!isFilterActive}
               onClick={() => {
                 onChange?.(undefined);
                 setIsOpen(false);
               }}
               className={cn(
                 "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors cursor-pointer",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-inset",
                 !isFilterActive ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-700 hover:bg-slate-100",
               )}
             >
@@ -202,12 +210,15 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
                 <button
                   key={`select-opt-${i}-${opt.value}`}
                   type="button"
+                  role="option"
+                  aria-selected={isSelected}
                   onClick={() => {
                     onChange?.(opt.value);
                     setIsOpen(false);
                   }}
                   className={cn(
                     "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors cursor-pointer",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-inset",
                     isSelected ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-700 hover:bg-slate-100",
                   )}
                 >
@@ -242,14 +253,14 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
                 <button
                   type="button"
                   onClick={handleSelectAll}
-                  className="hover:text-blue-600 transition-colors cursor-pointer"
+                  className="hover:text-blue-600 transition-colors cursor-pointer rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                 >
                   Selecionar todos
                 </button>
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="hover:text-rose-600 transition-colors cursor-pointer"
+                  className="hover:text-rose-600 transition-colors cursor-pointer rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                 >
                   Desmarcar todos
                 </button>
@@ -269,28 +280,27 @@ export const TableColumnFilter = React.forwardRef<HTMLDivElement, TableColumnFil
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => handleCheckboxToggle(opt.value)}
-                        aria-label={opt.label}
-                        className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+                        className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-600"
                       />
                       <span className="truncate text-slate-700">{opt.label}</span>
                     </label>
                   );
                 })
               ) : (
-                <div className="py-4 text-center text-slate-400 italic">
+                <div role="status" aria-live="polite" className="py-4 text-center text-slate-400 italic">
                   Nenhuma opção encontrada.
                 </div>
               )}
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-slate-500" aria-live="polite">
                 {selectedValues.length} de {normalizedOptions.length} selecionado(s)
               </span>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="px-2.5 py-1 text-xs font-semibold bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                className="px-2.5 py-1 text-xs font-semibold bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1"
               >
                 Concluir
               </button>

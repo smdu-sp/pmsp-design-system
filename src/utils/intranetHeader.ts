@@ -243,7 +243,15 @@ export function useIntranetHeaderState({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        const currentType = activeDropdown;
         closeDropdown();
+        if (currentType === "notifications") {
+          document.getElementById("intranet-notifications-trigger")?.focus();
+        } else if (currentType === "theme") {
+          document.getElementById("intranet-theme-trigger")?.focus();
+        } else if (currentType === "profile") {
+          document.getElementById("intranet-user-trigger")?.focus();
+        }
       }
     };
 
