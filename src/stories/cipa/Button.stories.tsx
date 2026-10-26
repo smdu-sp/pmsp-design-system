@@ -13,11 +13,6 @@ const meta: Meta<ButtonStoryProps> = {
   component: Button,
   tags: ["autodocs"],
   argTypes: {
-    variant: {
-      control: "select",
-      options: ["primary", "secondary"],
-      description: "Estilo visual base do botão",
-    },
     size: {
       control: "select",
       options: ["sm", "md", "lg"],
@@ -83,7 +78,6 @@ type Story = StoryObj<ButtonStoryProps>;
 
 export const Primary: Story = {
   args: {
-    variant: "primary",
     size: "md",
     iconLeft: true,
     iconRight: false,
@@ -94,7 +88,6 @@ export const Primary: Story = {
 
 export const Secondary: Story = {
   args: {
-    variant: "secondary",
     size: "md",
     iconLeft: true,
     selectedIconLeft: "FileText",
@@ -106,7 +99,6 @@ export const Secondary: Story = {
 
 export const CustomStyle: Story = {
   args: {
-    variant: "primary",
     size: "lg",
     backgroundColor: "#d97706",
     borderRadius: "9999px",

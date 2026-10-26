@@ -3,24 +3,13 @@ import { Slot } from "@radix-ui/react-slot";
 import type { VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/utils/cn";
-import {
-  buttonVariants,
-  type ButtonRoundedOption,
-  type ButtonTheme,
-  normalizeButtonRounded,
-  resolveButtonStyles,
-  resolveButtonIconFlags,
-  resolveButtonVariant,
-} from "@/utils/button";
+import { buttonVariants, type ButtonRoundedOption, type ButtonTheme, normalizeButtonRounded, resolveButtonStyles, resolveButtonIconFlags, resolveButtonVariant } from "@/utils/button";
 
 export { buttonVariants, resolveButtonVariant };
 export type { ButtonRoundedOption, ButtonTheme };
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    Omit<VariantProps<typeof buttonVariants>, "rounded"> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, Omit<VariantProps<typeof buttonVariants>, "rounded"> {
   asChild?: boolean;
-  theme?: ButtonTheme;
   rounded?: ButtonRoundedOption | boolean;
   /** Cor de fundo customizada (hexadecimal '#...' ou variável CSS 'var(--...)' / '--...') */
   backgroundColor?: string;
@@ -47,7 +36,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     {
       className,
       variant,
-      theme,
       size,
       rounded = "md",
       asChild = false,
@@ -72,7 +60,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const normalizedRounded = normalizeButtonRounded(rounded);
 
-    const resolvedVariant = resolveButtonVariant(variant, theme);
+    const resolvedVariant = resolveButtonVariant(variant);
 
     const dynamicStyles = resolveButtonStyles({
       backgroundColor,
@@ -131,9 +119,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <Loader2 className="w-4 h-4" />
           </span>
         )}
-        {isLoading && loadingText && (
-          <span className="sr-only">{loadingText}</span>
-        )}
+        {isLoading && loadingText && <span className="sr-only">{loadingText}</span>}
         {!isLoading && showIconLeft && leftIcon && (
           <span className="inline-flex shrink-0" aria-hidden="true">
             {leftIcon}
