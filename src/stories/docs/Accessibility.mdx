@@ -1,0 +1,47 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/Acessibilidade (e-MAG & WCAG)" />
+
+# Acessibilidade Digital no Setor Público
+### Conformidade com o Modelo de Acessibilidade em Governo Eletrônico (e-MAG) e WCAG 2.1/2.2 AA
+
+Todo sistema digital mantido pela Prefeitura de São Paulo deve atender aos mais altos padrões de acessibilidade para garantir que qualquer munícipe ou servidor público, independentemente de suas capacidades físicas ou cognitivas, consiga operar o sistema plenamente.
+
+---
+
+## 📋 Checklist de Conformidade dos Componentes
+
+### 1. Foco Visível Obrigatório (WCAG 2.4.7)
+* Nenhum componente remove `outline: none` sem fornecer uma alternativa clara com `ring`.
+* No Storybook, você pode utilizar o addon **Pseudo-states** no topo para inspecionar `:focus-visible` em qualquer botão ou input.
+
+### 2. Navegação Completa por Teclado (WCAG 2.1.1)
+* **Dropdown**: `Enter` ou `Space` abre o menu; setas para cima/baixo navegam entre itens; `Escape` fecha e retorna o foco ao botão de abertura.
+* **Modal**: Foco é capturado no interior da janela ao abrir e devolvido ao gatilho original ao fechar; tecla `Escape` fecha imediatamente.
+* **Tabelas**: Filtros e controles de paginação são acionáveis exclusivamente via teclado.
+
+### 3. Suporte a `forced-colors` (Modo Alto Contraste do Windows)
+No arquivo `globals.css`, incluímos regras globais para forçar contornos em botões e inputs quando o sistema operacional do usuário está em modo de alto contraste:
+
+```css
+@media (forced-colors: active) {
+  button, a, input, select, textarea {
+    outline: 1px solid transparent;
+  }
+  :focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px !important;
+  }
+}
+```
+
+### 4. Respeito à Sensibilidade ao Movimento (WCAG 2.3.3)
+Usuários com distúrbios vestibulares que possuem a preferência `@media (prefers-reduced-motion: reduce)` ativa têm animações e transições reduzidas automaticamente para `0.01ms`.
+
+---
+
+## 🛠️ Como Testar no Storybook
+
+1. **Aba Accessibility (a11y)**: No painel inferior de cada story, verifique se não há violações listadas pelo motor *axe-core*.
+2. **Alternador de Temas**: No toolbar, selecione *"Alto Contraste"* para verificar como o componente se comporta em fundos pretos absolutos.
+3. **Simulador de Telas**: Selecione *"Munícipe Mobile (360x640)"* para garantir que não há overflow horizontal indesejado.

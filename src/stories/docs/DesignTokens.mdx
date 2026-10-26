@@ -1,0 +1,51 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/Design Tokens & Cores" />
+
+# Design Tokens & Paleta Institucional
+
+Esta página documenta os tokens visuais e as cores adotadas pelo **PMSP Design System**, garantindo consistência visual entre secretarias e sistemas.
+
+---
+
+## 🎨 Cores Institucionais PMSP & SMUL
+
+| Token / Cor | Hexadecimal | Uso Recomendado |
+| :--- | :--- | :--- |
+| **Azul SMUL Oficial** | `#0b3299` | Cabeçalhos principais, botões primários da Intranet, marcas de destaque |
+| **Azul SMUL Hover** | `#082878` | Estado ativo/hover de botões e links primários |
+| **Azul Claro Destaque** | `#e8effe` | Fundos de seleção, tags ativas e alertas informativos leves |
+| **Preto Governamental** | `#0f172a` | Texto de alta ênfase (slate-900), botões primários padrão |
+| **Branco** | `#ffffff` | Fundo principal da página e de cartões |
+
+---
+
+## 🚦 Cores Semânticas de Status
+
+Utilizadas em `Alert`, `Badge`, ícones de tabela e estados de validação:
+
+| Status | Fundo Claro | Texto / Ícone | Borda | Aplicação |
+| :--- | :--- | :--- | :--- | :--- |
+| **Sucesso** | `bg-emerald-50` | `text-emerald-800` | `border-emerald-200` | Processo aprovado, alvará emitido, ação salva |
+| **Atenção** | `bg-amber-50` | `text-amber-800` | `border-amber-200` | Prazo expirando, pendência documental |
+| **Erro / Destrutivo** | `bg-rose-50` | `text-rose-800` | `border-rose-200` | Erro de validação, processo cancelado, indeferido |
+| **Informativo** | `bg-blue-50` | `text-blue-800` | `border-blue-200` | Comunicados gerais, instruções ao munícipe |
+
+---
+
+## 📐 Escalas de Raio de Borda (Border Radius)
+
+* `rounded-sm` (2px): Badges compactos e tags de status em tabelas.
+* `rounded-md` (6px): Inputs, botões médios, caixas de diálogo simples.
+* `rounded-lg` (8px): Cards, containers, janelas de modal.
+* `rounded-xl` (12px): Modais institucionais e banners de destaque.
+* `rounded-full` (9999px): Avatares e botões circulares de ação.
+
+---
+
+## 🌓 Modo Escuro & Alto Contraste
+
+Todos os tokens respondem automaticamente ao tema selecionado:
+* **Tema Claro:** `--background: #ffffff`, `--foreground: #0f172a`
+* **Tema Escuro:** `--background: #0b1120`, `--foreground: #f8fafc`
+* **Alto Contraste:** `--background: #000000`, `--foreground: #ffffff`, com anéis de foco amarelos/brancos forçados para máxima visibilidade.

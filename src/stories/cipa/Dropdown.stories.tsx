@@ -1,5 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, within } from "storybook/test";
 import { Dropdown, type DropdownProps } from "@/components/Dropdown";
 import { STORY_ICONS, STORY_ICON_NAMES, type StoryIconName } from "../iconGallery";
 import { MoreVertical, ChevronDown, Edit, Copy, Share2, Trash2, User, Settings, LogOut, HelpCircle, Bell, Check, Filter } from "lucide-react";
@@ -182,5 +183,31 @@ export const BothIconsWithoutText: Story = {
     iconRight: true,
     selectedIconRight: "ChevronDown",
     ariaLabel: "Filtro rápido",
+  },
+};
+
+/**
+ * Teste automatizado de interação (play function): valida clique e abertura do menu.
+ */
+export const InterativoTesteDeAbertura: Story = {
+  args: {
+    label: "Ações do Processo",
+    iconRight: true,
+    selectedIconRight: "ChevronDown",
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step("Verifica se o botão de menu está visível e fechado", async () => {
+      const trigger = canvas.getByRole("button", { name: /Ações do Processo/i });
+      await expect(trigger).toBeInTheDocument();
+      await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    });
+
+    await step("Clica para abrir o menu dropdown", async () => {
+      const trigger = canvas.getByRole("button", { name: /Ações do Processo/i });
+      await userEvent.click(trigger);
+      await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    });
   },
 };

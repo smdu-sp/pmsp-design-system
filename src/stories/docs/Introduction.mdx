@@ -1,0 +1,63 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/Introdução" />
+
+# PMSP Design System
+### Secretaria Municipal de Urbanismo e Licenciamento (SMUL) & Prefeitura de São Paulo
+
+O **PMSP Design System** é a biblioteca oficial de componentes de interface da Prefeitura do Município de São Paulo, projetada para unificar a experiência digital entre sistemas internos (Intranet, Sistema CAF, CIPA) e portais voltados ao cidadão paulistano.
+
+---
+
+## 🏛️ Pilares de Design
+
+1. **Acessibilidade Universal (e-MAG & WCAG 2.1/2.2 AA)**
+   Todos os componentes são construídos prioritariamente para navegação por teclado, compatibilidade com leitores de tela, suporte a modo de alto contraste (`forced-colors`) e redução de movimento (`prefers-reduced-motion`).
+
+2. **Clareza Cívica e Eficiência Operacional**
+   Interfaces limpas, objetivas e com alta densidade de informação para servidores públicos municipais, reduzindo cliques e erros em processos de licenciamento e despacho.
+
+3. **Arquitetura Moderna e Desempenho**
+   Construído sobre o ecossistema mais moderno da web:
+   - **React 19 & Next.js 15**
+   - **Tailwind CSS v4** com `@custom-variant dark` e classes utilitárias
+   - **Radix UI** para primitivas acessíveis e foco gerenciado
+   - **Lucide Icons** para iconografia consistente
+
+---
+
+## 🚀 Como Utilizar
+
+Importe os componentes diretamente a partir do ponto central `@/components`:
+
+```tsx
+import { Button, Card, Table, Alert, Badge, Input, FormField } from "@/components";
+
+export default function MeuModuloMunicipal() {
+  return (
+    <Card className="p-6">
+      <Alert variant="info" title="Atenção">
+        Preencha todos os campos do protocolo antes de submeter.
+      </Alert>
+
+      <FormField label="Número do Protocolo SEI" required>
+        <Input placeholder="6016.2026/0001234-5" />
+      </FormField>
+
+      <Button variant="primary">
+        Consultar Processo
+      </Button>
+    </Card>
+  );
+}
+```
+
+---
+
+## 📦 Estrutura de Módulos no Storybook
+
+* **Institucional**: Diretrizes, tokens de cor, tipografia e boas práticas de acessibilidade.
+* **Componentes**: Elementos universais (Button, Input, FormField, Badge, Alert, Modal, Skeleton, Textarea).
+* **CIPA**: Componentes e padrões para a Comissão Interna de Prevenção de Acidentes e Assédio.
+* **Intranet**: Componentes de alta complexidade para portais internos (Header com notificações, Sidebar retrátil, Feed de Posts e Eventos).
+* **Sistema CAF**: Componentes para o sistema de atendimento, controle e fiscalização urbana.

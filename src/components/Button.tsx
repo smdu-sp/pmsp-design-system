@@ -11,6 +11,8 @@ export type { ButtonRoundedOption, ButtonTheme };
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, Omit<VariantProps<typeof buttonVariants>, "rounded"> {
   asChild?: boolean;
   rounded?: ButtonRoundedOption | boolean;
+  /** Tema visual do botão ('default' | 'intranet') */
+  theme?: ButtonTheme;
   /** Cor de fundo customizada (hexadecimal '#...' ou variável CSS 'var(--...)' / '--...') */
   backgroundColor?: string;
   /** Cor do texto customizada (hexadecimal '#...' ou variável CSS 'var(--...)' / '--...') */
@@ -36,6 +38,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     {
       className,
       variant,
+      theme,
       size,
       rounded = "md",
       asChild = false,
@@ -60,7 +63,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const normalizedRounded = normalizeButtonRounded(rounded);
 
-    const resolvedVariant = resolveButtonVariant(variant);
+    const resolvedVariant = resolveButtonVariant(variant, theme);
 
     const dynamicStyles = resolveButtonStyles({
       backgroundColor,

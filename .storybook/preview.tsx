@@ -1,5 +1,35 @@
 import type { Preview } from "@storybook/react";
+import { withThemeByClassName } from "@storybook/addon-themes";
+import { INITIAL_VIEWPORTS } from "storybook/viewport";
 import "../src/styles/globals.css";
+
+const PMSP_CUSTOM_VIEWPORTS = {
+  pmspMobileSm: {
+    name: "Munícipe Mobile (360x640)",
+    styles: { width: "360px", height: "640px" },
+    type: "mobile" as const,
+  },
+  pmspMobileMd: {
+    name: "Munícipe Mobile (390x844)",
+    styles: { width: "390px", height: "844px" },
+    type: "mobile" as const,
+  },
+  pmspTablet: {
+    name: "Tablet Fiscalização (768x1024)",
+    styles: { width: "768px", height: "1024px" },
+    type: "tablet" as const,
+  },
+  pmspDesktopStandard: {
+    name: "Desktop Repartição (1366x768)",
+    styles: { width: "1366px", height: "768px" },
+    type: "desktop" as const,
+  },
+  pmspDesktopFullHD: {
+    name: "Desktop Full HD (1920x1080)",
+    styles: { width: "1920px", height: "1080px" },
+    type: "desktop" as const,
+  },
+};
 
 const COMPONENT_IMPORT_MAP: Record<string, string> = {
   Button: 'import { Button } from "@/components/Button";',
@@ -11,6 +41,18 @@ const COMPONENT_IMPORT_MAP: Record<string, string> = {
   CafHeader: 'import { CafHeader } from "@/components/CafHeader";',
   IntranetHeader: 'import { IntranetHeader } from "@/components/IntranetHeader";',
   IntranetSidebar: 'import { IntranetSidebar } from "@/components/IntranetSidebar";',
+  Badge: 'import { Badge } from "@/components/Badge";',
+  Alert: 'import { Alert } from "@/components/Alert";',
+  Input: 'import { Input } from "@/components/Input";',
+  FormField: 'import { FormField, Input } from "@/components/Input";',
+  Textarea: 'import { Textarea } from "@/components/Textarea";',
+  Skeleton: 'import { Skeleton } from "@/components/Skeleton";',
+  Modal: 'import { Modal } from "@/components/Modal";',
+  Tabs: 'import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/Tabs";',
+  Breadcrumb: 'import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Breadcrumb";',
+  Tooltip: 'import { Tooltip } from "@/components/Tooltip";',
+  AccessibilityBar: 'import { AccessibilityBar } from "@/components/AccessibilityBar";',
+  ToastProvider: 'import { ToastProvider, useToast } from "@/components/Toast";',
 };
 
 function resolveImportStatement(storyContext: any, code?: string): string {
@@ -128,6 +170,25 @@ function resolveIconImports(code: string): string {
 
 const preview: Preview = {
   parameters: {
+    options: {
+      storySort: {
+        order: [
+          "Docs",
+          ["Introdução", "Design Tokens & Cores", "Acessibilidade (e-MAG & WCAG)", "Iconografia"],
+          "Componentes",
+          "Templates",
+          "CIPA",
+          "Intranet",
+          "Sistema-CAF",
+        ],
+      },
+    },
+    viewport: {
+      viewports: {
+        ...PMSP_CUSTOM_VIEWPORTS,
+        ...INITIAL_VIEWPORTS,
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -167,6 +228,17 @@ const preview: Preview = {
       },
     },
   },
+  decorators: [
+    withThemeByClassName({
+      themes: {
+        Claro: "",
+        Escuro: "dark",
+        "Alto Contraste": "high-contrast",
+      },
+      defaultTheme: "Claro",
+      parentSelector: "html",
+    }),
+  ],
 };
 
 export default preview;
