@@ -5,49 +5,108 @@ import { Meta } from "@storybook/addon-docs/blocks";
 # PMSP Design System
 ### Secretaria Municipal de Urbanismo e Licenciamento (SMUL) & Prefeitura de São Paulo
 
-O **PMSP Design System** é a biblioteca oficial de componentes de interface da Prefeitura do Município de São Paulo, projetada para unificar a experiência digital entre sistemas internos (Intranet, Sistema CAF, CIPA) e portais voltados ao cidadão paulistano.
+O **PMSP Design System** é a biblioteca oficial de componentes de interface da Prefeitura do Município de São Paulo. Foi concebido para acelerar o desenvolvimento e padronizar a experiência visual e a usabilidade entre sistemas internos da administração pública (Intranet SMUL, Sistema CAF, CIPA) e portais voltados ao cidadão paulistano.
 
 ---
 
 ## 🏛️ Pilares de Design
 
 1. **Acessibilidade Universal (e-MAG & WCAG 2.1/2.2 AA)**
-   Todos os componentes são construídos prioritariamente para navegação por teclado, compatibilidade com leitores de tela, suporte a modo de alto contraste (`forced-colors`) e redução de movimento (`prefers-reduced-motion`).
+   Todos os componentes são desenvolvidos em total conformidade com a legislação pública de acessibilidade digital:
+   - Navegação completa e robusta por teclado (`Tab`, `Escape`, setas direcionais).
+   - Suporte nativo ao modo Alto Contraste do Windows e do navegador (`forced-colors` e `.high-contrast`).
+   - Respeito à sensibilidade vestibular e redução de movimento (`prefers-reduced-motion`).
+   - Anéis de foco evidentes (`focus-visible`) e compatibilidade estrita com leitores de tela.
 
 2. **Clareza Cívica e Eficiência Operacional**
-   Interfaces limpas, objetivas e com alta densidade de informação para servidores públicos municipais, reduzindo cliques e erros em processos de licenciamento e despacho.
+   Interfaces limpas, sem poluição visual, otimizadas para alta densidade de informação e jornadas sem atrito para servidores municipais e munícipes.
 
-3. **Arquitetura Moderna e Desempenho**
-   Construído sobre o ecossistema mais moderno da web:
-   - **React 19 & Next.js 15**
-   - **Tailwind CSS v4** com `@custom-variant dark` e classes utilitárias
-   - **Radix UI** para primitivas acessíveis e foco gerenciado
-   - **Lucide Icons** para iconografia consistente
+3. **Arquitetura Moderna e Alta Performance**
+   Construído sobre as tecnologias mais consolidadas e modernas do ecossistema:
+   - **React 19 & Next.js 15**: Arquitetura rápida e moderna.
+   - **Tailwind CSS v4**: Motor CSS ultrarrápido com `@custom-variant dark` e classes utilitárias harmoniosas.
+   - **Radix UI**: Primitivas semânticas e acessíveis para foco e interações complexas.
+   - **Lucide Icons**: Iconografia institucional consistente e vetorial.
+   - **Storybook 10 via Vite**: Ambiente isolado de componentes com carregamento instantâneo.
 
 ---
 
-## 🚀 Como Utilizar
+## 🛠️ Ferramentas & Addons Ativos no Storybook
 
-Importe os componentes diretamente a partir do ponto central `@/components`:
+Na barra de ferramentas superior do Storybook, você tem acesso a ferramentas desenvolvidas especificamente para o fluxo de design da PMSP:
+
+* **🌓 Seletor de Temas (`@storybook/addon-themes`)**: Alterne em tempo real entre **Claro**, **Escuro** (`.dark`) e **Alto Contraste** (`.high-contrast`) para validar legibilidade e conformidade.
+* **🎯 Simulador de Pseudo-Estados (`storybook-addon-pseudo-states`)**: Force estados `:hover`, `:focus-visible`, `:active` e `:disabled` em botões, links e menus sem precisar manter o cursor físico sobre o elemento.
+* **📱 Perfis de Telas Governamentais (Viewports PMSP)**: Valide responsividade em resoluções reais de munícipes e servidores:
+  - *Munícipe Mobile (360x640 e 390x844)*
+  - *Tablet Fiscalização (768x1024)*
+  - *Desktop Repartição (1366x768)*
+  - *Desktop Full HD (1920x1080)*
+* **🧪 Testes de Interação (`storybook/test`)**: Execução de play functions automatizadas para testar abertura de dropdowns, modais, filtros e validações sem sair da story.
+
+---
+
+## 🚀 Como Utilizar no seu Projeto
+
+Todos os componentes e utilitários são exportados a partir do ponto central `@/components`:
 
 ```tsx
-import { Button, Card, Table, Alert, Badge, Input, FormField } from "@/components";
+import {
+  AccessibilityBar,
+  IntranetHeader,
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbPage,
+  Button,
+  Card,
+  Badge,
+  Alert,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Table,
+  ToastProvider,
+  useToast,
+} from "@/components";
 
-export default function MeuModuloMunicipal() {
+export default function ModuloSMUL() {
+  const { toast } = useToast();
+
   return (
-    <Card className="p-6">
-      <Alert variant="info" title="Atenção">
-        Preencha todos os campos do protocolo antes de submeter.
-      </Alert>
+    <div className="space-y-6">
+      <AccessibilityBar />
+      <IntranetHeader title="SMUL Licenciamento" />
 
-      <FormField label="Número do Protocolo SEI" required>
-        <Input placeholder="6016.2026/0001234-5" />
-      </FormField>
+      <main className="max-w-6xl mx-auto p-6 space-y-4">
+        <Alert variant="info" title="Atenção ao Protocolo">
+          O processo selecionado requer anexação da certidão de débitos tributários.
+        </Alert>
 
-      <Button variant="primary">
-        Consultar Processo
-      </Button>
-    </Card>
+        <Card className="p-6">
+          <div className="flex items-center justify-between pb-4">
+            <h2 className="text-lg font-bold">Processo SEI nº 6016.2026/0019283-4</h2>
+            <Badge variant="warning">Em Análise</Badge>
+          </div>
+
+          {/* Suporte a temas institucionais unificados: 'intranet', 'sistema-caf' ou 'cipa' */}
+          <Button
+            variant="primary"
+            theme="intranet"
+            onClick={() =>
+              toast({
+                title: "Despacho Registrado",
+                description: "O documento foi encaminhado para a unidade responsável.",
+                variant: "success",
+              })
+            }
+          >
+            Emitir Parecer Técnico
+          </Button>
+        </Card>
+      </main>
+    </div>
   );
 }
 ```
@@ -56,8 +115,48 @@ export default function MeuModuloMunicipal() {
 
 ## 📦 Estrutura de Módulos no Storybook
 
-* **Institucional**: Diretrizes, tokens de cor, tipografia e boas práticas de acessibilidade.
-* **Componentes**: Elementos universais (Button, Input, FormField, Badge, Alert, Modal, Skeleton, Textarea).
-* **CIPA**: Componentes e padrões para a Comissão Interna de Prevenção de Acidentes e Assédio.
-* **Intranet**: Componentes de alta complexidade para portais internos (Header com notificações, Sidebar retrátil, Feed de Posts e Eventos).
-* **Sistema CAF**: Componentes para o sistema de atendimento, controle e fiscalização urbana.
+A barra lateral esquerda do Storybook está organizada pelas frentes e contextos institucionais do projeto:
+
+* 📘 **Docs**:
+  * **Introdução**: Visão geral do design system, diretrizes, addons ativos e guia de uso.
+  * **Design Tokens & Cores**: Paleta oficial da Prefeitura de São Paulo (`#0b3299`), tokens semânticos de status (sucesso, aviso, perigo, info), raios de borda e suporte a modo escuro/alto contraste.
+  * **Acessibilidade (e-MAG & WCAG)**: Checklist de conformidade com os padrões federais (e-MAG) e internacionais (WCAG 2.1/2.2 AA) de acessibilidade digital.
+  * **Iconografia**: Catálogo visual de ícones institucionais (Lucide Icons) com busca em tempo real e cópia de imports e JSX com 1 clique.
+
+* 👥 **CIPA**: Componentes voltados à Comissão Interna de Prevenção de Acidentes e Assédio:
+  * `Button`: Ações e botões temáticos da CIPA.
+  * `Card`: Cartões para comunicados e indicadores de segurança e saúde no trabalho.
+  * `Dropdown`: Menu dropdown acessível com suporte a seleção de itens e navegação por teclado.
+  * `Table`: Tabela estruturada para atas, cronogramas de vistorias e registros de reuniões.
+
+* 🏢 **Intranet SMUL**: Componentes com identidade visual e funcionalidades para o portal interno da secretaria:
+  * `Button`: Variações temáticas (`primary`, `secondary`, `destructive`, `outline`, `ghost`, `link`) com a paleta da Intranet.
+  * `Card`: Cartões de avisos gerais e notícias institucionais.
+  * `EventCard`: Cartões de eventos e compromissos com data, horário e localização.
+  * `Header`: Cabeçalho institucional completo com barra de pesquisa, notificações e perfil do usuário logado.
+  * `Post`: Feed interativo de postagens institucionais com suporte a comentários e reações.
+  * `Sidebar`: Barra lateral de navegação retrátil com rotas e menu de suporte.
+
+* 🏛️ **Sistema CAF**: Componentes especializados para a Coordenação de Administração e Finanças:
+  * `Button`: Ações operacionais com a identidade visual do Sistema CAF.
+  * `Card`: Cartão estruturado para métricas financeiras, orçamentárias e contratos.
+  * `Header`: Cabeçalho administrativo do painel do CAF com navegação entre módulos.
+  * `Table` (`CafTable`): Tabela administrativa com filtros, paginação, ações e badges de pontuação de processos (`CafScoreBadge`).
+
+---
+
+## 📋 Comandos do Projeto
+
+```bash
+# Executar o Storybook localmente (porta 6006)
+npm run storybook
+
+# Validar tipagem TypeScript em todo o projeto (zero erros)
+npm run typecheck
+
+# Gerar compilação estática do Storybook para deploy
+npm run build-storybook
+
+# Gerar build de produção da aplicação Next.js
+npm run build
+```

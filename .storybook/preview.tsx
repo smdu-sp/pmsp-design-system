@@ -175,8 +175,6 @@ const preview: Preview = {
         order: [
           "Docs",
           ["Introdução", "Design Tokens & Cores", "Acessibilidade (e-MAG & WCAG)", "Iconografia"],
-          "Componentes",
-          "Templates",
           "CIPA",
           "Intranet",
           "Sistema-CAF",
