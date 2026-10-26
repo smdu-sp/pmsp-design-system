@@ -10,9 +10,10 @@ import {
   normalizeButtonRounded,
   resolveButtonStyles,
   resolveButtonIconFlags,
+  resolveButtonVariant,
 } from "@/utils/button";
 
-export { buttonVariants };
+export { buttonVariants, resolveButtonVariant };
 export type { ButtonRoundedOption, ButtonTheme };
 
 export interface ButtonProps
@@ -71,14 +72,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const normalizedRounded = normalizeButtonRounded(rounded);
 
-    const resolvedVariant =
-      variant === "intranet-primary" || variant === "intranet-secondary"
-        ? variant
-        : theme === "intranet"
-          ? variant === "secondary"
-            ? "intranet-secondary"
-            : "intranet-primary"
-          : variant;
+    const resolvedVariant = resolveButtonVariant(variant, theme);
 
     const dynamicStyles = resolveButtonStyles({
       backgroundColor,

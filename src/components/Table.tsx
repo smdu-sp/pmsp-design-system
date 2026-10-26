@@ -18,6 +18,7 @@ import {
   handleRowKeyDown,
   filterChildrenWithoutHeader,
   useTableState,
+  useTablePageSizeMenu,
   updateColumnFilter,
   resolveSortButtonAriaLabel,
   checkShouldRenderHeader,
@@ -26,7 +27,7 @@ import {
 } from "@/utils/table";
 import { TableColumnFilter, type TableColumnFilterProps } from "./TableColumnFilter";
 
-export { tableVariants, TableColumnFilter, useTableState, updateColumnFilter };
+export { tableVariants, TableColumnFilter, useTableState, useTablePageSizeMenu, updateColumnFilter };
 export type { TableVariant, TableDensity, TableColumn, TableFilterType, TableFilterOption, TableColumnFilterProps };
 
 export interface TableProps extends React.HTMLAttributes<HTMLTableElement>, VariantProps<typeof tableVariants> {
@@ -483,71 +484,13 @@ export const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationP
     const pages = React.useMemo(() => getPaginationRange(currentPage, totalPages), [currentPage, totalPages]);
     const { startIndex, endIndex } = calculatePaginationOffsets(currentPage, pageSize, totalItems);
 
-    const [isPageSizeOpen, setIsPageSizeOpen] = React.useState(false);
-    const pageSizeButtonRef = React.useRef<HTMLButtonElement>(null);
-    const pageSizeMenuRef = React.useRef<HTMLDivElement>(null);
-    const [menuCoords, setMenuCoords] = React.useState<{ top?: number; bottom?: number; left: number } | null>(null);
-
-    const updateMenuPosition = React.useCallback(() => {
-      if (!pageSizeButtonRef.current || typeof window === "undefined") return;
-      const rect = pageSizeButtonRef.current.getBoundingClientRect();
-      const menuWidth = 84;
-      const spaceAbove = rect.top;
-      const spaceBelow = window.innerHeight - rect.bottom;
-
-      // Abre acima do botão ("acima de qualquer outro item" e evita corte na borda inferior da tela/container)
-      const openAbove = spaceAbove >= 160 || spaceAbove >= spaceBelow;
-      const left = Math.max(12, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 12));
-
-      if (openAbove) {
-        setMenuCoords({
-          bottom: window.innerHeight - rect.top + 6,
-          left,
-        });
-      } else {
-        setMenuCoords({
-          top: rect.bottom + 6,
-          left,
-        });
-      }
-    }, []);
-
-    React.useEffect(() => {
-      if (!isPageSizeOpen) return;
-      updateMenuPosition();
-
-      const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
-        const target = e.target as Node;
-        if (pageSizeMenuRef.current && !pageSizeMenuRef.current.contains(target) && pageSizeButtonRef.current && !pageSizeButtonRef.current.contains(target)) {
-          setIsPageSizeOpen(false);
-        }
-      };
-
-      const handleScrollOrResize = () => {
-        updateMenuPosition();
-      };
-
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          setIsPageSizeOpen(false);
-          pageSizeButtonRef.current?.focus();
-        }
-      };
-
-      document.addEventListener("mousedown", handleOutsideClick);
-      document.addEventListener("touchstart", handleOutsideClick);
-      document.addEventListener("keydown", handleKeyDown);
-      window.addEventListener("scroll", handleScrollOrResize, true);
-      window.addEventListener("resize", handleScrollOrResize);
-
-      return () => {
-        document.removeEventListener("mousedown", handleOutsideClick);
-        document.removeEventListener("touchstart", handleOutsideClick);
-        document.removeEventListener("keydown", handleKeyDown);
-        window.removeEventListener("scroll", handleScrollOrResize, true);
-        window.removeEventListener("resize", handleScrollOrResize);
-      };
-    }, [isPageSizeOpen, updateMenuPosition]);
+    const {
+      isPageSizeOpen,
+      setIsPageSizeOpen,
+      pageSizeButtonRef,
+      pageSizeMenuRef,
+      menuCoords,
+    } = useTablePageSizeMenu();
 
     const navButtonClass = cn(
       "inline-flex items-center justify-center h-8 rounded-lg border border-slate-200/80 bg-white text-slate-700 shadow-xs transition-colors motion-reduce:transition-none shrink-0",

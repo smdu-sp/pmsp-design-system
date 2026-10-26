@@ -123,3 +123,20 @@ export function resolveButtonIconFlags({
   const showIconRight = Boolean(iconRight || rawProps?.["icon-right"]);
   return { showIconLeft, showIconRight };
 }
+
+/**
+ * Resolve a variante correta do botão baseando-se no tema e variante informados.
+ */
+export function resolveButtonVariant(
+  variant?: ButtonVariant | null,
+  theme?: ButtonTheme | null,
+): ButtonVariant | undefined {
+  if (variant === "intranet-primary" || variant === "intranet-secondary") {
+    return variant;
+  }
+  if (theme === "intranet") {
+    return variant === "secondary" ? "intranet-secondary" : "intranet-primary";
+  }
+  return variant ?? undefined;
+}
+

@@ -189,3 +189,53 @@ export function resolveEventDescription(options: {
 
   return parts.join(", ") || INTRANET_SAMPLE_EVENT.description || "";
 }
+
+export interface ResolveEventInteractiveOptions {
+  href?: string;
+  target?: string;
+  rel?: string;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
+  action?: React.ReactNode;
+}
+
+/**
+ * Resolve as propriedades interativas, elemento de componente (a vs article)
+ * e manipulador de teclado para o card de evento da Intranet.
+ */
+export function resolveEventInteractive({
+  href,
+  target,
+  rel,
+  onClick,
+  action,
+}: ResolveEventInteractiveOptions) {
+  const isInteractive = Boolean(href || onClick);
+  const hasInteractiveAction = Boolean(action);
+  const Component: "a" | "article" = href && !hasInteractiveAction ? "a" : "article";
+
+  const resolvedRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
+
+  const interactiveProps: React.HTMLAttributes<HTMLElement> =
+    href && !hasInteractiveAction
+      ? ({ href, target, rel: resolvedRel } as any)
+      : onClick
+        ? { role: "button", tabIndex: 0 }
+        : {};
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (onClick && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      onClick(e as unknown as React.MouseEvent<HTMLElement>);
+    }
+  };
+
+  return {
+    Component,
+    isInteractive,
+    hasInteractiveAction,
+    resolvedRel,
+    interactiveProps,
+    handleKeyDown,
+  };
+}
+

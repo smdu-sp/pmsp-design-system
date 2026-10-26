@@ -8,6 +8,7 @@ import {
   getIntranetSidebarContainerClass,
   getIntranetSidebarItemClass,
   getIntranetSupportCardClass,
+  useIntranetSidebarState,
 } from "@/utils/intranetSidebar";
 
 export {
@@ -16,6 +17,7 @@ export {
   getIntranetSidebarContainerClass,
   getIntranetSidebarItemClass,
   getIntranetSupportCardClass,
+  useIntranetSidebarState,
 };
 
 export interface IntranetSidebarProps
@@ -74,25 +76,11 @@ export const IntranetSidebar = React.forwardRef<HTMLElement, IntranetSidebarProp
     },
     ref,
   ) => {
-    const [internalActiveId, setInternalActiveId] = React.useState<string>(defaultActiveItemId);
-
-    const isControlled = controlledActiveId !== undefined;
-    const currentActiveId = isControlled ? controlledActiveId : internalActiveId;
-
-    const handleItemClick = (item: IntranetSidebarItem, e: React.MouseEvent) => {
-      if (item.disabled) {
-        e.preventDefault();
-        return;
-      }
-
-      if (!isControlled) {
-        setInternalActiveId(item.id);
-      }
-
-      if (onItemSelect) {
-        onItemSelect(item);
-      }
-    };
+    const { currentActiveId, handleItemClick } = useIntranetSidebarState({
+      activeItemId: controlledActiveId,
+      defaultActiveItemId,
+      onItemSelect,
+    });
 
     return (
       <aside

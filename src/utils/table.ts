@@ -907,3 +907,76 @@ export function calculatePaginationOffsets(
   const endIndex = pageSize ? startIndex + pageSize : (totalItems ?? 0);
   return { startIndex, endIndex };
 }
+
+/**
+ * Hook utilitário que gerencia o menu popover suspenso de seleção de quantidade de itens por página na paginação da tabela.
+ */
+export function useTablePageSizeMenu() {
+  const [isPageSizeOpen, setIsPageSizeOpen] = React.useState(false);
+  const pageSizeButtonRef = React.useRef<HTMLButtonElement>(null);
+  const pageSizeMenuRef = React.useRef<HTMLDivElement>(null);
+  const [menuCoords, setMenuCoords] = React.useState<{ top?: number; bottom?: number; left: number } | null>(null);
+
+  const updateMenuPosition = React.useCallback(() => {
+    if (!pageSizeButtonRef.current || typeof window === "undefined") return;
+    const rect = pageSizeButtonRef.current.getBoundingClientRect();
+    const menuWidth = 84;
+    const spaceAbove = rect.top;
+    const spaceBelow = window.innerHeight - rect.bottom;
+
+    // Abre acima do botão ("acima de qualquer outro item" e evita corte na borda inferior da tela/container)
+    const openAbove = spaceAbove >= 160 || spaceAbove >= spaceBelow;
+    const left = Math.max(12, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 12));
+
+    if (openAbove) {
+      setMenuCoords({
+        bottom: window.innerHeight - rect.top + 6,
+        left,
+      });
+    } else {
+      setMenuCoords({
+        top: rect.bottom + 6,
+        left,
+      });
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (!isPageSizeOpen) return;
+    updateMenuPosition();
+
+    const handleScrollOrResize = () => updateMenuPosition();
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (
+        pageSizeMenuRef.current &&
+        !pageSizeMenuRef.current.contains(target) &&
+        pageSizeButtonRef.current &&
+        !pageSizeButtonRef.current.contains(target)
+      ) {
+        setIsPageSizeOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isPageSizeOpen, updateMenuPosition]);
+
+  return {
+    isPageSizeOpen,
+    setIsPageSizeOpen,
+    pageSizeButtonRef,
+    pageSizeMenuRef,
+    menuCoords,
+  };
+}
+

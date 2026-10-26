@@ -1,7 +1,21 @@
 import * as React from "react";
 import { Calendar } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { type IntranetEventCardData, INTRANET_SAMPLE_EVENT, resolveEventDate, resolveEventDescription } from "@/utils/intranetEventCard";
+import {
+  type IntranetEventCardData,
+  INTRANET_SAMPLE_EVENT,
+  resolveEventDate,
+  resolveEventDescription,
+  resolveEventInteractive,
+} from "@/utils/intranetEventCard";
+
+export {
+  type IntranetEventCardData,
+  INTRANET_SAMPLE_EVENT,
+  resolveEventDate,
+  resolveEventDescription,
+  resolveEventInteractive,
+};
 
 export interface IntranetEventCardProps extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
   /** Dia do evento (ex: '08' ou 8) */
@@ -85,20 +99,15 @@ export const IntranetEventCard = React.forwardRef<HTMLElement, IntranetEventCard
       details,
     });
 
-    const isInteractive = Boolean(href || onClick);
-    const hasInteractiveAction = Boolean(action);
-    const Component = href && !hasInteractiveAction ? "a" : "article";
-
-    const resolvedRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
-
-    const interactiveProps = href && !hasInteractiveAction ? { href, target, rel: resolvedRel } : onClick ? { role: "button", tabIndex: 0 } : {};
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-      if (onClick && (e.key === "Enter" || e.key === " ")) {
-        e.preventDefault();
-        onClick(e as unknown as React.MouseEvent<HTMLElement>);
-      }
-    };
+    // Resolução de interatividade (comportamento de link/botão e acessibilidade por teclado)
+    const { Component, isInteractive, hasInteractiveAction, resolvedRel, interactiveProps, handleKeyDown } =
+      resolveEventInteractive({
+        href,
+        target,
+        rel,
+        onClick,
+        action,
+      });
 
     return (
       <Component

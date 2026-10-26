@@ -8,10 +8,24 @@ import {
   INTRANET_DEFAULT_CURRENT_USER,
   INTRANET_DEFAULT_POST_COMMENTS,
   INTRANET_SAMPLE_POST,
+  resolveIntranetPostAuthor,
+  useIntranetPostState,
+  resolveCommentAuthor,
+  resolveCurrentUserAvatar,
 } from "@/utils/intranetPost";
-import { getIntranetInitials, getIntranetAvatarColor } from "@/utils/intranetCard";
 
-export { type IntranetPostAuthor, type IntranetPostComment, type IntranetPostCurrentUser, INTRANET_DEFAULT_CURRENT_USER, INTRANET_DEFAULT_POST_COMMENTS, INTRANET_SAMPLE_POST };
+export {
+  type IntranetPostAuthor,
+  type IntranetPostComment,
+  type IntranetPostCurrentUser,
+  INTRANET_DEFAULT_CURRENT_USER,
+  INTRANET_DEFAULT_POST_COMMENTS,
+  INTRANET_SAMPLE_POST,
+  resolveIntranetPostAuthor,
+  useIntranetPostState,
+  resolveCommentAuthor,
+  resolveCurrentUserAvatar,
+};
 
 export interface IntranetPostProps extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
   /** Dados do autor ou entidade que realizou a publicação */
@@ -97,99 +111,45 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
     ref,
   ) => {
     // --- Resolução dos dados do Autor ---
-    const effectiveAuthorName = authorName || author?.name || "Coordenadoria de Comunicação";
-    const effectiveAuthorSubtitle = authorSubtitle || author?.subtitle || "Comunicação SMUL - há 1h";
-    const effectiveAuthorTag = authorTag || author?.tag || "comunicado";
-    const effectiveAuthorInitials = authorInitials || author?.initials || getIntranetInitials(effectiveAuthorName);
-    const effectiveAuthorColor = authorColor || author?.avatarColor || getIntranetAvatarColor(effectiveAuthorName);
-    const effectiveAuthorAvatar = authorAvatar || author?.avatarSrc;
+    const {
+      effectiveAuthorName,
+      effectiveAuthorSubtitle,
+      effectiveAuthorTag,
+      effectiveAuthorInitials,
+      effectiveAuthorColor,
+      effectiveAuthorAvatar,
+    } = resolveIntranetPostAuthor({
+      author,
+      authorName,
+      authorSubtitle,
+      authorTag,
+      authorInitials,
+      authorColor,
+      authorAvatar,
+    });
 
-    // --- Estado de Curtidas ---
-    const [internalIsLiked, setInternalIsLiked] = React.useState<boolean>(controlledIsLiked ?? false);
-    const [internalLikesCount, setInternalLikesCount] = React.useState<number>(controlledLikesCount ?? INTRANET_SAMPLE_POST.likesCount);
-
-    React.useEffect(() => {
-      if (controlledIsLiked !== undefined) {
-        setInternalIsLiked(controlledIsLiked);
-      }
-    }, [controlledIsLiked]);
-
-    React.useEffect(() => {
-      if (controlledLikesCount !== undefined) {
-        setInternalLikesCount(controlledLikesCount);
-      }
-    }, [controlledLikesCount]);
-
-    const isLiked = controlledIsLiked !== undefined ? controlledIsLiked : internalIsLiked;
-    const likes = controlledLikesCount !== undefined ? controlledLikesCount : internalLikesCount;
-
-    const handleLikeClick = () => {
-      const nextLiked = !isLiked;
-      const nextCount = nextLiked ? likes + 1 : Math.max(0, likes - 1);
-
-      if (controlledIsLiked === undefined) {
-        setInternalIsLiked(nextLiked);
-      }
-      if (controlledLikesCount === undefined) {
-        setInternalLikesCount(nextCount);
-      }
-
-      onLikeToggle?.(nextLiked, nextCount);
-    };
-
-    // --- Estado de Comentários ---
-    const [internalComments, setInternalComments] = React.useState<IntranetPostComment[]>(comments);
-    const [commentText, setCommentText] = React.useState<string>("");
-    const [copiedShare, setCopiedShare] = React.useState<boolean>(false);
-
-    React.useEffect(() => {
-      setInternalComments(comments);
-    }, [comments]);
-
-    const commentsList = internalComments;
-    const commentInputRef = React.useRef<HTMLInputElement>(null);
-
-    const [feedbackMessage, setFeedbackMessage] = React.useState<string>("");
-
-    const handleCommentSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      const trimmed = commentText.trim();
-      if (!trimmed) return;
-
-      const newComment: IntranetPostComment = {
-        id: `comment-${Date.now()}`,
-        authorName: currentUser.name,
-        authorInitials: currentUser.initials || getIntranetInitials(currentUser.name),
-        authorAvatar: currentUser.avatarSrc,
-        authorColor: currentUser.avatarColor || getIntranetAvatarColor(currentUser.name),
-        content: trimmed,
-        createdAt: "Agora",
-      };
-
-      setInternalComments((prev) => [...prev, newComment]);
-      setCommentText("");
-      setFeedbackMessage("Comentário publicado com sucesso.");
-      setTimeout(() => setFeedbackMessage(""), 3000);
-      onCommentSubmit?.(newComment);
-    };
-
-    const handleShareClick = () => {
-      if (onShare) {
-        onShare();
-        return;
-      }
-
-      // Feedback visual ao copiar link
-      if (typeof window !== "undefined" && navigator?.clipboard) {
-        navigator.clipboard.writeText(window.location.href);
-        setCopiedShare(true);
-        setFeedbackMessage("Link copiado para a área de transferência.");
-        setTimeout(() => {
-          setCopiedShare(false);
-          setFeedbackMessage("");
-        }, 2000);
-      }
-    };
+    // --- Estado de Curtidas, Comentários e Compartilhamento ---
+    const {
+      isLiked,
+      likes,
+      handleLikeClick,
+      commentsList,
+      commentText,
+      setCommentText,
+      copiedShare,
+      feedbackMessage,
+      commentInputRef,
+      handleCommentSubmit,
+      handleShareClick,
+    } = useIntranetPostState({
+      controlledLikesCount,
+      controlledIsLiked,
+      onLikeToggle,
+      comments,
+      onCommentSubmit,
+      currentUser,
+      onShare,
+    });
 
     return (
       <article ref={ref} className={cn("w-full max-w-2xl bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 transition-all duration-200 text-left", className)} {...props}>
@@ -308,8 +268,7 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
             {commentsList.length > 0 && (
               <ul className="space-y-3">
                 {commentsList.map((comment) => {
-                  const initial = comment.authorInitials || getIntranetInitials(comment.authorName);
-                  const color = comment.authorColor || getIntranetAvatarColor(comment.authorName);
+                  const { initial, color } = resolveCommentAuthor(comment);
 
                   return (
                     <li key={comment.id} className="flex items-start gap-2.5 group">
@@ -347,20 +306,25 @@ export const IntranetPost = React.forwardRef<HTMLElement, IntranetPostProps>(
             {/* Campo de Inserção de Novo Comentário */}
             <form onSubmit={handleCommentSubmit} className="flex items-center gap-2.5 pt-1">
               {/* Avatar do Usuário Autenticado */}
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-2xs select-none overflow-hidden"
-                style={{
-                  backgroundColor: currentUser.avatarSrc ? "transparent" : currentUser.avatarColor || "#e11d48",
-                }}
-                aria-hidden="true"
-              >
-                {currentUser.avatarSrc ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={currentUser.avatarSrc} alt={currentUser.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{currentUser.initials || getIntranetInitials(currentUser.name)}</span>
-                )}
-              </div>
+              {(() => {
+                const { initial: userInitial, color: userColor } = resolveCurrentUserAvatar(currentUser);
+                return (
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-2xs select-none overflow-hidden"
+                    style={{
+                      backgroundColor: currentUser.avatarSrc ? "transparent" : userColor,
+                    }}
+                    aria-hidden="true"
+                  >
+                    {currentUser.avatarSrc ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={currentUser.avatarSrc} alt={currentUser.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{userInitial}</span>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Input com Placeholder e Botão de Envio */}
               <div className="flex-1 relative flex items-center">

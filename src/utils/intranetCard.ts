@@ -312,3 +312,102 @@ export function getIntranetCardContainerClass(
     className,
   );
 }
+
+export interface ResolveIntranetCardPropsOptions {
+  title?: string;
+  name?: string;
+  subtitle?: string;
+  department?: string;
+  avatar?: IntranetCardAvatar;
+  avatarInitials?: string;
+  avatarSrc?: string;
+  avatarColor?: string;
+  badge?: string | boolean;
+  date?: string | Date;
+  referenceDate?: Date | string;
+  felicitations?: string;
+  status?: string;
+  items?: IntranetCardTextItem[];
+  emptyText?: string;
+  description?: string;
+  children?: React.ReactNode;
+  backgroundColor?: string;
+  borderRadius?: string | number;
+  style?: React.CSSProperties;
+}
+
+/**
+ * Normaliza e resolve os dados, avatares, status de aniversário e estilos inline para o IntranetCard.
+ */
+export function resolveIntranetCardProps({
+  title,
+  name,
+  subtitle,
+  department,
+  avatar,
+  avatarInitials,
+  avatarSrc,
+  avatarColor,
+  badge,
+  date,
+  referenceDate,
+  felicitations,
+  status,
+  items,
+  emptyText,
+  description,
+  children,
+  backgroundColor,
+  borderRadius,
+  style,
+}: ResolveIntranetCardPropsOptions) {
+  const effectiveName = name || title || "Servidor";
+  const effectiveDept = department || subtitle;
+  const effectiveStatus = felicitations || status;
+
+  const effectiveTextTitle = title || (name && name !== "Servidor" ? name : "Comunicados recentes");
+  const effectiveItems =
+    items && items.length > 0
+      ? items
+      : !emptyText && !description && !children
+        ? INTRANET_CARD_SAMPLE_NOTICES
+        : items;
+
+  const resolvedInitials = avatarInitials || avatar?.initials || getIntranetInitials(effectiveName);
+  const resolvedAvatarSrc = avatarSrc || avatar?.src;
+  const resolvedAvatarColor = avatarColor || avatar?.color || getIntranetAvatarColor(effectiveName);
+
+  const isToday = isBirthdayToday(date, resolveReferenceDate(referenceDate));
+  const hasBadge =
+    badge === false ? false : typeof badge === "string" && badge.toLowerCase() !== "hoje" ? true : isToday;
+  const badgeText = typeof badge === "string" && badge.toLowerCase() !== "hoje" ? badge : "hoje";
+
+  const displayDate = date instanceof Date ? formatTodayAsBirthdayDate(date) : date;
+
+  const inlineStyles: React.CSSProperties = {
+    ...(backgroundColor ? { backgroundColor } : {}),
+    ...(borderRadius !== undefined
+      ? {
+          borderRadius: typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius,
+        }
+      : {}),
+    ...style,
+  };
+
+  return {
+    effectiveName,
+    effectiveDept,
+    effectiveStatus,
+    effectiveTextTitle,
+    effectiveItems,
+    resolvedInitials,
+    resolvedAvatarSrc,
+    resolvedAvatarColor,
+    isToday,
+    hasBadge,
+    badgeText,
+    displayDate,
+    inlineStyles: Object.keys(inlineStyles).length > 0 ? inlineStyles : undefined,
+  };
+}
+

@@ -6,16 +6,11 @@ import {
   type IntranetCardVariant,
   type IntranetCardAvatar,
   type IntranetCardTextItem,
-  INTRANET_CARD_SAMPLE_NOTICES,
-  getIntranetInitials,
-  getIntranetAvatarColor,
   getIntranetCardContainerClass,
-  isBirthdayToday,
-  resolveReferenceDate,
-  formatTodayAsBirthdayDate,
+  resolveIntranetCardProps,
 } from "@/utils/intranetCard";
 
-export { type IntranetCardVariant, type IntranetCardAvatar, type IntranetCardTextItem };
+export { type IntranetCardVariant, type IntranetCardAvatar, type IntranetCardTextItem, resolveIntranetCardProps };
 
 export interface IntranetCardProps extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
   /**
@@ -143,43 +138,44 @@ export const IntranetCard = React.forwardRef<HTMLElement, IntranetCardProps>(
   ) => {
     const isBirthdayVariant = variant === "birthday";
 
-    // Resolução de nomes e textos
-    const effectiveName = name || title || "Servidor";
-    const effectiveDept = department || subtitle;
-    const effectiveStatus = felicitations || status;
-
-    // Resolução da variante "text" (garante que nunca fique em branco)
-    const effectiveTextTitle = title || (name && name !== "Servidor" ? name : "Comunicados recentes");
-    const effectiveItems = items && items.length > 0 ? items : !emptyText && !description && !children ? INTRANET_CARD_SAMPLE_NOTICES : items;
-
-    // Resolução do Avatar
-    const resolvedInitials = avatarInitials || avatar?.initials || getIntranetInitials(effectiveName);
-    const resolvedAvatarSrc = avatarSrc || avatar?.src;
-    const resolvedAvatarColor = avatarColor || avatar?.color || getIntranetAvatarColor(effectiveName);
-
-    // Validação se o aniversário é no mesmo dia do calendário atual
-    const isToday = isBirthdayToday(date, resolveReferenceDate(referenceDate));
-
-    // A badge 'hoje' SÓ fica visível se a data do aniversário for a mesma do dia atual do calendário!
-    const hasBadge = badge === false ? false : typeof badge === "string" && badge.toLowerCase() !== "hoje" ? true : isToday;
-
-    const badgeText = typeof badge === "string" && badge.toLowerCase() !== "hoje" ? badge : "hoje";
-
-    const displayDate = date instanceof Date ? formatTodayAsBirthdayDate(date) : date;
-
-    // Estilos inline opcionais
-    const inlineStyles: React.CSSProperties = {
-      ...(backgroundColor ? { backgroundColor } : {}),
-      ...(borderRadius !== undefined
-        ? {
-            borderRadius: typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius,
-          }
-        : {}),
-      ...style,
-    };
+    const {
+      effectiveName,
+      effectiveDept,
+      effectiveStatus,
+      effectiveTextTitle,
+      effectiveItems,
+      resolvedInitials,
+      resolvedAvatarSrc,
+      resolvedAvatarColor,
+      hasBadge,
+      badgeText,
+      displayDate,
+      inlineStyles,
+    } = resolveIntranetCardProps({
+      title,
+      name,
+      subtitle,
+      department,
+      avatar,
+      avatarInitials,
+      avatarSrc,
+      avatarColor,
+      badge,
+      date,
+      referenceDate,
+      felicitations,
+      status,
+      items,
+      emptyText,
+      description,
+      children,
+      backgroundColor,
+      borderRadius,
+      style,
+    });
 
     return (
-      <article ref={ref} className={getIntranetCardContainerClass(variant, className)} style={Object.keys(inlineStyles).length > 0 ? inlineStyles : undefined} {...props}>
+      <article ref={ref} className={getIntranetCardContainerClass(variant, className)} style={inlineStyles} {...props}>
         {isBirthdayVariant ? (
           <>
             {/* Bloco Superior: Avatar + Nome + Badge + Departamento */}

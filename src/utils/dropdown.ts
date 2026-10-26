@@ -202,3 +202,223 @@ export function resolveDropdownTriggerState({
     isSingleIcon,
   };
 }
+
+export interface UseDropdownStateParams {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  align?: DropdownAlign;
+  width?: number;
+  animationDuration?: number;
+}
+
+/**
+ * Hook utilitário que gerencia o estado aberto/fechado, cálculo de coordenadas,
+ * ciclo de montagem com animações suaves de fade, focus trap e listeners de tela para o Dropdown.
+ */
+export function useDropdownState({
+  open,
+  defaultOpen = false,
+  onOpenChange,
+  align = "left",
+  width = 260,
+  animationDuration = 200,
+}: UseDropdownStateParams) {
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
+  const isControlled = open !== undefined;
+  const isOpen = isControlled ? open : internalOpen;
+
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [coords, setCoords] = React.useState<DropdownCoords>({
+    top: 0,
+    left: 0,
+    placement: "bottom",
+  });
+
+  const triggerContainerRef = React.useRef<HTMLDivElement>(null);
+  const popoverRef = React.useRef<HTMLDivElement>(null);
+
+  const handleSetOpen = React.useCallback(
+    (nextOpen: boolean) => {
+      if (!isControlled) {
+        setInternalOpen(nextOpen);
+      }
+      onOpenChange?.(nextOpen);
+    },
+    [isControlled, onOpenChange],
+  );
+
+  const toggle = React.useCallback(() => {
+    handleSetOpen(!isOpen);
+  }, [handleSetOpen, isOpen]);
+
+  // Função utilitária para calcular as coordenadas atuais do popover
+  const getCoords = React.useCallback(() => {
+    return calculateDropdownCoords({
+      triggerElement: triggerContainerRef.current,
+      align,
+      width,
+    });
+  }, [align, width]);
+
+  // Atualiza o posicionamento fixo do popover ancorado ao trigger
+  const updatePosition = React.useCallback(() => {
+    const nextCoords = getCoords();
+    if (!nextCoords) {
+      handleSetOpen(false);
+      return;
+    }
+    setCoords(nextCoords);
+  }, [getCoords, handleSetOpen]);
+
+  // Animação de entrada (fade-in) e saída (fade-out) fluida com opacidade e transferência de foco
+  const isFirstRender = React.useRef(true);
+
+  React.useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (!isOpen) return;
+    }
+
+    if (isOpen) {
+      const initialCoords = getCoords();
+      if (initialCoords) {
+        setCoords(initialCoords);
+      }
+      setIsMounted(true);
+      const raf = requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsVisible(true);
+          setTimeout(() => {
+            if (popoverRef.current) {
+              const focusables = popoverRef.current.querySelectorAll<HTMLElement>(
+                'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+              );
+              if (focusables.length > 0) {
+                focusables[0].focus();
+              } else {
+                popoverRef.current.focus();
+              }
+            }
+          }, 30);
+        });
+      });
+      return () => cancelAnimationFrame(raf);
+    } else {
+      setIsVisible(false);
+      const timer = setTimeout(() => {
+        setIsMounted(false);
+      }, animationDuration);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, animationDuration, getCoords]);
+
+  // Acompanha a rolagem da página e da tabela para reposicionar o menu
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleScrollOrResize = () => {
+      updatePosition();
+    };
+
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [isOpen, updatePosition]);
+
+  // Fecha ao clicar fora ou ao pressionar Escape e gerencia navegação por teclado (Tab e Setas)
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        triggerContainerRef.current &&
+        !triggerContainerRef.current.contains(target)
+      ) {
+        handleSetOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleSetOpen(false);
+        const button = triggerContainerRef.current?.querySelector<HTMLElement>("button, [tabindex]");
+        button?.focus();
+        return;
+      }
+
+      // Focus trap quando o popover estiver aberto (WCAG 2.4.3 / 2.1.2)
+      if (event.key === "Tab" && popoverRef.current) {
+        const focusables = Array.from(
+          popoverRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        );
+        if (focusables.length > 0) {
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+      }
+
+      // Navegação rápida por setas Up / Down entre itens
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        if (popoverRef.current) {
+          const items = Array.from(
+            popoverRef.current.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), [role="menuitem"]:not([disabled])',
+            ),
+          );
+          if (items.length > 0) {
+            event.preventDefault();
+            const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+            if (event.key === "ArrowDown") {
+              const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+              items[nextIndex].focus();
+            } else {
+              const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+              items[prevIndex].focus();
+            }
+          }
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, handleSetOpen]);
+
+  return {
+    isOpen,
+    handleSetOpen,
+    toggle,
+    coords,
+    isMounted,
+    isVisible,
+    triggerContainerRef,
+    popoverRef,
+    updatePosition,
+  };
+}
+

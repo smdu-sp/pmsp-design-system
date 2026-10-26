@@ -91,3 +91,44 @@ export function getIntranetSupportCardClass(className?: string): string {
     className,
   );
 }
+
+export interface UseIntranetSidebarStateParams {
+  activeItemId?: string;
+  defaultActiveItemId?: string;
+  onItemSelect?: (item: IntranetSidebarItem) => void;
+}
+
+/**
+ * Hook utilitário que gerencia o estado ativo e os eventos de clique na navegação do IntranetSidebar.
+ */
+export function useIntranetSidebarState({
+  activeItemId: controlledActiveId,
+  defaultActiveItemId = "inicio",
+  onItemSelect,
+}: UseIntranetSidebarStateParams) {
+  const [internalActiveId, setInternalActiveId] = React.useState<string>(defaultActiveItemId);
+
+  const isControlled = controlledActiveId !== undefined;
+  const currentActiveId = isControlled ? controlledActiveId : internalActiveId;
+
+  const handleItemClick = (item: IntranetSidebarItem, e: React.MouseEvent) => {
+    if (item.disabled) {
+      e.preventDefault();
+      return;
+    }
+
+    if (!isControlled) {
+      setInternalActiveId(item.id);
+    }
+
+    if (onItemSelect) {
+      onItemSelect(item);
+    }
+  };
+
+  return {
+    currentActiveId,
+    handleItemClick,
+  };
+}
+
